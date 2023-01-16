@@ -1,0 +1,10 @@
+spring:
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create #jpa ddl
+
+#log
+logging:
+  level:
+    com.house.item: debug

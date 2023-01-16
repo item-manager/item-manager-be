@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://192.168.0.11:3306/item
+    username: manager
+    password: housemanager@ppdb
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create #jpa ddl
+
+#log
+logging:
+  level:
+    com.house.item: info
+
+#swagger
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+  api-docs:
+    path: /api-docs

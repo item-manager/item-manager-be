@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:tcp://localhost/~/home/dev/webDev/projects/item-manager/item
+    username: sa
+
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create #jpa ddl
+#    properties:
+#      hibernate:
+#        default_batch_fetch_size: 100
+
+#log
+logging:
+  level:
+    com.house.item: debug
+
+#swagger
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+  #    operationsSorter: method
+  #    groups-order: DESC
+  #    disable-swagger-default-url: true
+  #    display-request-duration: true
+  api-docs:
+    path: /api-docs
+#  show-actuator: true
+#  default-consumes-media-type: application/json
+#  default-produces-media-type: application/json
+#  paths-to-match:
+#    - /v1/**
