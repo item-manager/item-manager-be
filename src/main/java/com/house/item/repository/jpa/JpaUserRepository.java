@@ -1,0 +1,52 @@
+package com.house.item.repository.jpa;
+
+import com.house.item.entity.User;
+import com.house.item.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import javax.persistence.EntityManager;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+@RequiredArgsConstructor
+public class JpaUserRepository implements UserRepository {
+
+    private final EntityManager em;
+
+    @Override
+    public Long save(User user) {
+        em.persist(user);
+        return user.getUserNo();
+    }
+
+    @Override
+    public Optional<User> findOne(Long id) {
+        return Optional.ofNullable(em.find(User.class, id));
+    }
+
+    @Override
+    public Optional<User> findById(String id) {
+        String jpql = "select u from User u where u.id=:id";
+        List<User> user = em.createQuery(jpql, User.class)
+                .setParameter("id", id)
+                .getResultList();
+        return user.stream().findAny();
+    }
+
+    @Override
+    public Optional<User> findByIdAndPassword(String id, String password) {
+        String jpql = "select u from User u where u.id=:id and u.password=:password";
+        List<User> user = em.createQuery(jpql, User.class)
+                .setParameter("id", id)
+                .setParameter("password", password)
+                .getResultList();
+        return user.stream().findAny();
+    }
+
+    @Override
+    public void delete(User user) {
+        em.remove(user);
+    }
+}
