@@ -1,5 +1,6 @@
 package com.house.item.web.advice;
 
+import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ErrorResult;
 import com.house.item.exception.IncorrectUserIdPasswordException;
 import com.house.item.exception.NonExistentUserException;
@@ -20,7 +21,7 @@ public class UserControllerAdvice {
     @ExceptionHandler
     public ErrorResult nonExistentUserException(NonExistentUserException e) {
         return ErrorResult.builder()
-                .code(1001)
+                .code(ExceptionCodeMessage.NON_EXISTENT_USER.code())
                 .message(e.getMessage())
                 .build();
     }
@@ -29,7 +30,7 @@ public class UserControllerAdvice {
     @ExceptionHandler
     public ErrorResult nonUniqueUserIdException(NonUniqueUserIdException e) {
         return ErrorResult.builder()
-                .code(1002)
+                .code(ExceptionCodeMessage.NON_UNIQUE_USER_ID.code())
                 .message(e.getMessage())
                 .build();
     }
@@ -38,7 +39,7 @@ public class UserControllerAdvice {
     @ExceptionHandler
     public ErrorResult incorrectUserIdPassword(IncorrectUserIdPasswordException e) {
         return ErrorResult.builder()
-                .code(1003)
+                .code(ExceptionCodeMessage.INCORRECT_USER_ID_PASSWORD.code())
                 .message(e.getMessage())
                 .build();
     }

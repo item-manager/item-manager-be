@@ -1,5 +1,6 @@
 package com.house.item.service;
 
+import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.CreateUserRQ;
 import com.house.item.entity.User;
 import com.house.item.exception.NonExistentUserException;
@@ -9,6 +10,7 @@ import com.house.item.util.EncryptUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +23,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final MessageSource messageSource;
 
     @Transactional
     public Long signUp(CreateUserRQ createUserRQ) throws ServiceException, NonUniqueUserIdException {
@@ -41,14 +44,14 @@ public class UserService {
     private void validateDuplicationUser(String id) throws NonUniqueUserIdException {
         Optional<User> user = userRepository.findById(id);
         user.ifPresent(u -> {
-            throw new NonUniqueUserIdException("이미 존재하는 아이디입니다.");
+            throw new NonUniqueUserIdException(ExceptionCodeMessage.NON_UNIQUE_USER_ID.message());
         });
     }
 
     @Transactional
     public void removeUser(Long userNo) throws NonExistentUserException {
         Optional<User> optionalUser = userRepository.findOne(userNo);
-        User user = optionalUser.orElseThrow(() -> new NonExistentUserException("존재하지 않는 회원입니다"));
+        User user = optionalUser.orElseThrow(() -> new NonExistentUserException(ExceptionCodeMessage.NON_EXISTENT_USER.message()));
         userRepository.delete(user);
     }
 }
