@@ -10,7 +10,6 @@ import com.house.item.util.EncryptUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +22,6 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final MessageSource messageSource;
 
     @Transactional
     public Long signUp(CreateUserRQ createUserRQ) throws ServiceException, NonUniqueUserIdException {
