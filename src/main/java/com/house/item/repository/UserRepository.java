@@ -11,7 +11,5 @@ public interface UserRepository {
 
     Optional<User> findById(String id);
 
-    Optional<User> findByIdAndPassword(String id, String password);
-
     void delete(User user);
 }

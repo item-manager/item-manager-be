@@ -36,16 +36,6 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByIdAndPassword(String id, String password) {
-        String jpql = "select u from User u where u.id=:id and u.password=:password";
-        List<User> user = em.createQuery(jpql, User.class)
-                .setParameter("id", id)
-                .setParameter("password", password)
-                .getResultList();
-        return user.stream().findAny();
-    }
-
-    @Override
     public void delete(User user) {
         em.remove(user);
     }
