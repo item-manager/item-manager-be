@@ -5,7 +5,7 @@ import com.house.item.entity.User;
 import com.house.item.exception.NonExistentUserException;
 import com.house.item.exception.NonUniqueUserIdException;
 import com.house.item.repository.UserRepository;
-import com.house.item.util.Encrypt;
+import com.house.item.util.EncryptUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
@@ -27,10 +27,10 @@ public class UserService {
         validateDuplicationUser(createUserRQ.getId());
 
         //review - test 필요
-        String salt = Encrypt.getSalt();
+        String salt = EncryptUtils.getSalt();
         User user = User.builder()
                 .id(createUserRQ.getId())
-                .password(Encrypt.getEncrypt(createUserRQ.getPassword(), salt))
+                .password(EncryptUtils.getEncrypt(createUserRQ.getPassword(), salt))
                 .salt(salt)
                 .build();
 

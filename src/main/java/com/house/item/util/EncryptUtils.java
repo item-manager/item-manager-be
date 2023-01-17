@@ -11,7 +11,7 @@ import java.security.SecureRandom;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Encrypt {
+public class EncryptUtils {
     public static String getSalt() {
         //Random, byte 객체 생성
         SecureRandom sr = new SecureRandom();
@@ -50,6 +50,6 @@ public class Encrypt {
     }
 
     public static boolean isRightPassword(String encrypted, String salt, String inputPassword) {
-        return encrypted.equals(Encrypt.getEncrypt(inputPassword, salt));
+        return encrypted.equals(EncryptUtils.getEncrypt(inputPassword, salt));
     }
 }

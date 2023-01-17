@@ -4,7 +4,7 @@ import com.house.item.domain.CreateUserRQ;
 import com.house.item.entity.User;
 import com.house.item.exception.NonUniqueUserIdException;
 import com.house.item.repository.UserRepository;
-import com.house.item.util.Encrypt;
+import com.house.item.util.EncryptUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ class UserServiceTest {
         User findUser = userRepository.findOne(createdId).get();
         assertThat(findUser.getId()).isEqualTo(createUserRQ.getId());
         assertThat(findUser.getPassword())
-                .isEqualTo(Encrypt.getEncrypt(createUserRQ.getPassword(), findUser.getSalt()));
+                .isEqualTo(EncryptUtils.getEncrypt(createUserRQ.getPassword(), findUser.getSalt()));
     }
 
     @Test
