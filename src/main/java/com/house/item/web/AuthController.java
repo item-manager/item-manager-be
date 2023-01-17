@@ -6,6 +6,7 @@ import com.house.item.domain.Result;
 import com.house.item.domain.SessionUser;
 import com.house.item.service.AuthService;
 import com.house.item.service.UserService;
+import com.house.item.util.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +24,9 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public Result<LoginUserRS> login(@RequestBody LoginUserRQ loginUserRQ, HttpSession session) {
+    public Result<LoginUserRS> login(@RequestBody LoginUserRQ loginUserRQ) {
         SessionUser user = authService.login(loginUserRQ);
-        //review - SessionUtil 생성
-        session.setAttribute(SessionConst.LOGIN_USER, user);
+        SessionUtils.setAttribute(SessionConst.LOGIN_USER, user);
 
         LoginUserRS loginUserRS = LoginUserRS.builder()
                 .userNo(user.getUserNo())
