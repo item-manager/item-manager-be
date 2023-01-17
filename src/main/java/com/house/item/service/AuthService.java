@@ -25,12 +25,8 @@ public class AuthService {
     public SessionUser login(LoginUserRQ loginUserRQ) throws IncorrectUserIdPasswordException, ServiceException {
         Optional<User> findUserOptional = userRepository.findById(loginUserRQ.getId());
 
-        //review - Optional 체이닝 방식으로 변경
-        if (findUserOptional.isEmpty()) {
-            throw new IncorrectUserIdPasswordException("아이디와 패스워드가 일치하지 않습니다");
-        }
-
-        User findUser = findUserOptional.orElseThrow(() -> new IncorrectUserIdPasswordException("아이디와 패스워드가 일치하지 않습니다"));
+        User findUser = findUserOptional
+                .orElseThrow(() -> new IncorrectUserIdPasswordException("아이디와 패스워드가 일치하지 않습니다"));
 
         if (!Encrypt.isRightPassword(findUser.getPassword(), findUser.getSalt(), loginUserRQ.getPassword())) {
             throw new IncorrectUserIdPasswordException("아이디와 패스워드가 일치하지 않습니다");
