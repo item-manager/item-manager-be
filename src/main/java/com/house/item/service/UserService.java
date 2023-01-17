@@ -40,7 +40,9 @@ public class UserService {
     //review - test 필요
     private void validateDuplicationUser(String id) throws NonUniqueUserIdException {
         Optional<User> user = userRepository.findById(id);
-        user.ifPresent(u -> new NonUniqueUserIdException("이미 존재하는 아이디입니다."));
+        user.ifPresent(u -> {
+            throw new NonUniqueUserIdException("이미 존재하는 아이디입니다.");
+        });
     }
 
     @Transactional
