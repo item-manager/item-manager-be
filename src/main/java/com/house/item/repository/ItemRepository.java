@@ -1,0 +1,11 @@
+package com.house.item.repository;
+
+import com.house.item.entity.Item;
+
+import java.util.Optional;
+
+public interface ItemRepository {
+    Long save(Item item);
+
+    Optional<Item> findOne(Long itemNo);
+}
