@@ -22,8 +22,8 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<User> findOne(Long id) {
-        return Optional.ofNullable(em.find(User.class, id));
+    public Optional<User> findOne(Long userNo) {
+        return Optional.ofNullable(em.find(User.class, userNo));
     }
 
     @Override
