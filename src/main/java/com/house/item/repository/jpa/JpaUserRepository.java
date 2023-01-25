@@ -36,6 +36,15 @@ public class JpaUserRepository implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByUsername(String username) {
+        String jpql = "select u from User u where u.username=:username";
+        List<User> user = em.createQuery(jpql, User.class)
+                .setParameter("username", username)
+                .getResultList();
+        return user.stream().findAny();
+    }
+
+    @Override
     public void delete(User user) {
         em.remove(user);
     }

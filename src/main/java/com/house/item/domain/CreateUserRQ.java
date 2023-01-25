@@ -16,4 +16,7 @@ public class CreateUserRQ {
 
     @NotBlank
     private String password;
+
+    @NotBlank
+    private String username;
 }

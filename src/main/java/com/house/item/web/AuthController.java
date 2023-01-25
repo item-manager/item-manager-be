@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +37,7 @@ public class AuthController {
 
         LoginUserRS loginUserRS = LoginUserRS.builder()
                 .userNo(user.getUserNo())
-                .id(user.getId())
+                .username(user.getUsername())
                 .build();
         return Result.<LoginUserRS>builder()
                 .data(loginUserRS)

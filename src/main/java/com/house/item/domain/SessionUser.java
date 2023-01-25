@@ -9,6 +9,5 @@ import java.io.Serializable;
 @Getter
 public class SessionUser implements Serializable {
     private Long userNo;
-    private String id;
-
+    private String username;
 }

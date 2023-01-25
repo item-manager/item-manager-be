@@ -3,6 +3,7 @@ package com.house.item.service;
 import com.house.item.domain.CreateUserRQ;
 import com.house.item.domain.LoginUserRQ;
 import com.house.item.domain.SessionUser;
+import com.house.item.entity.User;
 import com.house.item.exception.IncorrectUserIdPasswordException;
 import com.house.item.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +28,8 @@ class AuthServiceTest {
 
     @BeforeEach
     public void init() {
-        CreateUserRQ user1 = new CreateUserRQ("user1", "user1!");
-        CreateUserRQ user2 = new CreateUserRQ("user2", "user2@");
+        CreateUserRQ user1 = new CreateUserRQ("user1", "user1!", "user1");
+        CreateUserRQ user2 = new CreateUserRQ("user2", "user2@", "user2");
 
         userService.signUp(user1);
         userService.signUp(user2);
@@ -43,7 +44,8 @@ class AuthServiceTest {
         SessionUser loginUser = authService.login(loginUserRQ);
 
         //then
-        assertThat(loginUser.getId()).isEqualTo(loginUserRQ.getId());
+        User findUser = userRepository.findById(loginUserRQ.getId()).get();
+        assertThat(loginUser.getUsername()).isEqualTo(findUser.getUsername());
     }
 
     @Test

@@ -35,7 +35,7 @@ public class AuthService {
 
         return SessionUser.builder()
                 .userNo(findUser.getUserNo())
-                .id(findUser.getId())
+                .username(findUser.getUsername())
                 .build();
     }
 }

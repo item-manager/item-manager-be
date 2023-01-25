@@ -7,5 +7,6 @@ import lombok.Getter;
 @Getter
 public class LoginUserRS {
     private Long userNo;
-    private String id;
+
+    private String username;
 }

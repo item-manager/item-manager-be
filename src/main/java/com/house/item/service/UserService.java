@@ -5,6 +5,7 @@ import com.house.item.domain.CreateUserRQ;
 import com.house.item.entity.User;
 import com.house.item.exception.NonExistentUserException;
 import com.house.item.exception.NonUniqueUserIdException;
+import com.house.item.exception.NonUniqueUsernameException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.EncryptUtils;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,9 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Long signUp(CreateUserRQ createUserRQ) throws ServiceException, NonUniqueUserIdException {
-        validateDuplicationUser(createUserRQ.getId());
+    public Long signUp(CreateUserRQ createUserRQ) throws ServiceException, NonUniqueUserIdException, NonUniqueUsernameException {
+        validateDuplicationUserId(createUserRQ.getId());
+        validateDuplicationUsername(createUserRQ.getUsername());
 
         //review - test 필요
         String salt = EncryptUtils.getSalt();
@@ -33,16 +35,24 @@ public class UserService {
                 .id(createUserRQ.getId())
                 .password(EncryptUtils.getEncrypt(createUserRQ.getPassword(), salt))
                 .salt(salt)
+                .username(createUserRQ.getUsername())
                 .build();
 
         return userRepository.save(user);
     }
 
     //review - test 필요
-    private void validateDuplicationUser(String id) throws NonUniqueUserIdException {
+    private void validateDuplicationUserId(String id) throws NonUniqueUserIdException {
         Optional<User> user = userRepository.findById(id);
         user.ifPresent(u -> {
             throw new NonUniqueUserIdException(ExceptionCodeMessage.NON_UNIQUE_USER_ID.message());
+        });
+    }
+
+    private void validateDuplicationUsername(String username) throws NonUniqueUsernameException {
+        Optional<User> user = userRepository.findByUsername(username);
+        user.ifPresent(u -> {
+            throw new NonUniqueUsernameException(ExceptionCodeMessage.NON_UNIQUE_USERNAME.message());
         });
     }
 

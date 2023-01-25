@@ -3,6 +3,7 @@ package com.house.item.service;
 import com.house.item.domain.CreateUserRQ;
 import com.house.item.entity.User;
 import com.house.item.exception.NonUniqueUserIdException;
+import com.house.item.exception.NonUniqueUsernameException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.EncryptUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,7 @@ class UserServiceTest {
     void 정상_회원가입() throws Exception {
 
         //given
-        CreateUserRQ createUserRQ = new CreateUserRQ("testUser", "testUser2@");
+        CreateUserRQ createUserRQ = new CreateUserRQ("testUser", "testUser2@", "user");
 
         //when
         Long createdId = userService.signUp(createUserRQ);
@@ -43,14 +44,28 @@ class UserServiceTest {
     @Test
     void 중복_ID_회원가입() throws Exception {
         //given
-        CreateUserRQ createUserRQ1 = new CreateUserRQ("testUser", "testUser2@");
+        CreateUserRQ createUserRQ1 = new CreateUserRQ("testUser", "testUser2@", "user1");
         userService.signUp(createUserRQ1);
 
-        CreateUserRQ createUserRQ2 = new CreateUserRQ("testUser", "testUser3@");
+        CreateUserRQ createUserRQ2 = new CreateUserRQ("testUser", "testUser3@", "user2");
 
         //when
         assertThatThrownBy(() -> userService.signUp(createUserRQ2))
                 .isInstanceOf(NonUniqueUserIdException.class);
+        //then
+    }
+
+    @Test
+    void 중복_username_회원가입() throws Exception {
+        //given
+        CreateUserRQ createUserRQ1 = new CreateUserRQ("testUser1", "testUser2@", "user1");
+        userService.signUp(createUserRQ1);
+
+        CreateUserRQ createUserRQ2 = new CreateUserRQ("testUser2", "testUser3@", "user1");
+
+        //when
+        assertThatThrownBy(() -> userService.signUp(createUserRQ2))
+                .isInstanceOf(NonUniqueUsernameException.class);
         //then
     }
 
