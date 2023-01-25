@@ -25,13 +25,11 @@ public class UserController {
 
     private final UserService userService;
 
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "400",
-                    description = ExceptionCodeMessage.SwaggerDescription.NON_UNIQUE_USER_ID,
-                    content = @Content(schema = @Schema(implementation = ErrorResult.class))
-            )
-    })
+    @ApiResponse(
+            responseCode = "400",
+            description = ExceptionCodeMessage.SwaggerDescription.NON_UNIQUE_USER_ID,
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+    )
     @Operation(summary = "회원가입")
     @PostMapping
     public Result<CreateUserRS> createUser(@RequestBody CreateUserRQ createUserRQ) throws NonUniqueUserIdException {
@@ -54,13 +52,11 @@ public class UserController {
                 .build();
     }
 
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "400",
-                    description = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_USER,
-                    content = @Content(schema = @Schema(implementation = ErrorResult.class))
-            )
-    })
+    @ApiResponse(
+            responseCode = "400",
+            description = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_USER,
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+    )
     @Operation(summary = "로그인한 유저 탈퇴")
     @DeleteMapping
     public Result<Void> deleteUser(HttpSession session) throws NonExistentUserException {

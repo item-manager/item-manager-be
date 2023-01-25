@@ -25,13 +25,11 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "400",
-                    description = ExceptionCodeMessage.SwaggerDescription.INCORRECT_USER_ID_PASSWORD,
-                    content = @Content(schema = @Schema(implementation = ErrorResult.class))
-            )
-    })
+    @ApiResponse(
+            responseCode = "400",
+            description = ExceptionCodeMessage.SwaggerDescription.INCORRECT_USER_ID_PASSWORD,
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+    )
     @Operation(summary = "로그인")
     @PostMapping("/login")
     public Result<LoginUserRS> login(@RequestBody LoginUserRQ loginUserRQ) throws IncorrectUserIdPasswordException {
