@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +27,11 @@ public class UserController {
     @ApiResponse(
             responseCode = "400",
             description = ExceptionCodeMessage.SwaggerDescription.NON_UNIQUE_USER_ID,
+            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+    )
+    @ApiResponse(
+            responseCode = "400",
+            description = ExceptionCodeMessage.SwaggerDescription.NON_UNIQUE_USERNAME,
             content = @Content(schema = @Schema(implementation = ErrorResult.class))
     )
     @Operation(summary = "회원가입")
