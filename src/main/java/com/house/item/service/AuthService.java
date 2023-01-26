@@ -5,9 +5,12 @@ import com.house.item.domain.LoginUserRQ;
 import com.house.item.domain.SessionUser;
 import com.house.item.entity.User;
 import com.house.item.exception.IncorrectUserIdPasswordException;
+import com.house.item.exception.NonExistentSessionUserException;
 import com.house.item.exception.ServiceException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.EncryptUtils;
+import com.house.item.util.SessionUtils;
+import com.house.item.web.SessionConst;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,5 +40,14 @@ public class AuthService {
                 .userNo(findUser.getUserNo())
                 .username(findUser.getUsername())
                 .build();
+    }
+
+    public User getLoginUser() throws NonExistentSessionUserException {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        if (sessionUser == null) {
+            throw new NonExistentSessionUserException(ExceptionCodeMessage.NON_EXISTENT_SESSION_USER.message());
+        }
+        return userRepository.findOne(sessionUser.getUserNo())
+                .orElseThrow(() -> new NonExistentSessionUserException(ExceptionCodeMessage.NON_EXISTENT_SESSION_USER.message()));
     }
 }
