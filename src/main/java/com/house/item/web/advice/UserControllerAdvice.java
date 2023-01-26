@@ -5,6 +5,7 @@ import com.house.item.domain.ErrorResult;
 import com.house.item.exception.IncorrectUserIdPasswordException;
 import com.house.item.exception.NonExistentUserException;
 import com.house.item.exception.NonUniqueUserIdException;
+import com.house.item.exception.NonUniqueUsernameException;
 import com.house.item.web.AuthController;
 import com.house.item.web.UserController;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,15 @@ public class UserControllerAdvice {
     public ErrorResult nonUniqueUserIdException(NonUniqueUserIdException e) {
         return ErrorResult.builder()
                 .code(ExceptionCodeMessage.NON_UNIQUE_USER_ID.code())
+                .message(e.getMessage())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler
+    public ErrorResult nonUniqueUsernameException(NonUniqueUsernameException e) {
+        return ErrorResult.builder()
+                .code(ExceptionCodeMessage.NON_UNIQUE_USERNAME.code())
                 .message(e.getMessage())
                 .build();
     }
