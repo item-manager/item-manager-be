@@ -38,3 +38,4 @@ out/
 
 ### dev ###
 **/src/main/**/dev/
+schema_v.sql
