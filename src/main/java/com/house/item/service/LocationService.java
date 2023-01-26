@@ -23,6 +23,7 @@ public class LocationService {
 
     private final LocationRepository locationRepository;
 
+    @Transactional
     public Long createRoom(CreateRoomRQ createRoomRQ) {
         User loginUser = authService.getLoginUser();
 
@@ -34,6 +35,7 @@ public class LocationService {
         return locationRepository.save(room);
     }
 
+    @Transactional
     public Long createPlace(CreatePlaceRQ createPlaceRQ) {
         User loginUser = authService.getLoginUser();
         Location room = checkRoom(createPlaceRQ, loginUser.getUserNo());
