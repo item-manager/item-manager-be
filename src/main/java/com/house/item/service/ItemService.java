@@ -5,6 +5,7 @@ import com.house.item.domain.CreateItemRQ;
 import com.house.item.entity.Item;
 import com.house.item.entity.Location;
 import com.house.item.entity.User;
+import com.house.item.exception.NonExistentItemException;
 import com.house.item.exception.NonExistentPlaceException;
 import com.house.item.exception.NonExistentSessionUserException;
 import com.house.item.repository.ItemRepository;
@@ -45,5 +46,10 @@ public class ItemService {
     private Location getLocation(Long locationNo) throws NonExistentPlaceException {
         return locationRepository.findOne(locationNo)
                 .orElseThrow(() -> new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message()));
+    }
+
+    public Item getItem(Long itemNo) throws NonExistentItemException {
+        return itemRepository.findOne(itemNo)
+                .orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
     }
 }

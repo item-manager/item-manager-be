@@ -12,6 +12,9 @@ public enum ExceptionCodeMessage {
     NON_UNIQUE_USER_ID(CodeDefine.NON_UNIQUE_USER_ID, MessageDefine.NON_UNIQUE_USER_ID),
     NON_UNIQUE_USERNAME(CodeDefine.NON_UNIQUE_USERNAME, MessageDefine.NON_UNIQUE_USERNAME),
 
+    /* Item */
+    NON_EXISTENT_ITEM(CodeDefine.NON_EXISTENT_ITEM, MessageDefine.NON_EXISTENT_ITEM),
+
     /* Location */
     NON_EXISTENT_ROOM(CodeDefine.NON_EXISTENT_ROOM, MessageDefine.NON_EXISTENT_ROOM),
     NON_EXISTENT_PLACE(CodeDefine.NON_EXISTENT_PLACE, MessageDefine.NON_EXISTENT_PLACE),
@@ -28,6 +31,9 @@ public enum ExceptionCodeMessage {
         int NON_UNIQUE_USER_ID = 1004;
         int NON_UNIQUE_USERNAME = 1005;
 
+        /* Item */
+        int NON_EXISTENT_ITEM = 2001;
+
         /* Location */
         int NON_EXISTENT_ROOM = 3001;
         int NON_EXISTENT_PLACE = 3002;
@@ -43,6 +49,9 @@ public enum ExceptionCodeMessage {
         String NON_UNIQUE_USER_ID = "이미 존재하는 회원 아이디입니다";
         String NON_UNIQUE_USERNAME = "이미 존재하는 회원 이름입니다";
 
+        /* Item */
+        String NON_EXISTENT_ITEM = "잘못된 물품 정보입니다";
+
         /* Location */
         String NON_EXISTENT_ROOM = "잘못된 방 정보입니다";
         String NON_EXISTENT_PLACE = "잘못된 위치 정보입니다";
@@ -56,6 +65,9 @@ public enum ExceptionCodeMessage {
         String INCORRECT_USER_ID_PASSWORD = CodeDefine.INCORRECT_USER_ID_PASSWORD + " - " + MessageDefine.INCORRECT_USER_ID_PASSWORD;
         String NON_UNIQUE_USER_ID = CodeDefine.NON_UNIQUE_USER_ID + " - " + MessageDefine.NON_UNIQUE_USER_ID;
         String NON_UNIQUE_USERNAME = CodeDefine.NON_UNIQUE_USERNAME + " - " + MessageDefine.NON_UNIQUE_USERNAME;
+
+        /* Item */
+        String NON_EXISTENT_ITEM = CodeDefine.NON_EXISTENT_ITEM + " - " + MessageDefine.NON_EXISTENT_ITEM;
 
         /* Location */
         String NON_EXISTENT_ROOM = CodeDefine.NON_EXISTENT_ROOM + " - " + MessageDefine.NON_EXISTENT_ROOM;
