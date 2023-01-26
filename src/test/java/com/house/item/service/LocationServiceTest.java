@@ -6,7 +6,7 @@ import com.house.item.domain.SessionUser;
 import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
-import com.house.item.exception.NonExistentLocationException;
+import com.house.item.exception.NonExistentRoomException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
@@ -76,7 +76,7 @@ class LocationServiceTest {
 
         //when
         Assertions.assertThatThrownBy(() -> locationService.createPlace(createPlaceRQ))
-                .isInstanceOf(NonExistentLocationException.class);
+                .isInstanceOf(NonExistentRoomException.class);
 
         //then
     }
@@ -94,7 +94,7 @@ class LocationServiceTest {
 
         //when
         Assertions.assertThatThrownBy(() -> locationService.createPlace(createPlaceRQ))
-                .isInstanceOf(NonExistentLocationException.class);
+                .isInstanceOf(NonExistentRoomException.class);
 
         //then
     }

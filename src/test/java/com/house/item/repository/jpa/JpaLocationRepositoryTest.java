@@ -11,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 @SpringBootTest
 @Transactional
@@ -21,15 +22,30 @@ class JpaLocationRepositoryTest {
     @Autowired
     EntityManager em;
 
+    private static Location getRoom(User user, String name) {
+        Location location = Location.builder()
+                .user(user)
+                .type(LocationType.ROOM)
+                .name(name)
+                .build();
+        return location;
+    }
+
+    private static Location getPlace(User user, Location room, String name) {
+        Location location = Location.builder()
+                .user(user)
+                .type(LocationType.PLACE)
+                .room(room)
+                .name(name)
+                .build();
+        return location;
+    }
+
     @Test
     void save() throws Exception {
         //given
         User user = createUser();
-        Location location = Location.builder()
-                .user(user)
-                .type(LocationType.ROOM)
-                .name("room1")
-                .build();
+        Location location = getRoom(user, "room1");
 
         //when
         Long locationNo = locationRepository.save(location);
@@ -44,11 +60,7 @@ class JpaLocationRepositoryTest {
     void findOne() throws Exception {
         //given
         User user = createUser();
-        Location room = Location.builder()
-                .user(user)
-                .type(LocationType.ROOM)
-                .name("room1")
-                .build();
+        Location room = getRoom(user, "room1");
         Long locationNo = locationRepository.save(room);
 
         //when
@@ -62,11 +74,7 @@ class JpaLocationRepositoryTest {
     void findByLocationNoAndUserNo() throws Exception {
         //given
         User user = createUser();
-        Location room = Location.builder()
-                .user(user)
-                .type(LocationType.ROOM)
-                .name("room1")
-                .build();
+        Location room = getRoom(user, "room1");
         Long roomNo = locationRepository.save(room);
 
         //when
@@ -85,6 +93,52 @@ class JpaLocationRepositoryTest {
                 .build();
         em.persist(user);
         return user;
+    }
+
+    @Test
+    void findByTypeAndUserNo() throws Exception {
+        //given
+        User user = createUser();
+        Location room1 = getRoom(user, "room1");
+        Location room2 = getRoom(user, "room2");
+        Location place1 = getPlace(user, room1, "place1");
+        Location place2 = getPlace(user, room2, "place2");
+        Location place3 = getPlace(user, room2, "place3");
+        em.persist(room1);
+        em.persist(room2);
+        em.persist(place1);
+        em.persist(place2);
+        em.persist(place3);
+
+        //when
+        List<Location> rooms = locationRepository.findByTypeAndUserNo(LocationType.ROOM, user.getUserNo());
+        List<Location> places = locationRepository.findByTypeAndUserNo(LocationType.PLACE, user.getUserNo());
+
+        //then
+        Assertions.assertThat(rooms).containsExactly(room1, room2);
+        Assertions.assertThat(places).containsExactly(place1, place2, place3);
+    }
+
+    @Test
+    void findByRoom() throws Exception {
+        //given
+        User user = createUser();
+        Location room1 = getRoom(user, "room1");
+        Location room2 = getRoom(user, "room2");
+        Location place1 = getPlace(user, room1, "place1");
+        Location place2 = getPlace(user, room2, "place2");
+        Location place3 = getPlace(user, room2, "place3");
+        em.persist(room1);
+        em.persist(room2);
+        em.persist(place1);
+        em.persist(place2);
+        em.persist(place3);
+
+        //when
+        List<Location> places = locationRepository.findByRoom(room2.getLocationNo());
+
+        //then
+        Assertions.assertThat(places).containsExactly(place2, place3);
     }
 
 }

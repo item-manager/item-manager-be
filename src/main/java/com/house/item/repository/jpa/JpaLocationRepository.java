@@ -1,6 +1,7 @@
 package com.house.item.repository.jpa;
 
 import com.house.item.entity.Location;
+import com.house.item.entity.LocationType;
 import com.house.item.repository.LocationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -14,6 +15,7 @@ import java.util.Optional;
 public class JpaLocationRepository implements LocationRepository {
 
     private final EntityManager em;
+    private static final String SELECT_FROM_JPQL = "select l from Location l";
 
     @Override
     public Long save(Location location) {
@@ -28,7 +30,7 @@ public class JpaLocationRepository implements LocationRepository {
 
     @Override
     public Optional<Location> findByLocationNoAndUserNo(Long locationNo, Long userNo) {
-        String jpql = "select l from Location l" +
+        String jpql = SELECT_FROM_JPQL +
                 " join fetch l.user u" +
                 " where l.locationNo = :locationNo and u.userNo = :userNo";
         List<Location> locations = em.createQuery(jpql, Location.class)
@@ -36,5 +38,26 @@ public class JpaLocationRepository implements LocationRepository {
                 .setParameter("userNo", userNo)
                 .getResultList();
         return locations.stream().findAny();
+    }
+
+    @Override
+    public List<Location> findByTypeAndUserNo(LocationType type, Long userNo) {
+        String jpql = SELECT_FROM_JPQL +
+                " join fetch l.user u" +
+                " where l.type = :type and u.userNo = :userNo";
+        return em.createQuery(jpql, Location.class)
+                .setParameter("type", type)
+                .setParameter("userNo", userNo)
+                .getResultList();
+    }
+
+    @Override
+    public List<Location> findByRoom(Long roomNo) {
+        String jpql = SELECT_FROM_JPQL +
+                " join fetch l.room r" +
+                " where r.locationNo = :roomNo";
+        return em.createQuery(jpql, Location.class)
+                .setParameter("roomNo", roomNo)
+                .getResultList();
     }
 }
