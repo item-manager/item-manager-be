@@ -7,6 +7,7 @@ import com.house.item.service.AuthService;
 import com.house.item.util.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +27,10 @@ public class AuthController {
 
     @ApiResponse(
             responseCode = "400",
-            description = ExceptionCodeMessage.SwaggerDescription.INCORRECT_USER_ID_PASSWORD,
-            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.INCORRECT_USER_ID_PASSWORD)
+            )
     )
     @Operation(summary = "로그인")
     @PostMapping("/login")

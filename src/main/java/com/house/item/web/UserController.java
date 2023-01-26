@@ -8,6 +8,7 @@ import com.house.item.service.UserService;
 import com.house.item.util.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,13 @@ public class UserController {
 
     @ApiResponse(
             responseCode = "400",
-            description = ExceptionCodeMessage.SwaggerDescription.NON_UNIQUE_USER_ID,
-            content = @Content(schema = @Schema(implementation = ErrorResult.class))
-    )
-    @ApiResponse(
-            responseCode = "400",
-            description = ExceptionCodeMessage.SwaggerDescription.NON_UNIQUE_USERNAME,
-            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_UNIQUE_USER_ID),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_UNIQUE_USERNAME)
+                    }
+            )
     )
     @Operation(summary = "회원가입")
     @PostMapping
@@ -58,8 +59,10 @@ public class UserController {
 
     @ApiResponse(
             responseCode = "400",
-            description = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_USER,
-            content = @Content(schema = @Schema(implementation = ErrorResult.class))
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_USER)
+            )
     )
     @Operation(summary = "로그인한 유저 탈퇴")
     @DeleteMapping
