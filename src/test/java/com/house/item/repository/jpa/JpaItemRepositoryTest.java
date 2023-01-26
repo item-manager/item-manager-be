@@ -20,26 +20,6 @@ class JpaItemRepositoryTest {
     @Autowired
     EntityManager em;
 
-    private static User createUser() {
-        return User.builder()
-                .id("user1")
-                .password("user1pw")
-                .salt("salt")
-                .build();
-    }
-
-    private static Location createLocation() {
-        Location room = Location.builder()
-                .type(LocationType.ROOM)
-                .name("room1")
-                .build();
-        return Location.builder()
-                .type(LocationType.PLACE)
-                .room(room)
-                .name("desk")
-                .build();
-    }
-
     @Test
     void save() {
         //given
@@ -84,5 +64,32 @@ class JpaItemRepositoryTest {
 
         //then
         Assertions.assertThat(findItem).isSameAs(item);
+    }
+
+    User createUser() {
+        User user = User.builder()
+                .id("user1")
+                .password("user1pw")
+                .salt("salt")
+                .username("username1")
+                .build();
+        em.persist(user);
+        return user;
+    }
+
+    Location createLocation() {
+        Location room = Location.builder()
+                .type(LocationType.ROOM)
+                .name("room1")
+                .build();
+        em.persist(room);
+
+        Location place = Location.builder()
+                .type(LocationType.PLACE)
+                .room(room)
+                .name("desk")
+                .build();
+        em.persist(place);
+        return place;
     }
 }
