@@ -1,7 +1,9 @@
 package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
-import com.house.item.domain.*;
+import com.house.item.domain.CreatePlaceRQ;
+import com.house.item.domain.CreateRoomRQ;
+import com.house.item.domain.SessionUser;
 import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
@@ -61,24 +63,12 @@ public class LocationService {
         return room;
     }
 
-    public List<RoomsRS> getRooms() {
+    public List<Location> getRooms() {
         SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        List<Location> locations = locationRepository.findByTypeAndUserNo(LocationType.ROOM, sessionUser.getUserNo());
-        return locations.stream()
-                .map(room -> RoomsRS.builder()
-                        .roomNo(room.getLocationNo())
-                        .name(room.getName())
-                        .build()
-                ).toList();
+        return locationRepository.findByTypeAndUserNo(LocationType.ROOM, sessionUser.getUserNo());
     }
 
-    public List<PlacesRS> getPlacesByRoomNo(Long roomNo) {
-        List<Location> locations = locationRepository.findByRoom(roomNo);
-        return locations.stream()
-                .map(place -> PlacesRS.builder()
-                        .placeNo(place.getLocationNo())
-                        .name(place.getName())
-                        .build()
-                ).toList();
+    public List<Location> getPlacesByRoomNo(Long roomNo) {
+        return locationRepository.findByRoom(roomNo);
     }
 }
