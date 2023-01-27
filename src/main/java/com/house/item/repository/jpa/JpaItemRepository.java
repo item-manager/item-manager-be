@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -22,6 +23,13 @@ public class JpaItemRepository implements ItemRepository {
 
     @Override
     public Optional<Item> findOne(Long itemNo) {
-        return Optional.ofNullable(em.find(Item.class, itemNo));
+        String jpql = "select i from Item i" +
+                " join fetch i.location p" +
+                " join fetch p.room r" +
+                " where i.itemNo = :itemNo";
+        List<Item> items = em.createQuery(jpql, Item.class)
+                .setParameter("itemNo", itemNo)
+                .getResultList();
+        return items.stream().findAny();
     }
 }
