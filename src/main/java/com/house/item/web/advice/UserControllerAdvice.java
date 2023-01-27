@@ -51,7 +51,7 @@ public class UserControllerAdvice {
                 .build();
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler
     public ErrorResult nonExistentSessionUserException(NonExistentSessionUserException e) {
         return ErrorResult.builder()
