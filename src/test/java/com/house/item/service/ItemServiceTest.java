@@ -29,9 +29,21 @@ class ItemServiceTest {
     @Autowired
     LocationRepository locationRepository;
 
+    private static Item getItem(User user, Location location, ItemType type, String name, int quantity) {
+        return Item.builder()
+                .user(user)
+                .type(type)
+                .name(name)
+                .location(location)
+                .locationMemo("location memo")
+                .quantity(quantity)
+                .priority(1)
+                .build();
+    }
+
     //    @Rollback(value = false)
     @Test
-    void 물품추가() throws Exception {
+    void 물품생성() throws Exception {
         //given
         User user = createSessionUser();
         Location location = createLocation(user);
@@ -49,6 +61,21 @@ class ItemServiceTest {
         //then
         Item findItem = em.find(Item.class, itemNo);
         Assertions.assertThat(findItem.getQuantity()).isZero();
+    }
+
+    @Test
+    void 물품_pk로_조회() throws Exception {
+        //given
+        User user = createSessionUser();
+        Location location = createLocation(user);
+        Item item = getItem(user, location, ItemType.CONSUMABLE, "item1", 2);
+        em.persist(item);
+
+        //when
+        Item findItem = itemService.getItem(item.getItemNo());
+
+        //then
+        Assertions.assertThat(findItem).isSameAs(item);
     }
 
     User createSessionUser() {
@@ -91,4 +118,5 @@ class ItemServiceTest {
 
         return place;
     }
+
 }
