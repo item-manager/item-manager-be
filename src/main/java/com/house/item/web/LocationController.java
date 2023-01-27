@@ -47,7 +47,7 @@ public class LocationController {
     }
 
     @GetMapping("/places")
-    public Result<List<PlacesRS>> getPlacesByRoomNo(PlacesRQ placesRQ) {
+    public Result<List<PlacesRS>> getPlacesByRoomNo(@ModelAttribute PlacesRQ placesRQ) {
         List<Location> locations = locationService.getPlacesByRoomNo(placesRQ.getRoomNo());
 
         List<PlacesRS> placesRS = locations.stream()
