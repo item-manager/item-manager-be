@@ -1,6 +1,7 @@
 package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
+import com.house.item.common.Props;
 import com.house.item.domain.CreateItemRQ;
 import com.house.item.entity.Item;
 import com.house.item.entity.Location;
@@ -8,12 +9,15 @@ import com.house.item.entity.User;
 import com.house.item.exception.NonExistentItemException;
 import com.house.item.exception.NonExistentPlaceException;
 import com.house.item.exception.NonExistentSessionUserException;
+import com.house.item.exception.ServiceException;
 import com.house.item.repository.ItemRepository;
 import com.house.item.repository.LocationRepository;
+import com.house.item.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -23,11 +27,13 @@ public class ItemService {
     private final AuthService authService;
     private final ItemRepository itemRepository;
     private final LocationRepository locationRepository;
+    private final Props props;
 
     @Transactional
-    public Long createItem(CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException {
+    public Long createItem(CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
         User loginUser = authService.getLoginUser();
         Location location = getLocation(createItemRQ.getLocationNo());
+        String photoName = storePhoto(createItemRQ.getPhoto());
 
         Item item = Item.builder()
                 .user(loginUser)
@@ -35,7 +41,7 @@ public class ItemService {
                 .type(createItemRQ.getType())
                 .location(location)
                 .locationMemo(createItemRQ.getLocationMemo())
-//                .photoUrl(createItemRQ.getPhoto())
+                .photoName(photoName)
                 .quantity(0)
                 .priority(createItemRQ.getPriority())
                 .build();
@@ -51,5 +57,10 @@ public class ItemService {
     public Item getItem(Long itemNo) throws NonExistentItemException {
         return itemRepository.findOne(itemNo)
                 .orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
+    }
+
+    public String storePhoto(MultipartFile photo) throws ServiceException {
+        String photoDir = props.getDir().getPhoto();
+        return FileUtil.storeFile(photo, photoDir);
     }
 }

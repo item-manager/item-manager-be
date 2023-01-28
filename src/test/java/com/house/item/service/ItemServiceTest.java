@@ -7,17 +7,21 @@ import com.house.item.repository.LocationRepository;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
+import java.io.FileInputStream;
 
 @SpringBootTest
 @Transactional
+@Slf4j
 class ItemServiceTest {
 
     @Autowired
@@ -48,12 +52,18 @@ class ItemServiceTest {
         User user = createSessionUser();
         Location location = createLocation(user);
 
-        CreateItemRQ createItemRQ = new CreateItemRQ();
-        ReflectionTestUtils.setField(createItemRQ, "name", "item1");
-        ReflectionTestUtils.setField(createItemRQ, "type", ItemType.CONSUMABLE);
-        ReflectionTestUtils.setField(createItemRQ, "locationNo", location.getLocationNo());
-        ReflectionTestUtils.setField(createItemRQ, "locationMemo", "location memo");
-        ReflectionTestUtils.setField(createItemRQ, "priority", 1);
+        MultipartFile photo = new MockMultipartFile(
+                "fileName",
+                "/Users/yurim/Downloads/KakaoTalk_Photo_2023-01-27-16-28-12-3.jpeg",
+                "image/jpeg",
+                new FileInputStream("/Users/yurim/Downloads/KakaoTalk_Photo_2023-01-27-16-28-12-3.jpeg"));
+        CreateItemRQ createItemRQ = new CreateItemRQ(
+                "item1",
+                ItemType.CONSUMABLE,
+                location.getLocationNo(),
+                "location memo",
+                photo,
+                1);
 
         //when
         Long itemNo = itemService.createItem(createItemRQ);

@@ -1,4 +1,8 @@
 spring:
+#  datasource:
+  #    driver-class-name: org.h2.Driver
+  #    url: jdbc:h2:tcp://localhost/~/home/dev/webDev/projects/item-manager/item
+  #    username: sa
   jpa:
     generate-ddl: true
     hibernate:
@@ -8,3 +12,7 @@ spring:
 logging:
   level:
     com.house.item: debug
+
+properties:
+  dir:
+    photo: /Users/yurim/home/dev/webDev/projects/item-manager/stored-file/test/

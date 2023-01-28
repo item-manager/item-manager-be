@@ -4,9 +4,11 @@ import com.house.item.domain.*;
 import com.house.item.entity.Item;
 import com.house.item.exception.NonExistentPlaceException;
 import com.house.item.exception.NonExistentSessionUserException;
+import com.house.item.exception.ServiceException;
 import com.house.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,8 +39,8 @@ public class ItemController {
                 .build();
     }
 
-    @PostMapping
-    public Result<CreateItemRS> createItem(@Validated @RequestBody CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Result<CreateItemRS> createItem(@Validated @ModelAttribute CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
         Long itemNo = itemService.createItem(createItemRQ);
 
         CreateItemRS createItemRS = CreateItemRS.builder()

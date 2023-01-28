@@ -31,7 +31,7 @@ public class Item {
 
     private String locationMemo;
 
-    private String photoUrl;
+    private String photoName;
 
     private int quantity;
 

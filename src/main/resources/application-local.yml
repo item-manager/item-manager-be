@@ -17,6 +17,11 @@ logging:
   level:
     com.house.item: debug
 
+#properties
+properties:
+  dir:
+    photo: /Users/yurim/home/dev/webDev/projects/item-manager/stored-file/
+
 #swagger
 springdoc:
   swagger-ui:
