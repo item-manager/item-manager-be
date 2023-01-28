@@ -7,6 +7,7 @@ import com.house.item.exception.NonExistentSessionUserException;
 import com.house.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,7 +38,7 @@ public class ItemController {
     }
 
     @PostMapping
-    public Result<CreateItemRS> createItem(@RequestBody CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException {
+    public Result<CreateItemRS> createItem(@Validated @RequestBody CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException {
         Long itemNo = itemService.createItem(createItemRQ);
 
         CreateItemRS createItemRS = CreateItemRS.builder()
