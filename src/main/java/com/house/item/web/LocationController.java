@@ -41,7 +41,7 @@ public class LocationController {
                 .build();
     }
 
-    @Operation(summary = "보관장소(방) 생")
+    @Operation(summary = "보관장소(방) 생성")
     @PostMapping("/rooms")
     public Result<CreateRoomRS> createRoom(@RequestBody CreateRoomRQ createRoomRQ) {
         Long roomNo = locationService.createRoom(createRoomRQ);
