@@ -43,7 +43,7 @@ public class LocationService {
     @Transactional
     public Long createPlace(CreatePlaceRQ createPlaceRQ) throws NonExistentRoomException, NotLocationTypeRoomException {
         User loginUser = authService.getLoginUser();
-        Location room = checkRoom(createPlaceRQ, loginUser.getUserNo());
+        Location room = checkRoom(createPlaceRQ.getRoomNo());
 
         Location place = Location.builder()
                 .user(loginUser)
@@ -54,8 +54,9 @@ public class LocationService {
         return locationRepository.save(place);
     }
 
-    private Location checkRoom(CreatePlaceRQ createPlaceRQ, Long loginUserNo) throws NonExistentRoomException, NotLocationTypeRoomException {
-        Location room = locationRepository.findByLocationNoAndUserNo(createPlaceRQ.getRoomNo(), loginUserNo)
+    private Location checkRoom(Long roomNo) throws NonExistentRoomException, NotLocationTypeRoomException {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        Location room = locationRepository.findByLocationNoAndUserNo(roomNo, sessionUser.getUserNo())
                 .orElseThrow(() -> new NonExistentRoomException(ExceptionCodeMessage.NON_EXISTENT_ROOM.message()));
         if (room.getType() != LocationType.ROOM) {
             throw new NotLocationTypeRoomException(ExceptionCodeMessage.NOT_LOCATION_TYPE_ROOM.message());
@@ -68,7 +69,8 @@ public class LocationService {
         return locationRepository.findByTypeAndUserNo(LocationType.ROOM, sessionUser.getUserNo());
     }
 
-    public List<Location> getPlacesByRoomNo(Long roomNo) {
+    public List<Location> getPlacesByRoomNo(Long roomNo) throws NonExistentRoomException, NotLocationTypeRoomException {
+        checkRoom(roomNo);
         return locationRepository.findByRoom(roomNo);
     }
 }
