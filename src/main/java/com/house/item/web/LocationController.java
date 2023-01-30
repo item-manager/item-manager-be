@@ -64,7 +64,7 @@ public class LocationController {
                     }
             )
     )
-    @Operation(summary = "사용자의 '위치' 목록 조회")
+    @Operation(summary = "'보관장소(방)'의 '위치' 목록 조회")
     @GetMapping("/places")
     public Result<List<PlacesRS>> getPlacesByRoomNo(@ModelAttribute PlacesRQ placesRQ) throws NonExistentRoomException, NotLocationTypeRoomException {
         List<Location> locations = locationService.getPlacesByRoomNo(placesRQ.getRoomNo());
