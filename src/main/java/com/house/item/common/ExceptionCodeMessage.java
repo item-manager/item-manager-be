@@ -55,7 +55,7 @@ public enum ExceptionCodeMessage {
         /* Location */
         String NON_EXISTENT_ROOM = "잘못된 방 정보입니다";
         String NON_EXISTENT_PLACE = "잘못된 위치 정보입니다";
-        String NOT_LOCATION_TYPE_ROOM = "roomNo값이 방이 아닙니다";
+        String NOT_LOCATION_TYPE_ROOM = "roomNo type이 방이 아닙니다";
     }
 
     public interface SwaggerDescription {
