@@ -1,10 +1,16 @@
 package com.house.item.web;
 
+import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.*;
 import com.house.item.entity.Location;
 import com.house.item.exception.NonExistentRoomException;
 import com.house.item.exception.NotLocationTypeRoomException;
 import com.house.item.service.LocationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +25,7 @@ public class LocationController {
 
     private final LocationService locationService;
 
+    @Operation(summary = "사용자의 '보관장소(방)' 목록 조회")
     @GetMapping("/rooms")
     public Result<List<RoomsRS>> allRooms() {
         List<Location> locations = locationService.getRooms();
@@ -34,6 +41,7 @@ public class LocationController {
                 .build();
     }
 
+    @Operation(summary = "보관장소(방) 생")
     @PostMapping("/rooms")
     public Result<CreateRoomRS> createRoom(@RequestBody CreateRoomRQ createRoomRQ) {
         Long roomNo = locationService.createRoom(createRoomRQ);
@@ -46,8 +54,19 @@ public class LocationController {
                 .build();
     }
 
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ROOM),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NOT_LOCATION_TYPE_ROOM)
+                    }
+            )
+    )
+    @Operation(summary = "사용자의 '위치' 목록 조회")
     @GetMapping("/places")
-    public Result<List<PlacesRS>> getPlacesByRoomNo(@ModelAttribute PlacesRQ placesRQ) {
+    public Result<List<PlacesRS>> getPlacesByRoomNo(@ModelAttribute PlacesRQ placesRQ) throws NonExistentRoomException, NotLocationTypeRoomException {
         List<Location> locations = locationService.getPlacesByRoomNo(placesRQ.getRoomNo());
 
         List<PlacesRS> placesRS = locations.stream()
@@ -61,6 +80,17 @@ public class LocationController {
                 .build();
     }
 
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ROOM),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NOT_LOCATION_TYPE_ROOM)
+                    }
+            )
+    )
+    @Operation(summary = "위치 생성")
     @PostMapping("/places")
     public Result<CreatePlaceRS> createPlace(@RequestBody CreatePlaceRQ createPlaceRQ) throws NonExistentRoomException, NotLocationTypeRoomException {
         Long placeNo = locationService.createPlace(createPlaceRQ);
