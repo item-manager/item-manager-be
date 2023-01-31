@@ -8,4 +8,6 @@ public interface ItemRepository {
     Long save(Item item);
 
     Optional<Item> findOne(Long itemNo);
+
+    Optional<Item> findByItemNoAndUserNo(Long itemNo, Long userNo);
 }

@@ -3,6 +3,7 @@ package com.house.item.service;
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.common.Props;
 import com.house.item.domain.CreateItemRQ;
+import com.house.item.domain.SessionUser;
 import com.house.item.entity.Item;
 import com.house.item.entity.Location;
 import com.house.item.entity.User;
@@ -13,6 +14,8 @@ import com.house.item.exception.ServiceException;
 import com.house.item.repository.ItemRepository;
 import com.house.item.repository.LocationRepository;
 import com.house.item.util.FileUtil;
+import com.house.item.util.SessionUtils;
+import com.house.item.web.SessionConst;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,7 +36,7 @@ public class ItemService {
     public Long createItem(CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
         User loginUser = authService.getLoginUser();
         Location location = getLocation(createItemRQ.getLocationNo());
-        String photoName = storePhoto(createItemRQ.getPhoto());
+//        String photoName = storePhoto(createItemRQ.getPhoto());
 
         Item item = Item.builder()
                 .user(loginUser)
@@ -41,7 +44,7 @@ public class ItemService {
                 .type(createItemRQ.getType())
                 .location(location)
                 .locationMemo(createItemRQ.getLocationMemo())
-                .photoName(photoName)
+//                .photoName(photoName)
                 .quantity(0)
                 .priority(createItemRQ.getPriority())
                 .build();
@@ -55,7 +58,8 @@ public class ItemService {
     }
 
     public Item getItem(Long itemNo) throws NonExistentItemException {
-        return itemRepository.findOne(itemNo)
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        return itemRepository.findByItemNoAndUserNo(itemNo, sessionUser.getUserNo())
                 .orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
     }
 
