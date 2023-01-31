@@ -66,6 +66,29 @@ class JpaItemRepositoryTest {
         Assertions.assertThat(findItem).isSameAs(item);
     }
 
+    @Test
+    void findByItemNoAndUserNo() {
+        //given
+        User user = createUser();
+        Location location = createLocation();
+        Item item = Item.builder()
+                .user(user)
+                .name("soup")
+                .type(ItemType.CONSUMABLE)
+                .location(location)
+                .locationMemo("under the desk")
+                .quantity(1)
+                .priority(1)
+                .build();
+        em.persist(item);
+
+        //when
+        Item findItem = itemRepository.findByItemNoAndUserNo(item.getItemNo(), user.getUserNo()).get();
+
+        //then
+        Assertions.assertThat(findItem).isSameAs(item);
+    }
+
     User createUser() {
         User user = User.builder()
                 .id("user1")
