@@ -25,6 +25,7 @@ class JpaUserRepositoryTest {
                 .id("testUser")
                 .password("testUser")
                 .salt("salt")
+                .username("username")
                 .build();
 
         //when
@@ -42,6 +43,7 @@ class JpaUserRepositoryTest {
                 .id("testUser")
                 .password("testUser")
                 .salt("salt")
+                .username("username")
                 .build();
         Long userNo = userRepository.save(user);
 
@@ -59,6 +61,7 @@ class JpaUserRepositoryTest {
                 .id("testUser")
                 .password("testUser")
                 .salt("salt")
+                .username("username")
                 .build();
         Long userNo = userRepository.save(user);
 
@@ -76,6 +79,7 @@ class JpaUserRepositoryTest {
                 .id("testUser")
                 .password("testUser")
                 .salt("salt")
+                .username("username")
                 .build();
         Long userNo = userRepository.save(user);
 
