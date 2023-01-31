@@ -1,6 +1,7 @@
 package com.house.item.web;
 
 import com.house.item.common.ExceptionCodeMessage;
+import com.house.item.common.Props;
 import com.house.item.domain.*;
 import com.house.item.entity.Item;
 import com.house.item.exception.NonExistentItemException;
@@ -8,6 +9,7 @@ import com.house.item.exception.NonExistentPlaceException;
 import com.house.item.exception.NonExistentSessionUserException;
 import com.house.item.exception.ServiceException;
 import com.house.item.service.ItemService;
+import com.house.item.util.FileUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -15,9 +17,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.net.MalformedURLException;
 
 @RestController
 @Slf4j
@@ -26,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 public class ItemController {
 
     private final ItemService itemService;
+    private final Props props;
 
     @ApiResponse(
             responseCode = "400",
@@ -76,5 +83,14 @@ public class ItemController {
         return Result.<CreateItemRS>builder()
                 .data(createItemRS)
                 .build();
+    }
+
+    @ResponseBody
+    @GetMapping("/{itemNo}/photo")
+    public Resource loadPhoto(@PathVariable Long itemNo) throws MalformedURLException {
+        Item item = itemService.getItem(itemNo);
+
+        String photoDir = props.getDir().getPhoto();
+        return new UrlResource("file:" + FileUtil.getFullPath(photoDir, item.getPhotoName()));
     }
 }
