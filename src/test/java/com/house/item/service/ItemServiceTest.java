@@ -33,19 +33,8 @@ class ItemServiceTest {
     @Autowired
     LocationRepository locationRepository;
 
-    private static Item getItem(User user, Location location, ItemType type, String name, int quantity) {
-        return Item.builder()
-                .user(user)
-                .type(type)
-                .name(name)
-                .location(location)
-                .locationMemo("location memo")
-                .quantity(quantity)
-                .priority(1)
-                .build();
-    }
-
     //    @Rollback(value = false)
+
     @Test
     void 물품생성() throws Exception {
         //given
@@ -72,7 +61,6 @@ class ItemServiceTest {
         Item findItem = em.find(Item.class, itemNo);
         Assertions.assertThat(findItem.getQuantity()).isZero();
     }
-
     @Test
     void 물품_pk로_조회() throws Exception {
         //given
@@ -127,6 +115,18 @@ class ItemServiceTest {
         locationRepository.save(place);
 
         return place;
+    }
+
+    Item getItem(User user, Location location, ItemType type, String name, int quantity) {
+        return Item.builder()
+                .user(user)
+                .type(type)
+                .name(name)
+                .location(location)
+                .locationMemo("location memo")
+                .quantity(quantity)
+                .priority(1)
+                .build();
     }
 
 }
