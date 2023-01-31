@@ -14,6 +14,10 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileUtil {
 
+    public static String getFullPath(String dir, String fileName) {
+        return dir + fileName;
+    }
+
     public static String storeFile(MultipartFile multipartFile, String fileDir) throws ServiceException {
         if (multipartFile.isEmpty()) {
             return null;
