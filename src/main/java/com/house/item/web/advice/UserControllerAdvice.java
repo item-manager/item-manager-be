@@ -3,15 +3,13 @@ package com.house.item.web.advice;
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ErrorResult;
 import com.house.item.exception.*;
-import com.house.item.web.AuthController;
-import com.house.item.web.UserController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(assignableTypes = {UserController.class, AuthController.class})
+@RestControllerAdvice
 @Slf4j
 public class UserControllerAdvice {
 
