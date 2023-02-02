@@ -82,6 +82,7 @@ public class ItemController {
                 .build();
     }
 
+    @Operation(summary = "물품 사진 조회")
     @ResponseBody
     @GetMapping("/{itemNo}/photo")
     public Resource loadPhoto(@PathVariable Long itemNo) throws ServiceException {
