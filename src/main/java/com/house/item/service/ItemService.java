@@ -64,7 +64,7 @@ public class ItemService {
                 .orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
     }
 
-    public String storePhoto(MultipartFile photo) throws ServiceException {
+    private String storePhoto(MultipartFile photo) throws ServiceException {
         String photoDir = props.getDir().getPhoto();
         return FileUtil.storeFile(photo, photoDir);
     }
