@@ -10,6 +10,11 @@ logging:
   level:
     com.house.item: info
 
+#properties
+properties:
+  dir:
+    photo: /home/pi/app/house/item/users/image
+
 #swagger
 springdoc:
   swagger-ui:
