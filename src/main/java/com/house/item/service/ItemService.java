@@ -36,7 +36,7 @@ public class ItemService {
     public Long createItem(CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
         User loginUser = authService.getLoginUser();
         Location location = getLocation(createItemRQ.getLocationNo());
-//        String photoName = storePhoto(createItemRQ.getPhoto());
+        String photoName = storePhoto(createItemRQ.getPhoto());
 
         Item item = Item.builder()
                 .user(loginUser)
@@ -44,7 +44,7 @@ public class ItemService {
                 .type(createItemRQ.getType())
                 .location(location)
                 .locationMemo(createItemRQ.getLocationMemo())
-//                .photoName(photoName)
+                .photoName(photoName)
                 .quantity(0)
                 .priority(createItemRQ.getPriority())
                 .build();
