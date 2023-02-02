@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface LocationRepository {
 
-    Long save(Location location);
+    void save(Location location);
 
     Optional<Location> findOne(Long locationNo);
 

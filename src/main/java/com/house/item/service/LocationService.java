@@ -37,7 +37,9 @@ public class LocationService {
                 .type(LocationType.ROOM)
                 .name(createRoomRQ.getName())
                 .build();
-        return locationRepository.save(room);
+
+        locationRepository.save(room);
+        return room.getLocationNo();
     }
 
     @Transactional
@@ -51,7 +53,9 @@ public class LocationService {
                 .room(room)
                 .name(createPlaceRQ.getName())
                 .build();
-        return locationRepository.save(place);
+
+        locationRepository.save(place);
+        return place.getLocationNo();
     }
 
     private Location checkRoom(Long roomNo) throws NonExistentRoomException, NotLocationTypeRoomException {

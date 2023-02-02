@@ -83,10 +83,10 @@ class ItemServiceTest {
                 .salt("salt")
                 .username("name")
                 .build();
-        Long userNo = userRepository.save(user);
+        userRepository.save(user);
 
         SessionUser sessionUser = SessionUser.builder()
-                .userNo(userNo)
+                .userNo(user.getUserNo())
                 .username(user.getUsername())
                 .build();
 

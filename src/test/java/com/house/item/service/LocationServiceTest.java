@@ -106,10 +106,10 @@ class LocationServiceTest {
                 .salt("salt")
                 .username("name")
                 .build();
-        Long userNo = userRepository.save(user);
+        userRepository.save(user);
 
         SessionUser sessionUser = SessionUser.builder()
-                .userNo(userNo)
+                .userNo(user.getUserNo())
                 .username(user.getUsername())
                 .build();
         SessionUtils.setAttribute(SessionConst.LOGIN_USER, sessionUser);
@@ -123,7 +123,7 @@ class LocationServiceTest {
                 .salt("salt")
                 .username("name2")
                 .build();
-        Long userNo = userRepository.save(user);
+        userRepository.save(user);
         return user;
     }
 

@@ -16,9 +16,8 @@ public class JpaUserRepository implements UserRepository {
     private final EntityManager em;
 
     @Override
-    public Long save(User user) {
+    public void save(User user) {
         em.persist(user);
-        return user.getUserNo();
     }
 
     @Override

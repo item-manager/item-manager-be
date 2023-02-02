@@ -5,7 +5,7 @@ import com.house.item.entity.User;
 import java.util.Optional;
 
 public interface UserRepository {
-    Long save(User user);
+    void save(User user);
 
     Optional<User> findOne(Long userNo);
 

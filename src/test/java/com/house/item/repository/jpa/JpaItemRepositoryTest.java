@@ -36,10 +36,10 @@ class JpaItemRepositoryTest {
                 .build();
 
         //when
-        Long itemNo = itemRepository.save(item);
+        itemRepository.save(item);
 
         //then
-        Item findItem = em.find(Item.class, itemNo);
+        Item findItem = em.find(Item.class, item.getItemNo());
         Assertions.assertThat(findItem).isSameAs(item);
     }
 

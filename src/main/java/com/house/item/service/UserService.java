@@ -38,7 +38,8 @@ public class UserService {
                 .username(createUserRQ.getUsername())
                 .build();
 
-        return userRepository.save(user);
+        userRepository.save(user);
+        return user.getUserNo();
     }
 
     //review - test 필요

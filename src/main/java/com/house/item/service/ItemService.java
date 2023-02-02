@@ -49,7 +49,8 @@ public class ItemService {
                 .priority(createItemRQ.getPriority())
                 .build();
 
-        return itemRepository.save(item);
+        itemRepository.save(item);
+        return item.getItemNo();
     }
 
     private Location getLocation(Long locationNo) throws NonExistentPlaceException {

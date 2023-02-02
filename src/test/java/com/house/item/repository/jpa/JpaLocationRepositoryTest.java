@@ -48,10 +48,10 @@ class JpaLocationRepositoryTest {
         Location location = getRoom(user, "room1");
 
         //when
-        Long locationNo = locationRepository.save(location);
+        locationRepository.save(location);
 
         //then
-        Location findRoom = em.find(Location.class, locationNo);
+        Location findRoom = em.find(Location.class, location.getLocationNo());
         Assertions.assertThat(findRoom.getUser().getUserNo()).isEqualTo(user.getUserNo());
         Assertions.assertThat(findRoom.getName()).isEqualTo(location.getName());
     }
@@ -61,10 +61,10 @@ class JpaLocationRepositoryTest {
         //given
         User user = createUser();
         Location room = getRoom(user, "room1");
-        Long locationNo = locationRepository.save(room);
+        locationRepository.save(room);
 
         //when
-        Location findLocation = locationRepository.findOne(locationNo).get();
+        Location findLocation = locationRepository.findOne(room.getLocationNo()).get();
 
         //then
         Assertions.assertThat(findLocation).isSameAs(room);
@@ -75,10 +75,10 @@ class JpaLocationRepositoryTest {
         //given
         User user = createUser();
         Location room = getRoom(user, "room1");
-        Long roomNo = locationRepository.save(room);
+        locationRepository.save(room);
 
         //when
-        Location findLocation = locationRepository.findByLocationNoAndUserNo(roomNo, user.getUserNo()).get();
+        Location findLocation = locationRepository.findByLocationNoAndUserNo(room.getLocationNo(), user.getUserNo()).get();
 
         //then
         Assertions.assertThat(findLocation).isSameAs(room);

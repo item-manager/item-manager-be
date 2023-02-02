@@ -18,9 +18,8 @@ public class JpaLocationRepository implements LocationRepository {
     private static final String SELECT_FROM_JPQL = "select l from Location l";
 
     @Override
-    public Long save(Location location) {
+    public void save(Location location) {
         em.persist(location);
-        return location.getLocationNo();
     }
 
     @Override

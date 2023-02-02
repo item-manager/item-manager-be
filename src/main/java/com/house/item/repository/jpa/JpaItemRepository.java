@@ -16,9 +16,8 @@ public class JpaItemRepository implements ItemRepository {
     private final EntityManager em;
 
     @Override
-    public Long save(Item item) {
+    public void save(Item item) {
         em.persist(item);
-        return item.getItemNo();
     }
 
     @Override

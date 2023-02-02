@@ -29,10 +29,10 @@ class JpaUserRepositoryTest {
                 .build();
 
         //when
-        Long userNo = userRepository.save(user);
+        userRepository.save(user);
 
         //then
-        User findUser = userRepository.findOne(userNo).get();
+        User findUser = userRepository.findOne(user.getUserNo()).get();
         Assertions.assertThat(findUser).isSameAs(user);
     }
 
@@ -45,10 +45,10 @@ class JpaUserRepositoryTest {
                 .salt("salt")
                 .username("username")
                 .build();
-        Long userNo = userRepository.save(user);
+        userRepository.save(user);
 
         //when
-        User findUser = userRepository.findOne(userNo).get();
+        User findUser = userRepository.findOne(user.getUserNo()).get();
 
         //then
         Assertions.assertThat(findUser).isSameAs(user);
@@ -63,13 +63,13 @@ class JpaUserRepositoryTest {
                 .salt("salt")
                 .username("username")
                 .build();
-        Long userNo = userRepository.save(user);
+        userRepository.save(user);
 
         //when
         Optional<User> optionalUser = userRepository.findById("testUser");
 
         //then
-        Assertions.assertThat(optionalUser.get().getUserNo()).isEqualTo(userNo);
+        Assertions.assertThat(optionalUser.get().getUserNo()).isEqualTo(user.getUserNo());
     }
 
     @Test
@@ -81,13 +81,13 @@ class JpaUserRepositoryTest {
                 .salt("salt")
                 .username("username")
                 .build();
-        Long userNo = userRepository.save(user);
+        userRepository.save(user);
 
         //when
         userRepository.delete(user);
 
         //then
-        Optional<User> optionalUser = userRepository.findOne(userNo);
+        Optional<User> optionalUser = userRepository.findOne(user.getUserNo());
         Assertions.assertThat(optionalUser).isEmpty();
     }
 }
