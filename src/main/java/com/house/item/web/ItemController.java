@@ -18,12 +18,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.MalformedURLException;
 
 @RestController
 @Slf4j
@@ -87,10 +84,10 @@ public class ItemController {
 
     @ResponseBody
     @GetMapping("/{itemNo}/photo")
-    public Resource loadPhoto(@PathVariable Long itemNo) throws MalformedURLException {
+    public Resource loadPhoto(@PathVariable Long itemNo) throws ServiceException {
         Item item = itemService.getItem(itemNo);
 
         String photoDir = props.getDir().getPhoto();
-        return new UrlResource("file:" + FileUtil.getFullPath(photoDir, item.getPhotoName()));
+        return FileUtil.getResource(photoDir, item.getPhotoName());
     }
 }

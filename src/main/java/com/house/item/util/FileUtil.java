@@ -4,10 +4,13 @@ import com.house.item.exception.ServiceException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.UUID;
 
 @Slf4j
@@ -34,6 +37,18 @@ public class FileUtil {
         }
 
         return storeFileName;
+    }
+
+    public static Resource getResource(String dir, String filename) throws ServiceException {
+        Resource resource;
+        String url = getFullPath(dir, filename);
+        try {
+            resource = new UrlResource("file:" + url);
+        } catch (MalformedURLException e) {
+            log.error("유효하지 않은 URL입니다: {}", url, e);
+            throw new ServiceException("유효하지 않은 URL입니다: " + url, e);
+        }
+        return resource;
     }
 
     //서버 내부에서 관리하는 별도의 파일명(실제 저장될 파일명)
