@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,6 +14,7 @@ import java.util.Optional;
 public class JpaLabelRepository implements LabelRepository {
 
     private final EntityManager em;
+    private static final String SELECT_FROM_JPQL = "select l from Label l";
 
     @Override
     public void save(Label label) {
@@ -22,5 +24,17 @@ public class JpaLabelRepository implements LabelRepository {
     @Override
     public Optional<Label> findOne(Long labelNo) {
         return Optional.ofNullable(em.find(Label.class, labelNo));
+    }
+
+    @Override
+    public Optional<Label> findByNameAndUserNo(String name, Long userNo) {
+        String jpql = SELECT_FROM_JPQL +
+                " join fetch l.user u" +
+                " where l.name = :name and u.userNo = :userNo";
+        List<Label> labels = em.createQuery(jpql, Label.class)
+                .setParameter("name", name)
+                .setParameter("userNo", userNo)
+                .getResultList();
+        return labels.stream().findAny();
     }
 }

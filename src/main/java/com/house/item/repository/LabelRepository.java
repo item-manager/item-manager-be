@@ -8,4 +8,6 @@ public interface LabelRepository {
     void save(Label label);
 
     Optional<Label> findOne(Long labelNo);
+
+    Optional<Label> findByNameAndUserNo(String name, Long userNo);
 }
