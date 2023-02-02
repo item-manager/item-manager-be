@@ -13,7 +13,7 @@ logging:
 #properties
 properties:
   dir:
-    photo: /home/pi/app/house/item/users/image
+    photo: /home/pi/app/house/item/users/image/
 
 #swagger
 springdoc:
