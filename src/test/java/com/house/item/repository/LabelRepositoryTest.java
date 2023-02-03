@@ -49,6 +49,20 @@ class LabelRepositoryTest {
     }
 
     @Test
+    void findByLabelNoAndUserNo() {
+        //given
+        User user = createUser();
+        Label label = getLabel(user, "label");
+        em.persist(label);
+
+        //when
+        Label findLabel = labelRepository.findByLabelNoAndUserNo(label.getLabelNo(), user.getUserNo()).get();
+
+        //then
+        Assertions.assertThat(findLabel).isSameAs(label);
+    }
+
+    @Test
     void findByNameAndUserNo() throws Exception {
         //given
         User user = createUser();
