@@ -8,9 +8,9 @@ spring:
     generate-ddl: true
     hibernate:
       ddl-auto: create #jpa ddl
-#    properties:
-#      hibernate:
-#        default_batch_fetch_size: 100
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
 
 #log
 logging:
