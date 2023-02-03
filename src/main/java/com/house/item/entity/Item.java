@@ -37,6 +37,6 @@ public class Item {
 
     private int priority;
 
-    @OneToMany(mappedBy = "item")
-    private List<ItemLabel> labels = new ArrayList<>();
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemLabel> itemLabels = new ArrayList<>();
 }
