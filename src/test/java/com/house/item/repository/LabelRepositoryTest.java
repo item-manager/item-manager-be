@@ -23,10 +23,7 @@ class LabelRepositoryTest {
     void save() {
         //given
         User user = createUser();
-        Label label = Label.builder()
-                .user(user)
-                .name("label")
-                .build();
+        Label label = getLabel(user, "label");
 
         //when
         labelRepository.save(label);
@@ -40,10 +37,7 @@ class LabelRepositoryTest {
     void findOne() {
         //given
         User user = createUser();
-        Label label = Label.builder()
-                .user(user)
-                .name("label")
-                .build();
+        Label label = getLabel(user, "label");
         em.persist(label);
 
         //when
@@ -62,5 +56,12 @@ class LabelRepositoryTest {
                 .build();
         em.persist(user);
         return user;
+    }
+
+    Label getLabel(User user, String name) {
+        return Label.builder()
+                .user(user)
+                .name(name)
+                .build();
     }
 }
