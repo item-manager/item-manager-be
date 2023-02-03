@@ -58,6 +58,11 @@ public class LabelService {
                 .orElseThrow(() -> new NonExistentLabelException(ExceptionCodeMessage.NON_EXISTENT_LABEL.message()));
     }
 
+    public List<Label> getLabels() {
+        User loginUser = authService.getLoginUser();
+        return labelRepository.findByUserNo(loginUser.getUserNo());
+    }
+
     @Transactional
     public ItemLabel attachLabelToItem(Long itemNo, Long labelNo) throws NonExistentItemException, NonExistentLabelException {
         Item item = itemService.getItem(itemNo);
