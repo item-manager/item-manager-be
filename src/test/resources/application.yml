@@ -1,12 +1,17 @@
 spring:
-#  datasource:
-  #    driver-class-name: org.h2.Driver
-  #    url: jdbc:h2:tcp://localhost/~/home/dev/webDev/projects/item-manager/item
-  #    username: sa
+#    datasource:
+  #        driver-class-name: org.h2.Driver
+  #        url: jdbc:h2:tcp://localhost/~/home/dev/webDev/projects/item-manager/item
+  #        username: sa
   jpa:
     generate-ddl: true
     hibernate:
       ddl-auto: create #jpa ddl
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        format_sql: true
+        show_sql: true
 
 #log
 logging:
