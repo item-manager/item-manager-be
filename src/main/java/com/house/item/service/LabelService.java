@@ -32,7 +32,7 @@ public class LabelService {
     private final ItemService itemService;
 
     @Transactional
-    public Long createLabel(CreateLabel createLabel) {
+    public Long createLabel(CreateLabel createLabel) throws NonUniqueLabelNameException {
         User loginUser = authService.getLoginUser();
         validateDuplicationLabelName(createLabel.getName(), loginUser.getUserNo());
 
