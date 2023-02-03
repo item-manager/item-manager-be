@@ -19,7 +19,7 @@ public class ItemLabel {
     @JoinColumn(name = "ITEM_NO")
     private Item item;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "LABEL_NO")
     private Label label;
 }
