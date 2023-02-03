@@ -10,6 +10,8 @@ public interface LabelRepository {
 
     Optional<Label> findOne(Long labelNo);
 
+    Optional<Label> findByLabelNoAndUserNo(Long labelNo, Long userNo);
+
     Optional<Label> findByNameAndUserNo(String name, Long userNo);
 
     List<Label> findByUserNo(Long userNo);

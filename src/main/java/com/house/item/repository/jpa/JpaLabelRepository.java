@@ -27,6 +27,18 @@ public class JpaLabelRepository implements LabelRepository {
     }
 
     @Override
+    public Optional<Label> findByLabelNoAndUserNo(Long labelNo, Long userNo) {
+        String jpql = SELECT_FROM_JPQL +
+                " join fetch l.user u" +
+                " where l.labelNo = :labelNo and u.userNo = :userNo";
+        List<Label> labels = em.createQuery(jpql, Label.class)
+                .setParameter("labelNo", labelNo)
+                .setParameter("userNo", userNo)
+                .getResultList();
+        return labels.stream().findAny();
+    }
+
+    @Override
     public Optional<Label> findByNameAndUserNo(String name, Long userNo) {
         String jpql = SELECT_FROM_JPQL +
                 " join fetch l.user u" +

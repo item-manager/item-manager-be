@@ -2,6 +2,8 @@ package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.CreateLabel;
+import com.house.item.domain.LabelRS;
+import com.house.item.domain.SessionUser;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemLabel;
 import com.house.item.entity.Label;
@@ -10,6 +12,8 @@ import com.house.item.exception.NonExistentItemException;
 import com.house.item.exception.NonExistentLabelException;
 import com.house.item.exception.NonUniqueLabelNameException;
 import com.house.item.repository.LabelRepository;
+import com.house.item.util.SessionUtils;
+import com.house.item.web.SessionConst;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,7 +53,8 @@ public class LabelService {
     }
 
     public Label getLabel(Long labelNo) throws NonExistentLabelException {
-        return labelRepository.findOne(labelNo)
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        return labelRepository.findByLabelNoAndUserNo(labelNo, sessionUser.getUserNo())
                 .orElseThrow(() -> new NonExistentLabelException(ExceptionCodeMessage.NON_EXISTENT_LABEL.message()));
     }
 
