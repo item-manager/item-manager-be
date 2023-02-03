@@ -2,8 +2,7 @@ package com.house.item.service;
 
 import com.house.item.domain.CreateLabel;
 import com.house.item.domain.SessionUser;
-import com.house.item.entity.Label;
-import com.house.item.entity.User;
+import com.house.item.entity.*;
 import com.house.item.exception.NonUniqueLabelNameException;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
@@ -15,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 @SpringBootTest
 @Transactional
@@ -72,6 +72,38 @@ class LabelServiceTest {
         Assertions.assertThat(findLabel).isSameAs(label);
     }
 
+    @Test
+    void sessionUser_라벨목록_조회() throws Exception {
+        //given
+        User user = createSessionUser();
+        Label label1 = getLabel(user, "label1");
+        em.persist(label1);
+        Label label2 = getLabel(user, "label2");
+        em.persist(label2);
+
+        //when
+        List<Label> labels = labelService.getLabels();
+
+        //then
+        Assertions.assertThat(labels).containsExactly(label1, label2);
+    }
+
+    @Test
+    void 물품에_라벨링() throws Exception {
+        //given
+        User user = createSessionUser();
+        Item item = createItem(user);
+        Label label = getLabel(user, "label");
+        em.persist(label);
+
+        //when
+        ItemLabel itemLabel = labelService.attachLabelToItem(item.getItemNo(), label.getLabelNo());
+
+        //then
+        Assertions.assertThat(itemLabel.getItem()).isSameAs(item);
+        Assertions.assertThat(itemLabel.getLabel()).isSameAs(label);
+    }
+
     User createSessionUser() {
         User user = User.builder()
                 .id("id")
@@ -88,6 +120,35 @@ class LabelServiceTest {
 
         SessionUtils.setAttribute(SessionConst.LOGIN_USER, sessionUser);
         return user;
+    }
+
+    Location createLocation(User user) {
+        Location room = Location.builder()
+                .user(user)
+                .name("room")
+                .build();
+        em.persist(room);
+
+        Location place = Location.builder()
+                .user(user)
+                .name("place")
+                .room(room)
+                .build();
+        em.persist(place);
+
+        return place;
+    }
+
+    Item createItem(User user) {
+        Item item = Item.builder()
+                .user(user)
+                .name("item")
+                .type(ItemType.CONSUMABLE)
+                .location(createLocation(user))
+                .build();
+        em.persist(item);
+
+        return item;
     }
 
     Label getLabel(User user, String name) {
