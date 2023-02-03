@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 @SpringBootTest
 @Transactional
@@ -45,6 +46,36 @@ class LabelRepositoryTest {
 
         //then
         Assertions.assertThat(findLabel).isSameAs(label);
+    }
+
+    @Test
+    void findByNameAndUserNo() throws Exception {
+        //given
+        User user = createUser();
+        Label label = getLabel(user, "label");
+        em.persist(label);
+
+        //when
+        Label findLabel = labelRepository.findByNameAndUserNo(label.getName(), user.getUserNo()).get();
+
+        //then
+        Assertions.assertThat(findLabel).isSameAs(label);
+    }
+
+    @Test
+    void findByUserNo() throws Exception {
+        //given
+        User user = createUser();
+        Label label1 = getLabel(user, "label1");
+        em.persist(label1);
+        Label label2 = getLabel(user, "label2");
+        em.persist(label2);
+
+        //when
+        List<Label> labels = labelRepository.findByUserNo(user.getUserNo());
+
+        //then
+        Assertions.assertThat(labels).containsExactly(label1, label2);
     }
 
     User createUser() {
