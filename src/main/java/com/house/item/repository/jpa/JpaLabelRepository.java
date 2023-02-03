@@ -37,4 +37,14 @@ public class JpaLabelRepository implements LabelRepository {
                 .getResultList();
         return labels.stream().findAny();
     }
+
+    @Override
+    public List<Label> findByUserNo(Long userNo) {
+        String jpql = SELECT_FROM_JPQL +
+                " join fetch l.user u" +
+                " where u.userNo = :userNo";
+        return em.createQuery(jpql, Label.class)
+                .setParameter("userNo", userNo)
+                .getResultList();
+    }
 }
