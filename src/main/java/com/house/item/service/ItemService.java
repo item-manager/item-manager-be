@@ -3,10 +3,10 @@ package com.house.item.service;
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.common.Props;
 import com.house.item.domain.CreateItemRQ;
+import com.house.item.domain.ItemRS;
+import com.house.item.domain.LabelRS;
 import com.house.item.domain.SessionUser;
-import com.house.item.entity.Item;
-import com.house.item.entity.Location;
-import com.house.item.entity.User;
+import com.house.item.entity.*;
 import com.house.item.exception.NonExistentItemException;
 import com.house.item.exception.NonExistentPlaceException;
 import com.house.item.exception.NonExistentSessionUserException;
@@ -21,6 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -62,6 +65,31 @@ public class ItemService {
         SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
         return itemRepository.findByItemNoAndUserNo(itemNo, sessionUser.getUserNo())
                 .orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
+    }
+
+    public ItemRS getItemRS(Long itemNo) {
+        Item item = getItem(itemNo);
+
+        List<LabelRS> labels = new ArrayList<>();
+        for (ItemLabel itemLabel : item.getItemLabels()) {
+            Label label = itemLabel.getLabel();
+            labels.add(LabelRS.builder()
+                    .labelNo(label.getLabelNo())
+                    .name(label.getName())
+                    .build());
+        }
+
+        return ItemRS.builder()
+                .itemNo(item.getItemNo())
+                .name(item.getName())
+                .type(item.getType())
+                .room(item.getLocation().getRoom().getName())
+                .place(item.getLocation().getName())
+                .locationMemo(item.getLocationMemo())
+                .quantity(item.getQuantity())
+                .priority(item.getPriority())
+                .labels(labels)
+                .build();
     }
 
     private String storePhoto(MultipartFile photo) throws ServiceException {

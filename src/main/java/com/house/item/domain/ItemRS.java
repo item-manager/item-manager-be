@@ -4,6 +4,8 @@ import com.house.item.entity.ItemType;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 @Builder
 public class ItemRS {
@@ -13,7 +15,7 @@ public class ItemRS {
     private String room;
     private String place;
     private String locationMemo;
-    //    private String photoUrl;
     private int quantity;
     private int priority;
+    List<LabelRS> labels;
 }
