@@ -4,11 +4,13 @@ import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.common.Props;
 import com.house.item.domain.*;
 import com.house.item.entity.Item;
+import com.house.item.entity.ItemLabel;
 import com.house.item.exception.NonExistentItemException;
 import com.house.item.exception.NonExistentPlaceException;
 import com.house.item.exception.NonExistentSessionUserException;
 import com.house.item.exception.ServiceException;
 import com.house.item.service.ItemService;
+import com.house.item.service.LabelService;
 import com.house.item.util.FileUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,8 +30,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/items")
 public class ItemController {
 
-    private final ItemService itemService;
     private final Props props;
+    private final ItemService itemService;
+    private final LabelService labelService;
 
     @ApiResponse(
             responseCode = "400",
@@ -73,12 +76,35 @@ public class ItemController {
     }
 
     @Operation(summary = "물품 사진 조회")
-    @ResponseBody
     @GetMapping("/{itemNo}/photo")
     public Resource loadPhoto(@PathVariable Long itemNo) throws ServiceException {
         Item item = itemService.getItem(itemNo);
 
         String photoDir = props.getDir().getPhoto();
         return FileUtil.getResource(photoDir, item.getPhotoName());
+    }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ITEM),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_LABEL)
+                    }
+            )
+    )
+    @Operation(summary = "물품에 라벨링")
+    @PostMapping("/{itemNo}/labels")
+    public Result<ItemLabelRS> attachLabelToItemRQ(@PathVariable Long itemNo, AttachLabelToItemRQ attachLabelToItemRQ) {
+        ItemLabel itemLabel = labelService.attachLabelToItem(itemNo, attachLabelToItemRQ.getLabelNo());
+        ItemLabelRS itemLabelRS = ItemLabelRS.builder()
+                .itemNo(itemLabel.getItem().getItemNo())
+                .labelNo(itemLabel.getLabel().getLabelNo())
+                .build();
+
+        return Result.<ItemLabelRS>builder()
+                .data(itemLabelRS)
+                .build();
     }
 }

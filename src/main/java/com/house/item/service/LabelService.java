@@ -2,8 +2,11 @@ package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.CreateLabel;
+import com.house.item.entity.Item;
+import com.house.item.entity.ItemLabel;
 import com.house.item.entity.Label;
 import com.house.item.entity.User;
+import com.house.item.exception.NonExistentItemException;
 import com.house.item.exception.NonExistentLabelException;
 import com.house.item.exception.NonUniqueLabelNameException;
 import com.house.item.repository.LabelRepository;
@@ -11,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -20,6 +25,7 @@ public class LabelService {
 
     private final LabelRepository labelRepository;
     private final AuthService authService;
+    private final ItemService itemService;
 
     @Transactional
     public Long createLabel(CreateLabel createLabel) {
@@ -42,9 +48,27 @@ public class LabelService {
                 });
     }
 
-    public Label getLabel(Long labelNo) {
+    public Label getLabel(Long labelNo) throws NonExistentLabelException {
         return labelRepository.findOne(labelNo)
                 .orElseThrow(() -> new NonExistentLabelException(ExceptionCodeMessage.NON_EXISTENT_LABEL.message()));
+    }
+
+    @Transactional
+    public ItemLabel attachLabelToItem(Long itemNo, Long labelNo) throws NonExistentItemException, NonExistentLabelException {
+        Item item = itemService.getItem(itemNo);
+        Label label = getLabel(labelNo);
+
+        ItemLabel itemLabel = ItemLabel.builder()
+                .item(item)
+                .label(label)
+                .build();
+
+        List<ItemLabel> itemLabels = item.getItemLabels();
+        if (!itemLabels.contains(itemLabel)) {
+            itemLabels.add(itemLabel);
+        }
+
+        return itemLabel;
     }
 
 }
