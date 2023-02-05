@@ -59,4 +59,9 @@ public class JpaLabelRepository implements LabelRepository {
                 .setParameter("userNo", userNo)
                 .getResultList();
     }
+
+    @Override
+    public void deleteByLabelNo(Long labelNo) {
+        em.remove(em.find(Label.class, labelNo));
+    }
 }

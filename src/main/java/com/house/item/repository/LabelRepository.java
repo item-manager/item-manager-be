@@ -15,4 +15,6 @@ public interface LabelRepository {
     Optional<Label> findByNameAndUserNo(String name, Long userNo);
 
     List<Label> findByUserNo(Long userNo);
+
+    void deleteByLabelNo(Long labelNo);
 }
