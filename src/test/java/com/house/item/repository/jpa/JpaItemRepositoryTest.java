@@ -23,17 +23,9 @@ class JpaItemRepositoryTest {
     @Test
     void save() {
         //given
-        User user = createUser();
+        User user = createUser("user1", "username1");
         Location location = createLocation();
-        Item item = Item.builder()
-                .user(user)
-                .name("soup")
-                .type(ItemType.CONSUMABLE)
-                .location(location)
-                .locationMemo("under the desk")
-                .quantity(1)
-                .priority(1)
-                .build();
+        Item item = getItem(user, location, "soup", ItemType.CONSUMABLE, 1, 1);
 
         //when
         itemRepository.save(item);
@@ -46,17 +38,9 @@ class JpaItemRepositoryTest {
     @Test
     void findOne() {
         //given
-        User user = createUser();
+        User user = createUser("user1", "username1");
         Location location = createLocation();
-        Item item = Item.builder()
-                .user(user)
-                .name("soup")
-                .type(ItemType.CONSUMABLE)
-                .location(location)
-                .locationMemo("under the desk")
-                .quantity(1)
-                .priority(1)
-                .build();
+        Item item = getItem(user, location, "soup", ItemType.CONSUMABLE, 1, 1);
         em.persist(item);
 
         //when
@@ -69,17 +53,9 @@ class JpaItemRepositoryTest {
     @Test
     void findByItemNoAndUserNo() {
         //given
-        User user = createUser();
+        User user = createUser("user1", "username1");
         Location location = createLocation();
-        Item item = Item.builder()
-                .user(user)
-                .name("soup")
-                .type(ItemType.CONSUMABLE)
-                .location(location)
-                .locationMemo("under the desk")
-                .quantity(1)
-                .priority(1)
-                .build();
+        Item item = getItem(user, location, "soup", ItemType.CONSUMABLE, 1, 1);
         em.persist(item);
 
         //when
@@ -89,12 +65,12 @@ class JpaItemRepositoryTest {
         Assertions.assertThat(findItem).isSameAs(item);
     }
 
-    User createUser() {
+    User createUser(String id, String username) {
         User user = User.builder()
-                .id("user1")
+                .id(id)
                 .password("user1pw")
                 .salt("salt")
-                .username("username1")
+                .username(username)
                 .build();
         em.persist(user);
         return user;
@@ -115,4 +91,42 @@ class JpaItemRepositoryTest {
         em.persist(place);
         return place;
     }
+
+    Item getItem(User user, Location location, String name, ItemType type, int quantity, int priority) {
+        Item item = Item.builder()
+                .user(user)
+                .name(name)
+                .type(type)
+                .location(location)
+                .locationMemo("under the desk")
+                .quantity(quantity)
+                .priority(priority)
+                .build();
+        return item;
+    }
 }
+//    @Test
+//    void findAll() throws Exception {
+//        //given
+//        User user = createUser("user1", "username1");
+//        Location location = createLocation();
+//        Item item1 = getItem(user, location, "item1", ItemType.CONSUMABLE, 2, 1);
+//        Item item2 = getItem(user, location, "item2", ItemType.CONSUMABLE, 2, 1);
+//        Item item3 = getItem(user, location, "item3", ItemType.CONSUMABLE, 2, 1);
+//
+//        User anotherUser = createUser("user2", "username2");
+//        Item item4 = getItem(anotherUser, location, "item4", ItemType.CONSUMABLE, 2, 1);
+//
+//        em.persist(item1);
+//        em.persist(item2);
+//        em.persist(item3);
+//        em.persist(item4);
+//
+//        //when
+//        List<Item> items = itemRepository.findAll(user.getUserNo());
+//
+//        //then
+//        Assertions.assertThat(items.size()).isEqualTo(3);
+//        Assertions.assertThat(items).containsExactly(item1, item2, item3);
+//    }
+//}
