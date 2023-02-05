@@ -121,4 +121,25 @@ public class ItemController {
                 .data(itemLabelRS)
                 .build();
     }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ITEM),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_LABEL)
+                    }
+            )
+    )
+    @Operation(summary = "물품에서 라벨 제거")
+    @DeleteMapping("/labels")
+    public Result<Void> detachLabelFromItem(DetachLabelFromItemRQ detachLabelFromItemRQ) {
+        labelService.detachLabelFromItem(detachLabelFromItemRQ.getItemNo(), detachLabelFromItemRQ.getLabelNo());
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
+                .build();
+    }
 }
