@@ -58,4 +58,24 @@ public class LabelController {
                 .data(labelRSList)
                 .build();
     }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_LABEL)
+                    }
+            )
+    )
+    @Operation(summary = "라벨 제거")
+    @DeleteMapping("/{labelNo}")
+    public Result<Void> deleteLabel(@PathVariable Long labelNo) {
+        labelService.deleteLabel(labelNo);
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
+                .build();
+    }
 }
