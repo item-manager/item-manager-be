@@ -13,6 +13,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JpaItemRepository implements ItemRepository {
 
+    public static final String SELECT_FROM_JPQL = "select i from Item i";
     private final EntityManager em;
 
     @Override
@@ -22,7 +23,7 @@ public class JpaItemRepository implements ItemRepository {
 
     @Override
     public Optional<Item> findOne(Long itemNo) {
-        String jpql = "select i from Item i" +
+        String jpql = SELECT_FROM_JPQL +
                 " join fetch i.location p" +
                 " join fetch p.room r" +
                 " where i.itemNo = :itemNo";
@@ -34,7 +35,7 @@ public class JpaItemRepository implements ItemRepository {
 
     @Override
     public Optional<Item> findByItemNoAndUserNo(Long itemNo, Long userNo) {
-        String jpql = "select i from Item i" +
+        String jpql = SELECT_FROM_JPQL +
                 " join fetch i.user u" +
                 " join fetch i.location p" +
                 " join fetch p.room r" +
