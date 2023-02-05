@@ -39,26 +39,6 @@ public class ItemController {
             content = @Content(
                     schema = @Schema(implementation = ErrorResult.class),
                     examples = {
-                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ITEM)
-                    }
-            )
-    )
-    @Operation(summary = "물품 pk로 조회")
-    @GetMapping("/{itemNo}")
-    public Result<ItemRS> getItem(@PathVariable Long itemNo) throws NonExistentItemException {
-        Item item = itemService.getItem(itemNo);
-        ItemRS itemRS = itemService.itemToItemRS(item);
-
-        return Result.<ItemRS>builder()
-                .data(itemRS)
-                .build();
-    }
-
-    @ApiResponse(
-            responseCode = "400",
-            content = @Content(
-                    schema = @Schema(implementation = ErrorResult.class),
-                    examples = {
                             @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_PLACE)
                     }
             )
@@ -73,6 +53,26 @@ public class ItemController {
                 .build();
         return Result.<CreateItemRS>builder()
                 .data(createItemRS)
+                .build();
+    }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ITEM)
+                    }
+            )
+    )
+    @Operation(summary = "물품 pk로 조회")
+    @GetMapping("/{itemNo}")
+    public Result<ItemRS> getItem(@PathVariable Long itemNo) throws NonExistentItemException {
+        Item item = itemService.getItem(itemNo);
+        ItemRS itemRS = itemService.itemToItemRS(item);
+
+        return Result.<ItemRS>builder()
+                .data(itemRS)
                 .build();
     }
 
