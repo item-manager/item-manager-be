@@ -75,6 +75,11 @@ public class LabelService {
         return labelRSList;
     }
 
+    public void deleteLabel(Long labelNo) throws NonExistentLabelException {
+        getLabel(labelNo);
+        labelRepository.deleteByLabelNo(labelNo);
+    }
+
     @Transactional
     public ItemLabel attachLabelToItem(Long itemNo, Long labelNo) throws NonExistentItemException, NonExistentLabelException {
         Item item = itemService.getItem(itemNo);
