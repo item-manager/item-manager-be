@@ -61,12 +61,13 @@ class ItemServiceTest {
         Item findItem = em.find(Item.class, itemNo);
         Assertions.assertThat(findItem.getQuantity()).isZero();
     }
+
     @Test
     void 물품_pk로_조회() throws Exception {
         //given
         User user = createSessionUser();
         Location location = createLocation(user);
-        Item item = getItem(user, location, ItemType.CONSUMABLE, "item1", 2);
+        Item item = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
         em.persist(item);
 
         //when
@@ -117,7 +118,7 @@ class ItemServiceTest {
         return place;
     }
 
-    Item getItem(User user, Location location, ItemType type, String name, int quantity) {
+    Item getItem(User user, Location location, ItemType type, String name, int quantity, int priority) {
         return Item.builder()
                 .user(user)
                 .type(type)
@@ -125,7 +126,7 @@ class ItemServiceTest {
                 .location(location)
                 .locationMemo("location memo")
                 .quantity(quantity)
-                .priority(1)
+                .priority(priority)
                 .build();
     }
 
