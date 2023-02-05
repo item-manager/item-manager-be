@@ -6,5 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class AttachLabelToItemRQ {
+    private Long itemNo;
     private Long labelNo;
 }

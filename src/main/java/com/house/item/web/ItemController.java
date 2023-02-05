@@ -109,9 +109,9 @@ public class ItemController {
             )
     )
     @Operation(summary = "물품에 라벨링")
-    @PostMapping("/{itemNo}/labels")
-    public Result<ItemLabelRS> attachLabelToItemRQ(@PathVariable Long itemNo, AttachLabelToItemRQ attachLabelToItemRQ) {
-        ItemLabel itemLabel = labelService.attachLabelToItem(itemNo, attachLabelToItemRQ.getLabelNo());
+    @PostMapping("/labels")
+    public Result<ItemLabelRS> attachLabelToItemRQ(AttachLabelToItemRQ attachLabelToItemRQ) {
+        ItemLabel itemLabel = labelService.attachLabelToItem(attachLabelToItemRQ.getItemNo(), attachLabelToItemRQ.getLabelNo());
         ItemLabelRS itemLabelRS = ItemLabelRS.builder()
                 .itemNo(itemLabel.getItem().getItemNo())
                 .labelNo(itemLabel.getLabel().getLabelNo())
