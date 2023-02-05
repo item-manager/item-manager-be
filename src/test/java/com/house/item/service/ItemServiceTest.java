@@ -131,3 +131,122 @@ class ItemServiceTest {
     }
 
 }
+
+//    @Rollback(value = false)
+//    @Test
+//    void test() throws Exception {
+//        //given
+//        User user = createSessionUser();
+//        Location room1 = Location.builder()
+//                .user(user)
+//                .type(LocationType.ROOM)
+//                .name("거실")
+//                .build();
+//        em.persist(room1);
+//
+//        Location room2 = Location.builder()
+//                .user(user)
+//                .type(LocationType.ROOM)
+//                .name("안방")
+//                .build();
+//        em.persist(room2);
+//
+//        Location place1 = Location.builder()
+//                .user(user)
+//                .type(LocationType.PLACE)
+//                .room(room1)
+//                .name("탁자 서랍")
+//                .build();
+//        em.persist(place1);
+//
+//        Location place2 = Location.builder()
+//                .user(user)
+//                .type(LocationType.PLACE)
+//                .room(room2)
+//                .name("옷장")
+//                .build();
+//        em.persist(place2);
+//
+//        Location place3 = Location.builder()
+//                .user(user)
+//                .type(LocationType.PLACE)
+//                .room(room2)
+//                .name("화장대")
+//                .build();
+//        em.persist(place3);
+//
+//        Item item1 = Item.builder()
+//                .user(user)
+//                .name("로션")
+//                .type(ItemType.CONSUMABLE)
+//                .location(place3)
+//                .locationMemo("장 아래칸")
+//                .photoName("70efec72-9953-4a5d-9b55-845cc75fa62b.jpeg")
+//                .quantity(1)
+//                .priority(1)
+//                .build();
+//        em.persist(item1);
+//
+//        Item item2 = Item.builder()
+//                .user(user)
+//                .name("제습제")
+//                .type(ItemType.CONSUMABLE)
+//                .location(place2)
+//                .locationMemo("2번째장 아래 서랍")
+//                .quantity(3)
+//                .priority(1)
+//                .build();
+//        em.persist(item2);
+//
+//        Label label1 = Label.builder()
+//                .user(user)
+//                .name("label1")
+//                .build();
+//        em.persist(label1);
+//
+//        Label label2 = Label.builder()
+//                .user(user)
+//                .name("label2")
+//                .build();
+//        em.persist(label2);
+//
+//        Label label3 = Label.builder()
+//                .user(user)
+//                .name("label3")
+//                .build();
+//        em.persist(label3);
+//
+//        ItemLabel itemLabel1 = ItemLabel.builder()
+//                .item(item1)
+//                .label(label1)
+//                .build();
+//        em.persist(itemLabel1);
+//
+//        ItemLabel itemLabel2 = ItemLabel.builder()
+//                .item(item1)
+//                .label(label2)
+//                .build();
+//        em.persist(itemLabel2);
+//
+//        ItemLabel itemLabel3 = ItemLabel.builder()
+//                .item(item2)
+//                .label(label3)
+//                .build();
+//        em.persist(itemLabel3);
+//
+//        Long userNo = user.getUserNo();
+//
+//        em.flush();
+//        em.clear();
+//
+//        String jpql = "select l from Label l";
+//        List<Label> resultList = em.createQuery(jpql, Label.class)
+//                .getResultList();
+////        for (Label label : resultList) {
+////            System.out.println("label.getItemLabels() = " + label.getItemLabels());
+////        }
+//
+//        //when
+//
+//        //then
+//    }
