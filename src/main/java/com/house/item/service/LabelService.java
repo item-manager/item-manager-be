@@ -75,6 +75,7 @@ public class LabelService {
         return labelRSList;
     }
 
+    @Transactional
     public void deleteLabel(Long labelNo) throws NonExistentLabelException {
         getLabel(labelNo);
         labelRepository.deleteByLabelNo(labelNo);
