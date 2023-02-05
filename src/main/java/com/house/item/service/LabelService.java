@@ -60,8 +60,8 @@ public class LabelService {
     }
 
     public List<Label> getLabels() {
-        User loginUser = authService.getLoginUser();
-        return labelRepository.findByUserNo(loginUser.getUserNo());
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        return labelRepository.findByUserNo(sessionUser.getUserNo());
     }
 
     public List<LabelRS> labelToLabelRS(List<Label> labels) {
