@@ -3,6 +3,7 @@ package com.house.item.service;
 import com.house.item.domain.CreateLabel;
 import com.house.item.domain.SessionUser;
 import com.house.item.entity.*;
+import com.house.item.exception.NonExistentLabelException;
 import com.house.item.exception.NonUniqueLabelNameException;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
@@ -73,6 +74,37 @@ class LabelServiceTest {
     }
 
     @Test
+    void 존재하지_않는_라벨조회() throws Exception {
+        //given
+        User user = createSessionUser();
+
+        //when
+        Assertions.assertThatThrownBy(() -> labelService.getLabel(0L))
+                .isInstanceOf(NonExistentLabelException.class);
+    }
+
+    @Test
+    void 다른_user_라벨조회() throws Exception {
+        //given
+        User user = User.builder()
+                .id("id1")
+                .password("pw")
+                .salt("salt")
+                .username("name1")
+                .build();
+        em.persist(user);
+        Label label = getLabel(user, "label");
+        em.persist(label);
+        Long labelNo = label.getLabelNo();
+
+        User anotherUser = createSessionUser();
+
+        //when
+        Assertions.assertThatThrownBy(() -> labelService.getLabel(labelNo))
+                .isInstanceOf(NonExistentLabelException.class);
+    }
+
+    @Test
     void sessionUser_라벨목록_조회() throws Exception {
         //given
         User user = createSessionUser();
@@ -87,6 +119,23 @@ class LabelServiceTest {
         //then
         Assertions.assertThat(labels).containsExactly(label1, label2);
     }
+
+    @Test
+    void 라벨제거() throws Exception {
+        //given
+        User user = createSessionUser();
+        Label label = getLabel(user, "label");
+        em.persist(label);
+        Long labelNo = label.getLabelNo();
+
+        //when
+        labelService.deleteLabel(labelNo);
+
+        //then
+        Label findLabel = em.find(Label.class, labelNo);
+        Assertions.assertThat(findLabel).isNull();
+    }
+
 
     @Test
     void 물품에_라벨링() throws Exception {
