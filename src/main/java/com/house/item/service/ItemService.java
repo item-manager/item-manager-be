@@ -67,9 +67,7 @@ public class ItemService {
                 .orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
     }
 
-    public ItemRS getItemRS(Long itemNo) {
-        Item item = getItem(itemNo);
-
+    public ItemRS itemToItemRS(Item item) {
         List<LabelRS> labels = new ArrayList<>();
         for (ItemLabel itemLabel : item.getItemLabels()) {
             Label label = itemLabel.getLabel();

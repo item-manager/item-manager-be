@@ -46,7 +46,8 @@ public class ItemController {
     @Operation(summary = "물품 pk로 조회")
     @GetMapping("/{itemNo}")
     public Result<ItemRS> getItem(@PathVariable Long itemNo) throws NonExistentItemException {
-        ItemRS itemRS = itemService.getItemRS(itemNo);
+        Item item = itemService.getItem(itemNo);
+        ItemRS itemRS = itemService.itemToItemRS(item);
 
         return Result.<ItemRS>builder()
                 .data(itemRS)
