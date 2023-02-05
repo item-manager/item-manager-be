@@ -99,4 +99,18 @@ public class LabelService {
         return itemLabel;
     }
 
+    @Transactional
+    public void detachLabelFromItem(Long itemNo, Long labelNo) throws NonExistentItemException, NonExistentLabelException {
+        Item item = itemService.getItem(itemNo);
+        getLabel(labelNo);
+
+        List<ItemLabel> itemLabels = item.getItemLabels();
+        for (ItemLabel itemLabel : itemLabels) {
+            if (itemLabel.getLabel().getLabelNo().equals(labelNo)) {
+                itemLabels.remove(itemLabel);
+                break;
+            }
+        }
+    }
+
 }
