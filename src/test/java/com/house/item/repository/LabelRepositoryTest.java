@@ -92,6 +92,22 @@ class LabelRepositoryTest {
         Assertions.assertThat(labels).containsExactly(label1, label2);
     }
 
+    @Test
+    void deleteByLabelNo() throws Exception {
+        //given
+        User user = createUser();
+        Label label = getLabel(user, "label");
+        em.persist(label);
+        Long labelNo = label.getLabelNo();
+
+        //when
+        labelRepository.deleteByLabelNo(labelNo);
+
+        //then
+        Label findLabel = em.find(Label.class, labelNo);
+        Assertions.assertThat(findLabel).isNull();
+    }
+
     User createUser() {
         User user = User.builder()
                 .id("user1")
