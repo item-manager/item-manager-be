@@ -24,6 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -33,6 +35,17 @@ public class ItemController {
     private final Props props;
     private final ItemService itemService;
     private final LabelService labelService;
+
+    @Operation(summary = "물품 목록 조회")
+    @GetMapping
+    public Result<List<ItemRS>> getItems() {
+        List<Item> items = itemService.getItems();
+        List<ItemRS> itemRSList = itemService.itemsToItemRSList(items);
+
+        return Result.<List<ItemRS>>builder()
+                .data(itemRSList)
+                .build();
+    }
 
     @ApiResponse(
             responseCode = "400",

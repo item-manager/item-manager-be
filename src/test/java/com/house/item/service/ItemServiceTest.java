@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import java.io.FileInputStream;
+import java.util.List;
 
 @SpringBootTest
 @Transactional
@@ -75,6 +76,26 @@ class ItemServiceTest {
 
         //then
         Assertions.assertThat(findItem).isSameAs(item);
+    }
+
+    @Test
+    void user_pk로_item_목록조회() throws Exception {
+        //given
+        User user = createSessionUser();
+        Location location = createLocation(user);
+        Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
+        Item item2 = getItem(user, location, ItemType.CONSUMABLE, "item2", 2, 1);
+        Item item3 = getItem(user, location, ItemType.CONSUMABLE, "item3", 2, 1);
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
+
+        //when
+        List<Item> items = itemService.getItems();
+
+        //then
+        Assertions.assertThat(items).hasSize(3)
+                .containsExactly(item1, item2, item3);
     }
 
     User createSessionUser() {

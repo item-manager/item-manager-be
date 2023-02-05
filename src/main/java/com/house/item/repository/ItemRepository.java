@@ -2,6 +2,7 @@ package com.house.item.repository;
 
 import com.house.item.entity.Item;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ItemRepository {
@@ -10,4 +11,6 @@ public interface ItemRepository {
     Optional<Item> findOne(Long itemNo);
 
     Optional<Item> findByItemNoAndUserNo(Long itemNo, Long userNo);
+
+    List<Item> findAll(Long userNo);
 }

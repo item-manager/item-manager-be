@@ -47,4 +47,16 @@ public class JpaItemRepository implements ItemRepository {
                 .getResultList();
         return items.stream().findAny();
     }
+
+    @Override
+    public List<Item> findAll(Long userNo) {
+        String jpql = SELECT_FROM_JPQL +
+                " join fetch i.user u" +
+                " join fetch i.location p" +
+                " join fetch p.room r" +
+                " where u.userNo = :userNo";
+        return em.createQuery(jpql, Item.class)
+                .setParameter("userNo", userNo)
+                .getResultList();
+    }
 }

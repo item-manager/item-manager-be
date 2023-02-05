@@ -90,6 +90,19 @@ public class ItemService {
                 .build();
     }
 
+    public List<Item> getItems() {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        return itemRepository.findAll(sessionUser.getUserNo());
+    }
+
+    public List<ItemRS> itemsToItemRSList(List<Item> items) {
+        List<ItemRS> itemRSList = new ArrayList<>();
+        for (Item item : items) {
+            itemRSList.add(itemToItemRS(item));
+        }
+        return itemRSList;
+    }
+
     private String storePhoto(MultipartFile photo) throws ServiceException {
         String photoDir = props.getDir().getPhoto();
         return FileUtil.storeFile(photo, photoDir);
