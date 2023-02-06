@@ -7,10 +7,7 @@ import com.house.item.domain.ItemRS;
 import com.house.item.domain.LabelRS;
 import com.house.item.domain.SessionUser;
 import com.house.item.entity.*;
-import com.house.item.exception.NonExistentItemException;
-import com.house.item.exception.NonExistentPlaceException;
-import com.house.item.exception.NonExistentSessionUserException;
-import com.house.item.exception.ServiceException;
+import com.house.item.exception.*;
 import com.house.item.repository.ItemRepository;
 import com.house.item.util.FileUtil;
 import com.house.item.util.SessionUtils;
@@ -37,7 +34,12 @@ public class ItemService {
     @Transactional
     public Long createItem(CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
         User loginUser = authService.getLoginUser();
-        Location location = locationService.getLocation(createItemRQ.getLocationNo());
+        Location location;
+        try {
+            location = locationService.getLocation(createItemRQ.getLocationNo());
+        } catch (NonExistentLocationException e) {
+            throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
+        }
         String photoName = storePhoto(createItemRQ.getPhoto());
 
         Item item = Item.builder()

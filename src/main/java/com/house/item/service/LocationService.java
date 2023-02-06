@@ -69,7 +69,7 @@ public class LocationService {
         return room;
     }
 
-    public Location getLocation(Long locationNo) {
+    public Location getLocation(Long locationNo) throws NonExistentLocationException {
         SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
         return locationRepository.findByLocationNoAndUserNo(locationNo, sessionUser.getUserNo())
                 .orElseThrow(() -> new NonExistentLocationException(ExceptionCodeMessage.NON_EXISTENT_LOCATION.message()));
