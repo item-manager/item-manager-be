@@ -35,4 +35,8 @@ public class Label {
             this.itemLabels = itemLabels;
         }
     }
+
+    public void updateLabel(String name) {
+        this.name = name;
+    }
 }

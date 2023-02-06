@@ -4,6 +4,7 @@ import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.CreateLabel;
 import com.house.item.domain.LabelRS;
 import com.house.item.domain.SessionUser;
+import com.house.item.domain.UpdateLabelRQ;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemLabel;
 import com.house.item.entity.Label;
@@ -114,4 +115,10 @@ public class LabelService {
         }
     }
 
+    @Transactional
+    public void updateLabel(Long labelNo, UpdateLabelRQ updateLabelRQ) throws NonExistentLabelException, NonUniqueLabelNameException {
+        validateDuplicationLabelName(updateLabelRQ.getName());
+        Label label = getLabel(labelNo);
+        label.updateLabel(updateLabelRQ.getName());
+    }
 }
