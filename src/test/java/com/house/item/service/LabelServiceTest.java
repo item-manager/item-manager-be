@@ -2,6 +2,7 @@ package com.house.item.service;
 
 import com.house.item.domain.CreateLabel;
 import com.house.item.domain.SessionUser;
+import com.house.item.domain.UpdateLabelRQ;
 import com.house.item.entity.*;
 import com.house.item.exception.NonExistentLabelException;
 import com.house.item.exception.NonUniqueLabelNameException;
@@ -151,6 +152,28 @@ class LabelServiceTest {
         //then
         Assertions.assertThat(itemLabel.getItem()).isSameAs(item);
         Assertions.assertThat(itemLabel.getLabel()).isSameAs(label);
+    }
+
+    @Test
+    void 라벨정보수정() throws Exception {
+        //given
+        User user = createSessionUser();
+        Label label = getLabel(user, "label");
+        em.persist(label);
+        Long labelNo = label.getLabelNo();
+
+        UpdateLabelRQ updateLabelRQ = UpdateLabelRQ.builder()
+                .name("new name")
+                .build();
+
+        //when
+        labelService.updateLabel(labelNo, updateLabelRQ);
+        em.flush();
+        em.clear();
+
+        //then
+        Label findLabel = em.find(Label.class, labelNo);
+        Assertions.assertThat(findLabel.getName()).isEqualTo("new name");
     }
 
     @Test
