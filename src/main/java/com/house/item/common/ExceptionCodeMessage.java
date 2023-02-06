@@ -19,6 +19,7 @@ public enum ExceptionCodeMessage {
     NON_EXISTENT_ROOM(CodeDefine.NON_EXISTENT_ROOM, MessageDefine.NON_EXISTENT_ROOM),
     NON_EXISTENT_PLACE(CodeDefine.NON_EXISTENT_PLACE, MessageDefine.NON_EXISTENT_PLACE),
     NOT_LOCATION_TYPE_ROOM(CodeDefine.NOT_LOCATION_TYPE_ROOM, MessageDefine.NOT_LOCATION_TYPE_ROOM),
+    NON_EXISTENT_LOCATION(CodeDefine.NON_EXISTENT_LOCATION, MessageDefine.NON_EXISTENT_LOCATION),
 
     /* Label */
     NON_EXISTENT_LABEL(CodeDefine.NON_EXISTENT_LABEL, MessageDefine.NON_EXISTENT_LABEL),
@@ -42,6 +43,7 @@ public enum ExceptionCodeMessage {
         int NON_EXISTENT_ROOM = 3001;
         int NON_EXISTENT_PLACE = 3002;
         int NOT_LOCATION_TYPE_ROOM = 3003;
+        int NON_EXISTENT_LOCATION = 3004;
 
         /* Label */
         int NON_EXISTENT_LABEL = 4001;
@@ -64,6 +66,7 @@ public enum ExceptionCodeMessage {
         String NON_EXISTENT_ROOM = "잘못된 방 정보입니다";
         String NON_EXISTENT_PLACE = "잘못된 위치 정보입니다";
         String NOT_LOCATION_TYPE_ROOM = "roomNo type이 방이 아닙니다";
+        String NON_EXISTENT_LOCATION = "잘못된 방/위치 정보입니다";
 
         /* Label */
         String NON_EXISTENT_LABEL = "잘못된 라벨 정보입니다";
@@ -85,6 +88,7 @@ public enum ExceptionCodeMessage {
         String NON_EXISTENT_ROOM = CodeDefine.NON_EXISTENT_ROOM + " - " + MessageDefine.NON_EXISTENT_ROOM;
         String NON_EXISTENT_PLACE = CodeDefine.NON_EXISTENT_PLACE + " - " + MessageDefine.NON_EXISTENT_PLACE;
         String NOT_LOCATION_TYPE_ROOM = CodeDefine.NOT_LOCATION_TYPE_ROOM + " - " + MessageDefine.NOT_LOCATION_TYPE_ROOM;
+        String NON_EXISTENT_LOCATION = CodeDefine.NON_EXISTENT_LOCATION + " - " + MessageDefine.NON_EXISTENT_LOCATION;
 
         /* Label */
         String NON_EXISTENT_LABEL = CodeDefine.NON_EXISTENT_LABEL + " - " + MessageDefine.NON_EXISTENT_LABEL;

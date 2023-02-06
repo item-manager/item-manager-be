@@ -7,6 +7,7 @@ import com.house.item.domain.SessionUser;
 import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
+import com.house.item.exception.NonExistentLocationException;
 import com.house.item.exception.NonExistentRoomException;
 import com.house.item.exception.NotLocationTypeRoomException;
 import com.house.item.repository.LocationRepository;
@@ -66,6 +67,12 @@ public class LocationService {
             throw new NotLocationTypeRoomException(ExceptionCodeMessage.NOT_LOCATION_TYPE_ROOM.message());
         }
         return room;
+    }
+
+    public Location getLocation(Long locationNo) {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        return locationRepository.findByLocationNoAndUserNo(locationNo, sessionUser.getUserNo())
+                .orElseThrow(() -> new NonExistentLocationException(ExceptionCodeMessage.NON_EXISTENT_LOCATION.message()));
     }
 
     public List<Location> getRooms() {

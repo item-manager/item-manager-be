@@ -12,7 +12,6 @@ import com.house.item.exception.NonExistentPlaceException;
 import com.house.item.exception.NonExistentSessionUserException;
 import com.house.item.exception.ServiceException;
 import com.house.item.repository.ItemRepository;
-import com.house.item.repository.LocationRepository;
 import com.house.item.util.FileUtil;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
@@ -30,15 +29,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ItemService {
-    private final AuthService authService;
-    private final ItemRepository itemRepository;
-    private final LocationRepository locationRepository;
     private final Props props;
+    private final ItemRepository itemRepository;
+    private final AuthService authService;
+    private final LocationService locationService;
 
     @Transactional
     public Long createItem(CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
         User loginUser = authService.getLoginUser();
-        Location location = getLocation(createItemRQ.getLocationNo());
+        Location location = locationService.getLocation(createItemRQ.getLocationNo());
         String photoName = storePhoto(createItemRQ.getPhoto());
 
         Item item = Item.builder()
@@ -54,11 +53,6 @@ public class ItemService {
 
         itemRepository.save(item);
         return item.getItemNo();
-    }
-
-    private Location getLocation(Long locationNo) throws NonExistentPlaceException {
-        return locationRepository.findOne(locationNo)
-                .orElseThrow(() -> new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message()));
     }
 
     public Item getItem(Long itemNo) throws NonExistentItemException {
