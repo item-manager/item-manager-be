@@ -35,7 +35,7 @@ public class LabelService {
     @Transactional
     public Long createLabel(CreateLabel createLabel) throws NonUniqueLabelNameException {
         User loginUser = authService.getLoginUser();
-        validateDuplicationLabelName(createLabel.getName(), loginUser.getUserNo());
+        validateDuplicationLabelName(createLabel.getName());
 
         Label label = Label.builder()
                 .user(loginUser)
@@ -46,8 +46,9 @@ public class LabelService {
         return label.getLabelNo();
     }
 
-    private void validateDuplicationLabelName(String name, Long userNo) throws NonUniqueLabelNameException {
-        labelRepository.findByNameAndUserNo(name, userNo)
+    private void validateDuplicationLabelName(String name) throws NonUniqueLabelNameException {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        labelRepository.findByNameAndUserNo(name, sessionUser.getUserNo())
                 .ifPresent(l -> {
                     throw new NonUniqueLabelNameException(ExceptionCodeMessage.NON_UNIQUE_LABEL_NAME.message());
                 });
