@@ -64,6 +64,27 @@ public class LabelController {
             content = @Content(
                     schema = @Schema(implementation = ErrorResult.class),
                     examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_LABEL),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_UNIQUE_LABEL_NAME)
+                    }
+            )
+    )
+    @Operation(summary = "라벨 제거")
+    @PatchMapping("/{labelNo}")
+    public Result<Void> patchLabel(@PathVariable Long labelNo, @RequestBody UpdateLabelRQ updateLabelRQ) {
+        labelService.updateLabel(labelNo, updateLabelRQ);
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
+                .build();
+    }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
                             @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_LABEL)
                     }
             )
