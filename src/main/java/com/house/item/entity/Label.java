@@ -28,8 +28,7 @@ public class Label {
     private List<ItemLabel> itemLabels = new ArrayList<>();
 
     @Builder
-    private Label(Long labelNo, User user, String name, List<ItemLabel> itemLabels) {
-        this.labelNo = labelNo;
+    private Label(User user, String name, List<ItemLabel> itemLabels) {
         this.user = user;
         this.name = name;
         if (itemLabels != null) {
