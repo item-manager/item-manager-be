@@ -110,7 +110,7 @@ public class ItemController {
     )
     @Operation(summary = "물품에 라벨링")
     @PostMapping("/labels")
-    public Result<ItemLabelRS> attachLabelToItemRQ(AttachLabelToItemRQ attachLabelToItemRQ) {
+    public Result<ItemLabelRS> attachLabelToItemRQ(@RequestBody AttachLabelToItemRQ attachLabelToItemRQ) {
         ItemLabel itemLabel = labelService.attachLabelToItem(attachLabelToItemRQ.getItemNo(), attachLabelToItemRQ.getLabelNo());
         ItemLabelRS itemLabelRS = ItemLabelRS.builder()
                 .itemNo(itemLabel.getItem().getItemNo())
@@ -134,7 +134,7 @@ public class ItemController {
     )
     @Operation(summary = "물품에서 라벨 제거")
     @DeleteMapping("/labels")
-    public Result<Void> detachLabelFromItem(DetachLabelFromItemRQ detachLabelFromItemRQ) {
+    public Result<Void> detachLabelFromItem(@RequestBody DetachLabelFromItemRQ detachLabelFromItemRQ) {
         labelService.detachLabelFromItem(detachLabelFromItemRQ.getItemNo(), detachLabelFromItemRQ.getLabelNo());
 
         return Result.<Void>builder()
