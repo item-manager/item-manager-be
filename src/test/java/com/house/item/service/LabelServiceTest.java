@@ -13,6 +13,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -162,9 +163,8 @@ class LabelServiceTest {
         em.persist(label);
         Long labelNo = label.getLabelNo();
 
-        UpdateLabelRQ updateLabelRQ = UpdateLabelRQ.builder()
-                .name("new name")
-                .build();
+        UpdateLabelRQ updateLabelRQ = new UpdateLabelRQ();
+        ReflectionTestUtils.setField(updateLabelRQ, "name", "new name");
 
         //when
         labelService.updateLabel(labelNo, updateLabelRQ);
