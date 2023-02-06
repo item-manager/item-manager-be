@@ -69,7 +69,7 @@ public class LabelController {
                     }
             )
     )
-    @Operation(summary = "라벨 제거")
+    @Operation(summary = "라벨 수정")
     @PatchMapping("/{labelNo}")
     public Result<Void> patchLabel(@PathVariable Long labelNo, @RequestBody UpdateLabelRQ updateLabelRQ) {
         labelService.updateLabel(labelNo, updateLabelRQ);
