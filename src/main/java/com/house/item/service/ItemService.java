@@ -37,10 +37,15 @@ public class ItemService {
         Location location;
         try {
             location = locationService.getLocation(createItemRQ.getLocationNo());
+            locationService.checkLocationType(location, LocationType.PLACE);
         } catch (NonExistentLocationException e) {
             throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
         }
-        String photoName = storePhoto(createItemRQ.getPhoto());
+
+        String photoName = "";
+        if (createItemRQ.getPhoto() != null) {
+            photoName = storePhoto(createItemRQ.getPhoto());
+        }
 
         Item item = Item.builder()
                 .user(loginUser)
