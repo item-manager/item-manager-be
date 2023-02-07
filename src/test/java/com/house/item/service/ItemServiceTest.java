@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
@@ -53,7 +54,8 @@ class ItemServiceTest {
                 location.getLocationNo(),
                 "location memo",
                 photo,
-                1);
+                1,
+                new ArrayList<>(List.of(1L, 2L)));
 
         //when
         Long itemNo = itemService.createItem(createItemRQ);

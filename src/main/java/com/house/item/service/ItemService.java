@@ -53,6 +53,16 @@ public class ItemService {
                 .priority(createItemRQ.getPriority())
                 .build();
 
+        List<Long> labels = createItemRQ.getLabels();
+        for (Long label : labels) {
+            item.getItemLabels().add(ItemLabel.builder()
+                    .item(item)
+                    .label(Label.builder()
+                            .labelNo(label)
+                            .build())
+                    .build());
+        }
+
         itemRepository.save(item);
         return item.getItemNo();
     }
