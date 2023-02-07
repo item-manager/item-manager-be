@@ -4,6 +4,7 @@ import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ErrorResult;
 import com.house.item.exception.NonExistentPlaceException;
 import com.house.item.exception.NonExistentRoomException;
+import com.house.item.exception.NotLocationTypePlaceException;
 import com.house.item.exception.NotLocationTypeRoomException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,15 @@ public class LocationControllerAdvice {
     public ErrorResult notLocationTypeRoomException(NotLocationTypeRoomException e) {
         return ErrorResult.builder()
                 .code(ExceptionCodeMessage.NOT_LOCATION_TYPE_ROOM.code())
+                .message(e.getMessage())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler
+    public ErrorResult notLocationTypePlaceException(NotLocationTypePlaceException e) {
+        return ErrorResult.builder()
+                .code(ExceptionCodeMessage.NOT_LOCATION_TYPE_PLACE.code())
                 .message(e.getMessage())
                 .build();
     }

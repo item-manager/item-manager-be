@@ -9,6 +9,7 @@ import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
 import com.house.item.exception.NonExistentLocationException;
 import com.house.item.exception.NonExistentRoomException;
+import com.house.item.exception.NotLocationTypePlaceException;
 import com.house.item.exception.NotLocationTypeRoomException;
 import com.house.item.repository.LocationRepository;
 import com.house.item.util.SessionUtils;
@@ -46,7 +47,8 @@ public class LocationService {
     @Transactional
     public Long createPlace(CreatePlaceRQ createPlaceRQ) throws NonExistentRoomException, NotLocationTypeRoomException {
         User loginUser = authService.getLoginUser();
-        Location room = checkRoom(createPlaceRQ.getRoomNo());
+        Location room = getLocation(createPlaceRQ.getRoomNo());
+        checkLocationType(room, LocationType.ROOM);
 
         Location place = Location.builder()
                 .user(loginUser)
@@ -59,20 +61,21 @@ public class LocationService {
         return place.getLocationNo();
     }
 
-    private Location checkRoom(Long roomNo) throws NonExistentRoomException, NotLocationTypeRoomException {
-        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        Location room = locationRepository.findByLocationNoAndUserNo(roomNo, sessionUser.getUserNo())
-                .orElseThrow(() -> new NonExistentRoomException(ExceptionCodeMessage.NON_EXISTENT_ROOM.message()));
-        if (room.getType() != LocationType.ROOM) {
-            throw new NotLocationTypeRoomException(ExceptionCodeMessage.NOT_LOCATION_TYPE_ROOM.message());
+    public void checkLocationType(Location location, LocationType type) throws NotLocationTypeRoomException, NotLocationTypePlaceException {
+        if (location.getType() != type) {
+            if (type == LocationType.ROOM) {
+                throw new NotLocationTypeRoomException(ExceptionCodeMessage.NOT_LOCATION_TYPE_ROOM.message());
+            }
+            if (type == LocationType.PLACE) {
+                throw new NotLocationTypePlaceException(ExceptionCodeMessage.NOT_LOCATION_TYPE_PLACE.message());
+            }
         }
-        return room;
     }
 
     public Location getLocation(Long locationNo) throws NonExistentLocationException {
         SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
         return locationRepository.findByLocationNoAndUserNo(locationNo, sessionUser.getUserNo())
-                .orElseThrow(() -> new NonExistentLocationException(ExceptionCodeMessage.NON_EXISTENT_LOCATION.message()));
+                .orElseThrow(() -> new NonExistentLocationException(ExceptionCodeMessage.MessageDefine.NON_EXISTENT_LOCATION));
     }
 
     public List<Location> getRooms() {
@@ -81,7 +84,8 @@ public class LocationService {
     }
 
     public List<Location> getPlacesByRoomNo(Long roomNo) throws NonExistentRoomException, NotLocationTypeRoomException {
-        checkRoom(roomNo);
+        Location room = getLocation(roomNo);
+        checkLocationType(room, LocationType.ROOM);
         return locationRepository.findByRoom(roomNo);
     }
 }
