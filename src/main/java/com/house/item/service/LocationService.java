@@ -1,9 +1,7 @@
 package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
-import com.house.item.domain.CreatePlaceRQ;
-import com.house.item.domain.CreateRoomRQ;
-import com.house.item.domain.SessionUser;
+import com.house.item.domain.*;
 import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
@@ -87,5 +85,23 @@ public class LocationService {
         Location room = getLocation(roomNo);
         checkLocationType(room, LocationType.ROOM);
         return locationRepository.findByRoom(roomNo);
+    }
+
+    @Transactional
+    public void updateRoom(Long roomNo, UpdateRoomRQ updateRoomRQ) {
+        Location room = getLocation(roomNo);
+        room.updateRoom(updateRoomRQ.getName());
+    }
+
+    @Transactional
+    public void updatePlace(Long placeNo, UpdatePlaceRQ updatePlaceRQ) {
+        Location place = getLocation(placeNo);
+        Location room = null;
+        if (!place.getRoom().getLocationNo().equals(updatePlaceRQ.getRoomNo())) {
+            room = Location.builder()
+                    .locationNo(updatePlaceRQ.getRoomNo())
+                    .build();
+        }
+        place.updatePlace(room, updatePlaceRQ.getName());
     }
 }

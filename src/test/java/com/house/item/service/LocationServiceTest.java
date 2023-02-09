@@ -1,8 +1,6 @@
 package com.house.item.service;
 
-import com.house.item.domain.CreatePlaceRQ;
-import com.house.item.domain.CreateRoomRQ;
-import com.house.item.domain.SessionUser;
+import com.house.item.domain.*;
 import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
@@ -99,6 +97,65 @@ class LocationServiceTest {
                 .isInstanceOf(NonExistentRoomException.class);
 
         //then
+    }
+
+    @Test
+    void 방정보수정() throws Exception {
+        //given
+        User user = createSessionUser();
+        Location room = getLocation(user, LocationType.ROOM, "room", null);
+        em.persist(room);
+        Long locationNo = room.getLocationNo();
+
+        em.flush();
+        em.clear();
+
+        UpdateRoomRQ updateRoomRQ = UpdateRoomRQ.builder()
+                .name("new room")
+                .build();
+
+        //when
+        locationService.updateRoom(locationNo, updateRoomRQ);
+        em.flush();
+        em.clear();
+
+        //then
+        Location findRoom = em.find(Location.class, locationNo);
+        Assertions.assertThat(findRoom.getName()).isEqualTo("new room");
+    }
+
+    @Test
+    void 위치정보수정() throws Exception {
+        //given
+        User user = createSessionUser();
+        Location room1 = getLocation(user, LocationType.ROOM, "room1", null);
+        Location room2 = getLocation(user, LocationType.ROOM, "room2", null);
+        Location place = getLocation(user, LocationType.PLACE, "PLACE", room1);
+        em.persist(room1);
+        em.persist(room2);
+        em.persist(place);
+        Long room1LocationNo = room1.getLocationNo();
+        Long room2LocationNo = room2.getLocationNo();
+        Long placeLocationNo = place.getLocationNo();
+
+        em.flush();
+        em.clear();
+
+        UpdatePlaceRQ updatePlaceRQ = UpdatePlaceRQ.builder()
+                .roomNo(room2LocationNo)
+                .name("place")
+                .build();
+
+        //when
+        locationService.updatePlace(placeLocationNo, updatePlaceRQ);
+
+        em.flush();
+        em.clear();
+
+        //then
+        Location findPlace = em.find(Location.class, placeLocationNo);
+        Assertions.assertThat(findPlace.getRoom().getName()).isEqualTo("room2");
+        Assertions.assertThat(findPlace.getName()).isEqualTo("place");
     }
 
     User createSessionUser() {
