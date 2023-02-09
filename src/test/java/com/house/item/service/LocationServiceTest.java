@@ -51,7 +51,8 @@ class LocationServiceTest {
     void 위치_생성() throws Exception {
         //given
         User sessionUser = createSessionUser();
-        Location room = createRoom(sessionUser);
+        Location room = getLocation(sessionUser, LocationType.ROOM, "room1", null);
+        em.persist(room);
         CreatePlaceRQ createPlaceRQ = new CreatePlaceRQ();
         ReflectionTestUtils.setField(createPlaceRQ, "name", "place1");
         ReflectionTestUtils.setField(createPlaceRQ, "roomNo", room.getLocationNo());
@@ -86,7 +87,8 @@ class LocationServiceTest {
         //given
         User sessionUser = createSessionUser();
         User anotherUser = createAnotherUser();
-        Location room = createRoom(anotherUser);
+        Location room = getLocation(anotherUser, LocationType.ROOM, "room1", null);
+        em.persist(room);
 
         CreatePlaceRQ createPlaceRQ = new CreatePlaceRQ();
         ReflectionTestUtils.setField(createPlaceRQ, "name", "place1");
@@ -127,14 +129,13 @@ class LocationServiceTest {
         return user;
     }
 
-    Location createRoom(User user) {
-        Location room1 = Location.builder()
+    Location getLocation(User user, LocationType type, String name, Location room) {
+        return Location.builder()
                 .user(user)
-                .type(LocationType.ROOM)
-                .name("room1")
+                .type(type)
+                .name(name)
+                .room(room)
                 .build();
-        em.persist(room1);
-        return room1;
     }
 
 }
