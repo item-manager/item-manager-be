@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
@@ -37,7 +38,7 @@ public class UserController {
     )
     @Operation(summary = "회원가입")
     @PostMapping
-    public Result<CreateUserRS> createUser(@RequestBody CreateUserRQ createUserRQ) throws NonUniqueUserIdException {
+    public Result<CreateUserRS> createUser(@Validated @RequestBody CreateUserRQ createUserRQ) throws NonUniqueUserIdException {
         Long userNo = userService.signUp(createUserRQ);
         CreateUserRS createUserRS = CreateUserRS.builder()
                 .userNo(userNo)
