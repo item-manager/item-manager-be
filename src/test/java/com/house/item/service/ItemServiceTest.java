@@ -1,10 +1,12 @@
 package com.house.item.service;
 
+import com.house.item.common.Props;
 import com.house.item.domain.CreateItemRQ;
 import com.house.item.domain.SessionUser;
 import com.house.item.entity.*;
 import com.house.item.repository.LocationRepository;
 import com.house.item.repository.UserRepository;
+import com.house.item.util.FileUtil;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +36,8 @@ class ItemServiceTest {
     UserRepository userRepository;
     @Autowired
     LocationRepository locationRepository;
-
-    //    @Rollback(value = false)
+    @Autowired
+    Props props;
 
     @Test
     void 물품생성() throws Exception {
@@ -48,6 +50,21 @@ class ItemServiceTest {
                 "/Users/yurim/Downloads/KakaoTalk_Photo_2023-01-27-16-28-12-3.jpeg",
                 "image/jpeg",
                 new FileInputStream("/Users/yurim/Downloads/KakaoTalk_Photo_2023-01-27-16-28-12-3.jpeg"));
+
+        Label label1 = Label.builder()
+                .user(user)
+                .name("label1")
+                .build();
+        em.persist(label1);
+        Long label1No = label1.getLabelNo();
+
+        Label label2 = Label.builder()
+                .user(user)
+                .name("label2")
+                .build();
+        em.persist(label2);
+        Long label2No = label2.getLabelNo();
+
         CreateItemRQ createItemRQ = new CreateItemRQ(
                 "item1",
                 ItemType.CONSUMABLE,
@@ -55,7 +72,7 @@ class ItemServiceTest {
                 "location memo",
                 photo,
                 1,
-                new ArrayList<>(List.of(1L, 2L)));
+                new ArrayList<>(List.of(label1No, label2No)));
 
         //when
         Long itemNo = itemService.createItem(createItemRQ);
@@ -63,6 +80,8 @@ class ItemServiceTest {
         //then
         Item findItem = em.find(Item.class, itemNo);
         Assertions.assertThat(findItem.getQuantity()).isZero();
+
+        FileUtil.deleteFile(props.getDir().getPhoto(), findItem.getPhotoName());
     }
 
     @Test
