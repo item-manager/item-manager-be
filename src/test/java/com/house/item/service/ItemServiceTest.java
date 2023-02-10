@@ -51,18 +51,10 @@ class ItemServiceTest {
                 "image/jpeg",
                 new FileInputStream("/Users/yurim/Downloads/KakaoTalk_Photo_2023-01-27-16-28-12-3.jpeg"));
 
-        Label label1 = Label.builder()
-                .user(user)
-                .name("label1")
-                .build();
-        em.persist(label1);
+        Label label1 = createLabel(user, "label1");
         Long label1No = label1.getLabelNo();
 
-        Label label2 = Label.builder()
-                .user(user)
-                .name("label2")
-                .build();
-        em.persist(label2);
+        Label label2 = createLabel(user, "label2");
         Long label2No = label2.getLabelNo();
 
         CreateItemRQ createItemRQ = new CreateItemRQ(
@@ -158,6 +150,15 @@ class ItemServiceTest {
         locationRepository.save(place);
 
         return place;
+    }
+
+    private Label createLabel(User user, String name) {
+        Label label = Label.builder()
+                .user(user)
+                .name(name)
+                .build();
+        em.persist(label);
+        return label;
     }
 
     Item getItem(User user, Location location, ItemType type, String name, int quantity, int priority) {
