@@ -43,7 +43,7 @@ class ItemServiceTest {
     void 물품생성() throws Exception {
         //given
         User user = createSessionUser();
-        Location location = createLocation(user);
+        Location location = createLocation(user, "place");
 
         MultipartFile photo = new MockMultipartFile(
                 "fileName",
@@ -88,7 +88,7 @@ class ItemServiceTest {
     void 물품_pk로_조회() throws Exception {
         //given
         User user = createSessionUser();
-        Location location = createLocation(user);
+        Location location = createLocation(user, "place");
         Item item = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
         em.persist(item);
 
@@ -103,7 +103,7 @@ class ItemServiceTest {
     void user_pk로_item_목록조회() throws Exception {
         //given
         User user = createSessionUser();
-        Location location = createLocation(user);
+        Location location = createLocation(user, "place");
         Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
         Item item2 = getItem(user, location, ItemType.CONSUMABLE, "item2", 2, 1);
         Item item3 = getItem(user, location, ItemType.CONSUMABLE, "item3", 2, 1);
@@ -141,7 +141,7 @@ class ItemServiceTest {
         return user;
     }
 
-    Location createLocation(User user) {
+    Location createLocation(User user, String name) {
         Location room = Location.builder()
                 .user(user)
                 .type(LocationType.ROOM)
@@ -153,7 +153,7 @@ class ItemServiceTest {
                 .user(user)
                 .type(LocationType.PLACE)
                 .room(room)
-                .name("place")
+                .name(name)
                 .build();
         locationRepository.save(place);
 
