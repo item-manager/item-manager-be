@@ -104,6 +104,27 @@ public class ItemController {
                     schema = @Schema(implementation = ErrorResult.class),
                     examples = {
                             @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ITEM),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_PLACE)
+                    }
+            )
+    )
+    @Operation(summary = "물품 정보 수정")
+    @PatchMapping(value = "/{itemNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Result<Void> updateItem(@PathVariable Long itemNo, @Validated @ModelAttribute UpdateItemRQ updateItemRQ) {
+        itemService.updateItem(itemNo, updateItemRQ);
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
+                .build();
+    }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ITEM),
                             @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_LABEL)
                     }
             )
