@@ -3,6 +3,7 @@ package com.house.item.service;
 import com.house.item.common.Props;
 import com.house.item.domain.CreateItemRQ;
 import com.house.item.domain.SessionUser;
+import com.house.item.domain.UpdateItemRQ;
 import com.house.item.entity.*;
 import com.house.item.repository.LocationRepository;
 import com.house.item.repository.UserRepository;
@@ -109,6 +110,46 @@ class ItemServiceTest {
         //then
         Assertions.assertThat(items).hasSize(3)
                 .containsExactly(item1, item2, item3);
+    }
+
+    @Test
+    void 물품정보수정() throws Exception {
+        //given
+        User user = createSessionUser();
+        Location location = createLocation(user, "place");
+        Location location2 = createLocation(user, "place2");
+        Label label1 = createLabel(user, "label1");
+        Label label2 = createLabel(user, "label2");
+        Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
+        item1.getItemLabels().add(ItemLabel.builder()
+                .item(item1)
+                .label(Label.builder()
+                        .labelNo(label1.getLabelNo())
+                        .build())
+                .build());
+        em.persist(item1);
+        Long itemNo = item1.getItemNo();
+
+        em.flush();
+        em.clear();
+
+        UpdateItemRQ updateItemRQ = new UpdateItemRQ("new item", ItemType.EQUIPMENT, location2.getLocationNo(), "locationMemo", null, 3, List.of(label2.getLabelNo()));
+
+        //when
+        itemService.updateItem(itemNo, updateItemRQ);
+        em.flush();
+        em.clear();
+
+        //then
+        Item findItem = em.find(Item.class, itemNo);
+        Assertions.assertThat(findItem.getName()).isEqualTo("new item");
+        Assertions.assertThat(findItem.getType()).isEqualTo(ItemType.EQUIPMENT);
+        Assertions.assertThat(findItem.getLocation().getName()).isEqualTo("place2");
+        Assertions.assertThat(findItem.getLocationMemo()).isEqualTo("locationMemo");
+        Assertions.assertThat(findItem.getPriority()).isEqualTo(3);
+        for (ItemLabel itemLabel : findItem.getItemLabels()) {
+            Assertions.assertThat(itemLabel.getLabel().getLabelNo()).isEqualTo(label2.getLabelNo());
+        }
     }
 
     User createSessionUser() {
