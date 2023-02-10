@@ -112,6 +112,7 @@ public class ItemService {
         return itemRSList;
     }
 
+    @Transactional
     public void updateItem(Long itemNo, UpdateItemRQ updateItemRQ) {
         Item item = getItem(itemNo);
 
@@ -140,17 +141,8 @@ public class ItemService {
                 location,
                 updateItemRQ.getLocationMemo(),
                 photoName,
-                updateItemRQ.getPriority());
-
-        List<Long> labels = updateItemRQ.getLabels();
-        for (Long label : labels) {
-            item.getItemLabels().add(ItemLabel.builder()
-                    .item(item)
-                    .label(Label.builder()
-                            .labelNo(label)
-                            .build())
-                    .build());
-        }
+                updateItemRQ.getPriority(),
+                updateItemRQ.getLabels());
     }
 
     private String storePhoto(MultipartFile photo) throws ServiceException {

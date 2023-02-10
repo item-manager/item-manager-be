@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Entity
@@ -57,13 +58,30 @@ public class Item {
         }
     }
 
-    public void updateItem(String name, ItemType type, Location location, String locationMemo, String photoName, int priority) {
+    public void updateItem(String name, ItemType type, Location location, String locationMemo, String photoName, int priority, List<Long> labelNos) {
         this.name = name;
         this.type = type;
         this.location = location;
         this.locationMemo = locationMemo;
         this.photoName = photoName;
         this.priority = priority;
-        this.itemLabels = new ArrayList<>();
+
+        Iterator<ItemLabel> iterator = this.itemLabels.iterator();
+        while (iterator.hasNext()) {
+            Long labelNo = iterator.next().getLabel().getLabelNo();
+            if (labelNos.contains(labelNo)) {
+                labelNos.remove(labelNo);
+            } else {
+                iterator.remove();
+            }
+        }
+
+        for (Long labelNo : labelNos) {
+            this.itemLabels.add(ItemLabel.builder()
+                    .label(Label.builder()
+                            .labelNo(labelNo)
+                            .build())
+                    .build());
+        }
     }
 }
