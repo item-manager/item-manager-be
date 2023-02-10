@@ -56,4 +56,14 @@ public class Item {
             this.itemLabels = itemLabels;
         }
     }
+
+    public void updateItem(String name, ItemType type, Location location, String locationMemo, String photoName, int priority) {
+        this.name = name;
+        this.type = type;
+        this.location = location;
+        this.locationMemo = locationMemo;
+        this.photoName = photoName;
+        this.priority = priority;
+        this.itemLabels = new ArrayList<>();
+    }
 }

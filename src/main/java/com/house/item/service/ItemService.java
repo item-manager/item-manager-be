@@ -2,10 +2,7 @@ package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.common.Props;
-import com.house.item.domain.CreateItemRQ;
-import com.house.item.domain.ItemRS;
-import com.house.item.domain.LabelRS;
-import com.house.item.domain.SessionUser;
+import com.house.item.domain.*;
 import com.house.item.entity.*;
 import com.house.item.exception.*;
 import com.house.item.repository.ItemRepository;
@@ -16,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -112,6 +110,47 @@ public class ItemService {
             itemRSList.add(itemToItemRS(item));
         }
         return itemRSList;
+    }
+
+    public void updateItem(Long itemNo, UpdateItemRQ updateItemRQ) {
+        Item item = getItem(itemNo);
+
+        Location location;
+        try {
+            location = locationService.getLocation(updateItemRQ.getLocationNo());
+            locationService.checkLocationType(location, LocationType.PLACE);
+        } catch (NonExistentLocationException e) {
+            throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
+        }
+
+        //사진 변경이 발생했다고 가정
+        String photoDir = props.getDir().getPhoto();
+        if (StringUtils.hasText(item.getPhotoName())) {
+            FileUtil.deleteFile(photoDir, item.getPhotoName());
+        }
+
+        String photoName = "";
+        if (updateItemRQ.getPhoto() != null) {
+            photoName = storePhoto(updateItemRQ.getPhoto());
+        }
+
+        item.updateItem(
+                updateItemRQ.getName(),
+                updateItemRQ.getType(),
+                location,
+                updateItemRQ.getLocationMemo(),
+                photoName,
+                updateItemRQ.getPriority());
+
+        List<Long> labels = updateItemRQ.getLabels();
+        for (Long label : labels) {
+            item.getItemLabels().add(ItemLabel.builder()
+                    .item(item)
+                    .label(Label.builder()
+                            .labelNo(label)
+                            .build())
+                    .build());
+        }
     }
 
     private String storePhoto(MultipartFile photo) throws ServiceException {
