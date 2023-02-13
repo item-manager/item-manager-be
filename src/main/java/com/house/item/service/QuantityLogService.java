@@ -1,8 +1,8 @@
 package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
+import com.house.item.domain.ConsumeItemRQ;
 import com.house.item.domain.PurchaseItemRQ;
-import com.house.item.domain.SubtractItemQuantityRQ;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemQuantityLog;
 import com.house.item.entity.QuantityType;
@@ -41,21 +41,21 @@ public class QuantityLogService {
     }
 
     @Transactional
-    public int subtractItemQuantity(Long itemNo, SubtractItemQuantityRQ subtractItemQuantityRQ) {
+    public int consumeItem(Long itemNo, ConsumeItemRQ consumeItemRQ) {
         Item item = itemService.getItem(itemNo);
-        if (item.getQuantity() < subtractItemQuantityRQ.getCount()) {
+        if (item.getQuantity() < consumeItemRQ.getCount()) {
             throw new SubtractCountExceedItemQuantityException(ExceptionCodeMessage.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION.message());
         }
 
         ItemQuantityLog quantityLog = ItemQuantityLog.builder()
                 .item(item)
                 .type(QuantityType.CONSUME)
-                .date(subtractItemQuantityRQ.getDate())
-                .count(subtractItemQuantityRQ.getCount())
+                .date(consumeItemRQ.getDate())
+                .count(consumeItemRQ.getCount())
                 .build();
         quantityLogRepository.save(quantityLog);
 
-        item.subtractQuantity(subtractItemQuantityRQ.getCount());
+        item.subtractQuantity(consumeItemRQ.getCount());
 
         return item.getQuantity();
     }

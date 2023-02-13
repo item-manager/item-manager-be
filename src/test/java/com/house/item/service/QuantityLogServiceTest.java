@@ -1,8 +1,8 @@
 package com.house.item.service;
 
+import com.house.item.domain.ConsumeItemRQ;
 import com.house.item.domain.PurchaseItemRQ;
 import com.house.item.domain.SessionUser;
-import com.house.item.domain.SubtractItemQuantityRQ;
 import com.house.item.entity.*;
 import com.house.item.exception.SubtractCountExceedItemQuantityException;
 import com.house.item.util.SessionUtils;
@@ -53,13 +53,13 @@ class QuantityLogServiceTest {
         Item item = createItem(user, 10);
         Long itemNo = item.getItemNo();
 
-        SubtractItemQuantityRQ subtractItemQuantityRQ = SubtractItemQuantityRQ.builder()
+        ConsumeItemRQ consumeItemRQ = ConsumeItemRQ.builder()
                 .date(LocalDateTime.now())
                 .count(10)
                 .build();
 
         //when
-        int resultQuantity = quantityLogService.subtractItemQuantity(itemNo, subtractItemQuantityRQ);
+        int resultQuantity = quantityLogService.consumeItem(itemNo, consumeItemRQ);
 
         //then
         Item findItem = em.find(Item.class, itemNo);
@@ -73,13 +73,13 @@ class QuantityLogServiceTest {
         Item item = createItem(user, 1);
         Long itemNo = item.getItemNo();
 
-        SubtractItemQuantityRQ subtractItemQuantityRQ = SubtractItemQuantityRQ.builder()
+        ConsumeItemRQ consumeItemRQ = ConsumeItemRQ.builder()
                 .date(LocalDateTime.now())
                 .count(2)
                 .build();
 
         //when
-        Assertions.assertThatThrownBy(() -> quantityLogService.subtractItemQuantity(itemNo, subtractItemQuantityRQ))
+        Assertions.assertThatThrownBy(() -> quantityLogService.consumeItem(itemNo, consumeItemRQ))
                 .isInstanceOf(SubtractCountExceedItemQuantityException.class);
 
         //then

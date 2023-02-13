@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class SubtractItemQuantityRQ {
+public class ConsumeItemRQ {
     private LocalDateTime date;
     private int count;
 }
