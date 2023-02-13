@@ -11,6 +11,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -31,12 +32,11 @@ class QuantityLogServiceTest {
         Item item = createItem(user, 0);
         Long itemNo = item.getItemNo();
 
-        PurchaseItemRQ purchaseItemRQ = PurchaseItemRQ.builder()
-                .mall("mall")
-                .date(LocalDateTime.now())
-                .unitPrice(1000)
-                .count(10)
-                .build();
+        PurchaseItemRQ purchaseItemRQ = new PurchaseItemRQ();
+        ReflectionTestUtils.setField(purchaseItemRQ, "mall", "mall");
+        ReflectionTestUtils.setField(purchaseItemRQ, "date", LocalDateTime.now());
+        ReflectionTestUtils.setField(purchaseItemRQ, "unitPrice", 1000);
+        ReflectionTestUtils.setField(purchaseItemRQ, "count", 10);
 
         //when
         int resultQuantity = quantityLogService.purchaseItem(itemNo, purchaseItemRQ);
@@ -53,10 +53,9 @@ class QuantityLogServiceTest {
         Item item = createItem(user, 10);
         Long itemNo = item.getItemNo();
 
-        ConsumeItemRQ consumeItemRQ = ConsumeItemRQ.builder()
-                .date(LocalDateTime.now())
-                .count(10)
-                .build();
+        ConsumeItemRQ consumeItemRQ = new ConsumeItemRQ();
+        ReflectionTestUtils.setField(consumeItemRQ, "date", LocalDateTime.now());
+        ReflectionTestUtils.setField(consumeItemRQ, "count", 10);
 
         //when
         int resultQuantity = quantityLogService.consumeItem(itemNo, consumeItemRQ);
@@ -73,10 +72,9 @@ class QuantityLogServiceTest {
         Item item = createItem(user, 1);
         Long itemNo = item.getItemNo();
 
-        ConsumeItemRQ consumeItemRQ = ConsumeItemRQ.builder()
-                .date(LocalDateTime.now())
-                .count(2)
-                .build();
+        ConsumeItemRQ consumeItemRQ = new ConsumeItemRQ();
+        ReflectionTestUtils.setField(consumeItemRQ, "date", LocalDateTime.now());
+        ReflectionTestUtils.setField(consumeItemRQ, "count", 10);
 
         //when
         Assertions.assertThatThrownBy(() -> quantityLogService.consumeItem(itemNo, consumeItemRQ))
