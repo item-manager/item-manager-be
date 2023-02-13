@@ -141,6 +141,29 @@ public class ItemController {
                 .build();
     }
 
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ITEM),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION)
+                    }
+            )
+    )
+    @Operation(summary = "물품 사용")
+    @PostMapping("/{itemNo}/consume")
+    public Result<ConsumeItemRS> consumeItem(@PathVariable Long itemNo, @Validated @RequestBody ConsumeItemRQ consumeItemRQ) {
+        int quantity = quantityLogService.consumeItem(itemNo, consumeItemRQ);
+
+        ConsumeItemRS consumeItemRS = ConsumeItemRS.builder()
+                .quantity(quantity)
+                .build();
+        return Result.<ConsumeItemRS>builder()
+                .data(consumeItemRS)
+                .build();
+    }
+
 //    @ApiResponse(
 //            responseCode = "400",
 //            content = @Content(
