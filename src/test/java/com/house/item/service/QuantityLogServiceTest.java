@@ -1,6 +1,6 @@
 package com.house.item.service;
 
-import com.house.item.domain.AddItemQuantityRQ;
+import com.house.item.domain.PurchaseItemRQ;
 import com.house.item.domain.SessionUser;
 import com.house.item.domain.SubtractItemQuantityRQ;
 import com.house.item.entity.*;
@@ -31,7 +31,7 @@ class QuantityLogServiceTest {
         Item item = createItem(user, 0);
         Long itemNo = item.getItemNo();
 
-        AddItemQuantityRQ addItemQuantityRQ = AddItemQuantityRQ.builder()
+        PurchaseItemRQ purchaseItemRQ = PurchaseItemRQ.builder()
                 .mall("mall")
                 .date(LocalDateTime.now())
                 .unitPrice(1000)
@@ -39,7 +39,7 @@ class QuantityLogServiceTest {
                 .build();
 
         //when
-        int resultQuantity = quantityLogService.addItemQuantity(itemNo, addItemQuantityRQ);
+        int resultQuantity = quantityLogService.purchaseItem(itemNo, purchaseItemRQ);
 
         //then
         Item findItem = em.find(Item.class, itemNo);

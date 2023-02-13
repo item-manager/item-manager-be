@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class AddItemQuantityRQ {
+public class PurchaseItemRQ {
     private String mall;
     private LocalDateTime date;
     private int unitPrice;
