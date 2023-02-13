@@ -9,7 +9,7 @@ import com.house.item.exception.NonExistentPlaceException;
 import com.house.item.exception.NonExistentSessionUserException;
 import com.house.item.exception.ServiceException;
 import com.house.item.service.ItemService;
-import com.house.item.service.LabelService;
+import com.house.item.service.QuantityLogService;
 import com.house.item.util.FileUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,7 +33,8 @@ public class ItemController {
 
     private final Props props;
     private final ItemService itemService;
-    private final LabelService labelService;
+    private final QuantityLogService quantityLogService;
+
 
     @Operation(summary = "물품 목록 조회")
     @GetMapping
@@ -115,6 +116,28 @@ public class ItemController {
         return Result.<Void>builder()
                 .code(200)
                 .message("ok")
+                .build();
+    }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ITEM)
+                    }
+            )
+    )
+    @Operation(summary = "물품 구매")
+    @PostMapping("/{itemNo}/purchase")
+    public Result<PurchaseItemRS> purchaseItem(@PathVariable Long itemNo, @Validated @RequestBody PurchaseItemRQ purchaseItemRQ) {
+        int quantity = quantityLogService.purchaseItem(itemNo, purchaseItemRQ);
+
+        PurchaseItemRS purchaseItemRS = PurchaseItemRS.builder()
+                .quantity(quantity)
+                .build();
+        return Result.<PurchaseItemRS>builder()
+                .data(purchaseItemRS)
                 .build();
     }
 
