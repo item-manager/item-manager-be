@@ -1,5 +1,7 @@
 package com.house.item.entity;
 
+import com.house.item.common.ExceptionCodeMessage;
+import com.house.item.exception.SubtractCountExceedItemQuantityException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -87,5 +89,12 @@ public class Item {
 
     public void addQuantity(int count) {
         this.quantity += count;
+    }
+
+    public void subtractQuantity(int count) {
+        if (this.quantity < count) {
+            throw new SubtractCountExceedItemQuantityException(ExceptionCodeMessage.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION.message());
+        }
+        this.quantity -= count;
     }
 }

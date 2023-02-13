@@ -25,6 +25,9 @@ public enum ExceptionCodeMessage {
     NON_EXISTENT_LABEL(CodeDefine.NON_EXISTENT_LABEL, MessageDefine.NON_EXISTENT_LABEL),
     NON_UNIQUE_LABEL_NAME(CodeDefine.NON_UNIQUE_LABEL_NAME, MessageDefine.NON_UNIQUE_LABEL_NAME),
 
+    /* Item Quantity Log */
+    SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION(CodeDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION, MessageDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION),
+
     ;
 
     public interface CodeDefine {
@@ -48,6 +51,9 @@ public enum ExceptionCodeMessage {
         /* Label */
         int NON_EXISTENT_LABEL = 4001;
         int NON_UNIQUE_LABEL_NAME = 4002;
+
+        /* Item Quantity Log */
+        int SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = 5001;
     }
 
     public interface MessageDefine {
@@ -72,6 +78,9 @@ public enum ExceptionCodeMessage {
         /* Label */
         String NON_EXISTENT_LABEL = "잘못된 라벨 정보입니다";
         String NON_UNIQUE_LABEL_NAME = "이미 존재하는 라벨 이름입니다";
+
+        /* Item Quantity Log */
+        String SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = "사용하는 수량은 물품 수량을 초과할 수 없습니다";
     }
 
     public interface SwaggerDescription {
@@ -94,6 +103,9 @@ public enum ExceptionCodeMessage {
         /* Label */
         String NON_EXISTENT_LABEL = CodeDefine.NON_EXISTENT_LABEL + " - " + MessageDefine.NON_EXISTENT_LABEL;
         String NON_UNIQUE_LABEL_NAME = CodeDefine.NON_UNIQUE_LABEL_NAME + " - " + MessageDefine.NON_UNIQUE_LABEL_NAME;
+
+        /* Item Quantity Log */
+        String SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = CodeDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION + " - " + MessageDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION;
     }
 
     private final int code;
