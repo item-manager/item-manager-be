@@ -84,4 +84,8 @@ public class Item {
                     .build());
         }
     }
+
+    public void addQuantity(int count) {
+        this.quantity += count;
+    }
 }
