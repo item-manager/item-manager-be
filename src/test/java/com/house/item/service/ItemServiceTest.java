@@ -1,9 +1,7 @@
 package com.house.item.service;
 
 import com.house.item.common.Props;
-import com.house.item.domain.CreateItemRQ;
-import com.house.item.domain.SessionUser;
-import com.house.item.domain.UpdateItemRQ;
+import com.house.item.domain.*;
 import com.house.item.entity.*;
 import com.house.item.repository.LocationRepository;
 import com.house.item.repository.UserRepository;
@@ -16,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -110,6 +109,87 @@ class ItemServiceTest {
         //then
         Assertions.assertThat(items).hasSize(3)
                 .containsExactly(item1, item2, item3);
+    }
+
+    @Test
+    void 소모품_검색() throws Exception {
+        //given
+        User user = createSessionUser();
+        Location location = createLocation(user, "place");
+        Label label1 = createLabel(user, "label1");
+        Label label2 = createLabel(user, "label2");
+
+        Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 1, 3);
+        Item item2 = getItem(user, location, ItemType.CONSUMABLE, "item2", 2, 2);
+        Item item3 = getItem(user, location, ItemType.CONSUMABLE, "item3", 3, 1);
+        item1.getItemLabels().add(ItemLabel.builder()
+                .item(item1)
+                .label(Label.builder()
+                        .labelNo(label1.getLabelNo())
+                        .build())
+                .build());
+        item1.getItemLabels().add(ItemLabel.builder()
+                .item(item1)
+                .label(Label.builder()
+                        .labelNo(label2.getLabelNo())
+                        .build())
+                .build());
+        item3.getItemLabels().add(ItemLabel.builder()
+                .item(item3)
+                .label(Label.builder()
+                        .labelNo(label1.getLabelNo())
+                        .build())
+                .build());
+        item3.getItemLabels().add(ItemLabel.builder()
+                .item(item3)
+                .label(Label.builder()
+                        .labelNo(label2.getLabelNo())
+                        .build())
+                .build());
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
+
+        em.flush();
+        em.clear();
+
+        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ();
+        ReflectionTestUtils.setField(consumableItemsRQ, "name", "item");
+        ReflectionTestUtils.setField(consumableItemsRQ, "labelNos", List.of(label1.getLabelNo(), label2.getLabelNo()));
+        ReflectionTestUtils.setField(consumableItemsRQ, "orderBy", ConsumableItemsOrderByType.priority);
+        ReflectionTestUtils.setField(consumableItemsRQ, "sort", "-");
+        ReflectionTestUtils.setField(consumableItemsRQ, "size", 2);
+
+        //when
+        List<ConsumableItemDTO> consumableItems = itemService.getConsumableItems(consumableItemsRQ);
+
+        //then
+        Assertions.assertThat(consumableItems).hasSize(2);
+    }
+
+    @Test
+    void 소모품검색조건_생성() throws Exception {
+        //given
+        User user = createSessionUser();
+
+        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ();
+        ReflectionTestUtils.setField(consumableItemsRQ, "name", "name");
+        ReflectionTestUtils.setField(consumableItemsRQ, "labelNos", List.of(1L, 2L));
+        ReflectionTestUtils.setField(consumableItemsRQ, "orderBy", ConsumableItemsOrderByType.priority);
+        ReflectionTestUtils.setField(consumableItemsRQ, "sort", "-");
+        ReflectionTestUtils.setField(consumableItemsRQ, "size", 5);
+
+        //when
+        ConsumableSearch search = (ConsumableSearch) ReflectionTestUtils.invokeMethod(itemService, "getConsumableSearch", consumableItemsRQ);
+
+        //then
+        Assertions.assertThat(search.getUserNo()).isEqualTo(user.getUserNo());
+        Assertions.assertThat(search.getName()).isEqualTo("name");
+        Assertions.assertThat(search.getLabelNos()).hasSize(2);
+        Assertions.assertThat(search.getOrderBy()).isEqualTo("priority");
+        Assertions.assertThat(search.getSort()).isEqualTo("DESC");
+        Assertions.assertThat(search.getPage()).isEqualTo(1);
+        Assertions.assertThat(search.getSize()).isEqualTo(5);
     }
 
     @Test
@@ -215,122 +295,3 @@ class ItemServiceTest {
     }
 
 }
-
-//    @Rollback(value = false)
-//    @Test
-//    void test() throws Exception {
-//        //given
-//        User user = createSessionUser();
-//        Location room1 = Location.builder()
-//                .user(user)
-//                .type(LocationType.ROOM)
-//                .name("거실")
-//                .build();
-//        em.persist(room1);
-//
-//        Location room2 = Location.builder()
-//                .user(user)
-//                .type(LocationType.ROOM)
-//                .name("안방")
-//                .build();
-//        em.persist(room2);
-//
-//        Location place1 = Location.builder()
-//                .user(user)
-//                .type(LocationType.PLACE)
-//                .room(room1)
-//                .name("탁자 서랍")
-//                .build();
-//        em.persist(place1);
-//
-//        Location place2 = Location.builder()
-//                .user(user)
-//                .type(LocationType.PLACE)
-//                .room(room2)
-//                .name("옷장")
-//                .build();
-//        em.persist(place2);
-//
-//        Location place3 = Location.builder()
-//                .user(user)
-//                .type(LocationType.PLACE)
-//                .room(room2)
-//                .name("화장대")
-//                .build();
-//        em.persist(place3);
-//
-//        Item item1 = Item.builder()
-//                .user(user)
-//                .name("로션")
-//                .type(ItemType.CONSUMABLE)
-//                .location(place3)
-//                .locationMemo("장 아래칸")
-//                .photoName("70efec72-9953-4a5d-9b55-845cc75fa62b.jpeg")
-//                .quantity(1)
-//                .priority(1)
-//                .build();
-//        em.persist(item1);
-//
-//        Item item2 = Item.builder()
-//                .user(user)
-//                .name("제습제")
-//                .type(ItemType.CONSUMABLE)
-//                .location(place2)
-//                .locationMemo("2번째장 아래 서랍")
-//                .quantity(3)
-//                .priority(1)
-//                .build();
-//        em.persist(item2);
-//
-//        Label label1 = Label.builder()
-//                .user(user)
-//                .name("label1")
-//                .build();
-//        em.persist(label1);
-//
-//        Label label2 = Label.builder()
-//                .user(user)
-//                .name("label2")
-//                .build();
-//        em.persist(label2);
-//
-//        Label label3 = Label.builder()
-//                .user(user)
-//                .name("label3")
-//                .build();
-//        em.persist(label3);
-//
-//        ItemLabel itemLabel1 = ItemLabel.builder()
-//                .item(item1)
-//                .label(label1)
-//                .build();
-//        em.persist(itemLabel1);
-//
-//        ItemLabel itemLabel2 = ItemLabel.builder()
-//                .item(item1)
-//                .label(label2)
-//                .build();
-//        em.persist(itemLabel2);
-//
-//        ItemLabel itemLabel3 = ItemLabel.builder()
-//                .item(item2)
-//                .label(label3)
-//                .build();
-//        em.persist(itemLabel3);
-//
-//        Long userNo = user.getUserNo();
-//
-//        em.flush();
-//        em.clear();
-//
-//        String jpql = "select l from Label l";
-//        List<Label> resultList = em.createQuery(jpql, Label.class)
-//                .getResultList();
-////        for (Label label : resultList) {
-////            System.out.println("label.getItemLabels() = " + label.getItemLabels());
-////        }
-//
-//        //when
-//
-//        //then
-//    }

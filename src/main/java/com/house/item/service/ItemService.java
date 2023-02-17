@@ -16,8 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -110,6 +109,51 @@ public class ItemService {
             itemRSList.add(itemToItemRS(item));
         }
         return itemRSList;
+    }
+
+    public List<ConsumableItemDTO> getConsumableItems(ConsumableItemsRQ consumableItemsRQ) {
+        ConsumableSearch consumableSearch = getConsumableSearch(consumableItemsRQ);
+
+        List<ConsumableItemDTO> consumableItemDTOS = itemRepository.findConsumableByNameAndLabel(consumableSearch);
+
+        for (ConsumableItemDTO consumableItemDTO : consumableItemDTOS) {
+            List<ItemLabel> itemLabels = consumableItemDTO.getItem().getItemLabels();
+            for (ItemLabel itemLabel : itemLabels) {
+                itemLabel.getLabel();
+            }
+        }
+
+        return consumableItemDTOS;
+    }
+
+    private ConsumableSearch getConsumableSearch(ConsumableItemsRQ consumableItemsRQ) {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+
+        Map<ConsumableItemsOrderByType, String> orderByMapping = new EnumMap<>(ConsumableItemsOrderByType.class);
+        orderByMapping.put(ConsumableItemsOrderByType.priority, "priority");
+        orderByMapping.put(ConsumableItemsOrderByType.quantity, "quantity");
+        orderByMapping.put(ConsumableItemsOrderByType.latest_purchase_date, "latestPurchase");
+        orderByMapping.put(ConsumableItemsOrderByType.latest_consume_date, "latestConsume");
+
+        Map<String, String> sortMapping = new HashMap<>();
+        sortMapping.put("+", "ASC");
+        sortMapping.put("-", "DESC");
+
+        ConsumableSearch.ConsumableSearchBuilder consumableSearchBuilder = ConsumableSearch.builder()
+                .userNo(sessionUser.getUserNo())
+                .orderBy(orderByMapping.get(consumableItemsRQ.getOrderBy()))
+                .sort(sortMapping.get(consumableItemsRQ.getSort()))
+                .page(consumableItemsRQ.getPage())
+                .size(consumableItemsRQ.getSize());
+
+        if (StringUtils.hasText(consumableItemsRQ.getName())) {
+            consumableSearchBuilder.name(consumableItemsRQ.getName());
+        }
+        if (consumableItemsRQ.getLabelNos() != null && !consumableItemsRQ.getLabelNos().isEmpty()) {
+            consumableSearchBuilder.labelNos(consumableItemsRQ.getLabelNos());
+        }
+
+        return consumableSearchBuilder.build();
     }
 
     @Transactional
