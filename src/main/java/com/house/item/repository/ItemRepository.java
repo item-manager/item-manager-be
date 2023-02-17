@@ -1,5 +1,7 @@
 package com.house.item.repository;
 
+import com.house.item.domain.ConsumableItemDTO;
+import com.house.item.domain.ConsumableSearch;
 import com.house.item.entity.Item;
 
 import java.util.List;
@@ -13,4 +15,6 @@ public interface ItemRepository {
     Optional<Item> findByItemNoAndUserNo(Long itemNo, Long userNo);
 
     List<Item> findAll(Long userNo);
+
+    List<ConsumableItemDTO> findConsumableByNameAndLabel(ConsumableSearch consumableSearch);
 }

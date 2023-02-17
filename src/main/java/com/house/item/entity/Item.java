@@ -1,6 +1,7 @@
 package com.house.item.entity;
 
 import com.house.item.common.ExceptionCodeMessage;
+import com.house.item.domain.ConsumableItemDTO;
 import com.house.item.exception.SubtractCountExceedItemQuantityException;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,10 +9,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+@SqlResultSetMappings({
+        @SqlResultSetMapping(
+                name = "ConsumableItemMapping",
+                entities = {@EntityResult(entityClass = Item.class)},
+                classes = @ConstructorResult(
+                        targetClass = ConsumableItemDTO.class,
+                        columns = {
+                                @ColumnResult(name = "latestPurchase", type = LocalDateTime.class),
+                                @ColumnResult(name = "latestConsume", type = LocalDateTime.class)
+                        }
+                ))
+})
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
