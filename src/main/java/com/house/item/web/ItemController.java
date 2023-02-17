@@ -4,11 +4,14 @@ import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.common.Props;
 import com.house.item.domain.*;
 import com.house.item.entity.Item;
+import com.house.item.entity.ItemLabel;
+import com.house.item.entity.Label;
 import com.house.item.exception.NonExistentItemException;
 import com.house.item.exception.NonExistentPlaceException;
 import com.house.item.exception.NonExistentSessionUserException;
 import com.house.item.exception.ServiceException;
 import com.house.item.service.ItemService;
+import com.house.item.service.LabelService;
 import com.house.item.service.QuantityLogService;
 import com.house.item.util.FileUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,6 +26,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -34,6 +38,7 @@ public class ItemController {
     private final Props props;
     private final ItemService itemService;
     private final QuantityLogService quantityLogService;
+    private final LabelService labelService;
 
 
     @Operation(summary = "물품 목록 조회")
@@ -96,6 +101,40 @@ public class ItemController {
 
         String photoDir = props.getDir().getPhoto();
         return FileUtil.getResource(photoDir, item.getPhotoName());
+    }
+
+    @Operation(summary = "소모품 조회")
+    @PostMapping("/consumables")
+    public Result<List<ConsumableItemsRS>> getConsumableItems(@Validated @RequestBody ConsumableItemsRQ consumableItemsRQ) {
+        List<ConsumableItemDTO> consumableItemDTOs = itemService.getConsumableItems(consumableItemsRQ);
+
+        List<ConsumableItemsRS> consumableItemsRSList = new ArrayList<>();
+        for (ConsumableItemDTO consumableItemDTO : consumableItemDTOs) {
+            Item item = consumableItemDTO.getItem();
+
+            List<ItemLabel> itemLabels = item.getItemLabels();
+            List<Label> labels = new ArrayList<>();
+            for (ItemLabel itemLabel : itemLabels) {
+                labels.add(itemLabel.getLabel());
+            }
+            List<LabelRS> labelRSList = labelService.labelToLabelRS(labels);
+
+            consumableItemsRSList.add(
+                    ConsumableItemsRS.builder()
+                            .itemNo(item.getItemNo())
+                            .priority(item.getPriority())
+                            .name(item.getName())
+                            .latestConsumeDate(consumableItemDTO.getLatestConsume())
+                            .latestPurchaseDate(consumableItemDTO.getLatestPurchase())
+                            .quantity(item.getQuantity())
+                            .labels(labelRSList)
+                            .build()
+            );
+        }
+
+        return Result.<List<ConsumableItemsRS>>builder()
+                .data(consumableItemsRSList)
+                .build();
     }
 
     @ApiResponse(
