@@ -87,12 +87,11 @@ public class JpaItemRepository implements ItemRepository {
         if (consumableSearch.getLabelNos() != null && !consumableSearch.getLabelNos().isEmpty()) {
             sql += """
                     JOIN (
-                    SELECT I.ITEM_NO
-                    FROM ITEM I
-                    LEFT JOIN ITEM_LABEL IL ON I.ITEM_NO = IL.ITEM_NO
-                    WHERE IL.LABEL_NO  IN :labelNos
-                    GROUP BY I.ITEM_NO
-                    HAVING COUNT(I.ITEM_NO) = :labelNosSize
+                    SELECT IL.ITEM_NO
+                    FROM ITEM_LABEL IL
+                    WHERE IL.LABEL_NO IN :labelNos
+                    GROUP BY IL.ITEM_NO
+                    HAVING COUNT(IL.ITEM_NO) = :labelNosSize
                     ) HAVE_LABEL ON I.ITEM_NO = HAVE_LABEL.ITEM_NO \n""";
         }
 
