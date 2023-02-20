@@ -102,4 +102,26 @@ public class LocationController {
                 .data(createPlaceRS)
                 .build();
     }
+
+    @Operation(summary = "보관장소(방) 정보 변경")
+    @PatchMapping("/rooms/{roomNo}")
+    public Result<Void> patchRoom(@PathVariable Long roomNo, @RequestBody UpdateRoomRQ updateRoomRQ) {
+        locationService.updateRoom(roomNo, updateRoomRQ);
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
+                .build();
+    }
+
+    @Operation(summary = "위치 정보 변경")
+    @PatchMapping("/places/{placeNo}")
+    public Result<Void> patchPlace(@PathVariable Long placeNo, @RequestBody UpdatePlaceRQ updatePlaceRQ) {
+        locationService.updatePlace(placeNo, updatePlaceRQ);
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
+                .build();
+    }
 }
