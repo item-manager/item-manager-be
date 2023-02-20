@@ -138,23 +138,6 @@ class LabelServiceTest {
         Assertions.assertThat(findLabel).isNull();
     }
 
-
-    @Test
-    void 물품에_라벨링() throws Exception {
-        //given
-        User user = createSessionUser();
-        Item item = createItem(user);
-        Label label = getLabel(user, "label");
-        em.persist(label);
-
-        //when
-        ItemLabel itemLabel = labelService.attachLabelToItem(item.getItemNo(), label.getLabelNo());
-
-        //then
-        Assertions.assertThat(itemLabel.getItem()).isSameAs(item);
-        Assertions.assertThat(itemLabel.getLabel()).isSameAs(label);
-    }
-
     @Test
     void 라벨정보수정() throws Exception {
         //given
@@ -174,35 +157,6 @@ class LabelServiceTest {
         //then
         Label findLabel = em.find(Label.class, labelNo);
         Assertions.assertThat(findLabel.getName()).isEqualTo("new name");
-    }
-
-    @Test
-    void 물품에서_라벨제거() throws Exception {
-        //given
-        User user = createSessionUser();
-        Item item = createItem(user);
-        Label label = getLabel(user, "label");
-        em.persist(label);
-        Long itemNo = item.getItemNo();
-        Long labelNo = label.getLabelNo();
-
-        ItemLabel itemLabel = ItemLabel.builder()
-                .item(item)
-                .label(label)
-                .build();
-        em.persist(itemLabel);
-        Long itemLabelNo = itemLabel.getItemLabelNo();
-        em.flush();
-        em.clear();
-
-        //when
-        labelService.detachLabelFromItem(itemNo, labelNo);
-        em.flush();
-        em.clear();
-
-        //then
-        ItemLabel findItemLabel = em.find(ItemLabel.class, itemLabelNo);
-        Assertions.assertThat(findItemLabel).isNull();
     }
 
     User createSessionUser() {

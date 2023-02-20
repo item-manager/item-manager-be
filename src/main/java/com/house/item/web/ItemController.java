@@ -192,49 +192,4 @@ public class ItemController {
                 .data(consumeItemRS)
                 .build();
     }
-
-//    @ApiResponse(
-//            responseCode = "400",
-//            content = @Content(
-//                    schema = @Schema(implementation = ErrorResult.class),
-//                    examples = {
-//                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ITEM),
-//                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_LABEL)
-//                    }
-//            )
-//    )
-//    @Operation(summary = "물품에 라벨링")
-//    @PostMapping("/labels")
-//    public Result<ItemLabelRS> attachLabelToItemRQ(@RequestBody AttachLabelToItemRQ attachLabelToItemRQ) {
-//        ItemLabel itemLabel = labelService.attachLabelToItem(attachLabelToItemRQ.getItemNo(), attachLabelToItemRQ.getLabelNo());
-//        ItemLabelRS itemLabelRS = ItemLabelRS.builder()
-//                .itemNo(itemLabel.getItem().getItemNo())
-//                .labelNo(itemLabel.getLabel().getLabelNo())
-//                .build();
-//
-//        return Result.<ItemLabelRS>builder()
-//                .data(itemLabelRS)
-//                .build();
-//    }
-//
-//    @ApiResponse(
-//            responseCode = "400",
-//            content = @Content(
-//                    schema = @Schema(implementation = ErrorResult.class),
-//                    examples = {
-//                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ITEM),
-//                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_LABEL)
-//                    }
-//            )
-//    )
-//    @Operation(summary = "물품에서 라벨 제거")
-//    @DeleteMapping("/labels")
-//    public Result<Void> detachLabelFromItem(@RequestBody DetachLabelFromItemRQ detachLabelFromItemRQ) {
-//        labelService.detachLabelFromItem(detachLabelFromItemRQ.getItemNo(), detachLabelFromItemRQ.getLabelNo());
-//
-//        return Result.<Void>builder()
-//                .code(200)
-//                .message("ok")
-//                .build();
-//    }
 }

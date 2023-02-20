@@ -5,11 +5,8 @@ import com.house.item.domain.CreateLabel;
 import com.house.item.domain.LabelRS;
 import com.house.item.domain.SessionUser;
 import com.house.item.domain.UpdateLabelRQ;
-import com.house.item.entity.Item;
-import com.house.item.entity.ItemLabel;
 import com.house.item.entity.Label;
 import com.house.item.entity.User;
-import com.house.item.exception.NonExistentItemException;
 import com.house.item.exception.NonExistentLabelException;
 import com.house.item.exception.NonUniqueLabelNameException;
 import com.house.item.repository.LabelRepository;
@@ -81,38 +78,6 @@ public class LabelService {
     public void deleteLabel(Long labelNo) throws NonExistentLabelException {
         getLabel(labelNo);
         labelRepository.deleteByLabelNo(labelNo);
-    }
-
-    @Transactional
-    public ItemLabel attachLabelToItem(Long itemNo, Long labelNo) throws NonExistentItemException, NonExistentLabelException {
-        Item item = itemService.getItem(itemNo);
-        Label label = getLabel(labelNo);
-
-        ItemLabel itemLabel = ItemLabel.builder()
-                .item(item)
-                .label(label)
-                .build();
-
-        List<ItemLabel> itemLabels = item.getItemLabels();
-        if (!itemLabels.contains(itemLabel)) {
-            itemLabels.add(itemLabel);
-        }
-
-        return itemLabel;
-    }
-
-    @Transactional
-    public void detachLabelFromItem(Long itemNo, Long labelNo) throws NonExistentItemException, NonExistentLabelException {
-        Item item = itemService.getItem(itemNo);
-        getLabel(labelNo);
-
-        List<ItemLabel> itemLabels = item.getItemLabels();
-        for (ItemLabel itemLabel : itemLabels) {
-            if (itemLabel.getLabel().getLabelNo().equals(labelNo)) {
-                itemLabels.remove(itemLabel);
-                break;
-            }
-        }
     }
 
     @Transactional
