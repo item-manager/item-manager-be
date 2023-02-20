@@ -92,6 +92,7 @@ public class ItemService {
                 .room(item.getLocation().getRoom().getName())
                 .place(item.getLocation().getName())
                 .locationMemo(item.getLocationMemo())
+                .photoUrl("/photo/" + item.getPhotoName())
                 .quantity(item.getQuantity())
                 .priority(item.getPriority())
                 .labels(labels)

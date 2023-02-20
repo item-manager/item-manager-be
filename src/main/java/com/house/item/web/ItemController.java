@@ -13,7 +13,6 @@ import com.house.item.exception.ServiceException;
 import com.house.item.service.ItemService;
 import com.house.item.service.LabelService;
 import com.house.item.service.QuantityLogService;
-import com.house.item.util.FileUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -21,7 +20,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -94,14 +92,6 @@ public class ItemController {
                 .build();
     }
 
-    @Operation(summary = "물품 사진 조회")
-    @GetMapping("/{itemNo}/photo")
-    public Resource loadPhoto(@PathVariable Long itemNo) throws ServiceException {
-        Item item = itemService.getItem(itemNo);
-
-        String photoDir = props.getDir().getPhoto();
-        return FileUtil.getResource(photoDir, item.getPhotoName());
-    }
 
     @Operation(summary = "소모품 조회")
     @PostMapping("/consumables")

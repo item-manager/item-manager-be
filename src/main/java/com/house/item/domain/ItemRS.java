@@ -15,6 +15,7 @@ public class ItemRS {
     private String room;
     private String place;
     private String locationMemo;
+    private String photoUrl;
     private int quantity;
     private int priority;
     List<LabelRS> labels;
