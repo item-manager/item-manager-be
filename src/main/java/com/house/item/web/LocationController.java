@@ -103,7 +103,16 @@ public class LocationController {
                 .build();
     }
 
-    @Operation(summary = "보관장소(방) 정보 변경")
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ROOM)
+                    }
+            )
+    )
+    @Operation(summary = "보관장소(방) 정보 수정")
     @PatchMapping("/rooms/{roomNo}")
     public Result<Void> patchRoom(@PathVariable Long roomNo, @RequestBody UpdateRoomRQ updateRoomRQ) {
         locationService.updateRoom(roomNo, updateRoomRQ);
@@ -114,7 +123,16 @@ public class LocationController {
                 .build();
     }
 
-    @Operation(summary = "위치 정보 변경")
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_PLACE)
+                    }
+            )
+    )
+    @Operation(summary = "위치 정보 수정")
     @PatchMapping("/places/{placeNo}")
     public Result<Void> patchPlace(@PathVariable Long placeNo, @RequestBody UpdatePlaceRQ updatePlaceRQ) {
         locationService.updatePlace(placeNo, updatePlaceRQ);
