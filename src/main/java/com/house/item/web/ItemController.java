@@ -93,7 +93,7 @@ public class ItemController {
     }
 
 
-    @Operation(summary = "소모품 조회")
+    @Operation(summary = "소모품 목록 조회")
     @PostMapping("/consumables")
     public Result<List<ConsumableItemsRS>> getConsumableItems(@Validated @RequestBody ConsumableItemsRQ consumableItemsRQ) {
         List<ConsumableItemDTO> consumableItemDTOs = itemService.getConsumableItems(consumableItemsRQ);
