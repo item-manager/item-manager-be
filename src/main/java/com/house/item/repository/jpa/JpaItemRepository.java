@@ -107,8 +107,11 @@ public class JpaItemRepository implements ItemRepository {
             sql += "AND I.NAME LIKE '%" + consumableSearch.getName() + "%' \n";
         }
 
-        //order by
-        sql += "ORDER BY " + consumableSearch.getOrderBy() + " " + consumableSearch.getSort() + ", I.ITEM_NO ASC";
+        if (consumableSearch.getOrderBy() != null) {
+            sql += "ORDER BY " + consumableSearch.getOrderBy() + " " + consumableSearch.getSort() + ", I.ITEM_NO ASC";
+        } else {
+            sql += "ORDER BY I.ITEM_NO " + consumableSearch.getSort();
+        }
 
         Query query = em.createNativeQuery(sql, "ConsumableItemMapping")
                 .setParameter("userNo", consumableSearch.getUserNo());

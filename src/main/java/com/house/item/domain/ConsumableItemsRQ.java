@@ -10,7 +10,7 @@ import java.util.List;
 public class ConsumableItemsRQ {
     private String name;
     private List<Long> labelNos;
-    @Schema(description = "priority(중요도), quantity(수량), latest_purchase_date(최근 구매일), latest_consume_date(최근 사용일)")
+    @Schema(description = "priority(중요도), quantity(수량), latest_purchase_date(최근 구매일), latest_consume_date(최근 사용일), null(생성순)")
     private ConsumableItemsOrderByType orderBy;
     @Schema(description = "+(오름차순), -(내림차순)", defaultValue = "+")
     @Pattern(regexp = "^[+-]$")
