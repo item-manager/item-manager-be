@@ -39,7 +39,7 @@ public class ItemService {
             throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
         }
 
-        String photoName = "";
+        String photoName = null;
         if (createItemRQ.getPhoto() != null) {
             photoName = storePhoto(createItemRQ.getPhoto());
         }
@@ -56,13 +56,17 @@ public class ItemService {
                 .build();
 
         List<Long> labels = createItemRQ.getLabels();
-        for (Long label : labels) {
-            item.getItemLabels().add(ItemLabel.builder()
+        for (Long labelNo : labels) {
+            Label label = Label.builder()
+                    .labelNo(labelNo)
+                    .build();
+
+            ItemLabel itemLabel = ItemLabel.builder()
                     .item(item)
-                    .label(Label.builder()
-                            .labelNo(label)
-                            .build())
-                    .build());
+                    .label(label)
+                    .build();
+
+            item.getItemLabels().add(itemLabel);
         }
 
         itemRepository.save(item);
@@ -79,10 +83,12 @@ public class ItemService {
         List<LabelRS> labels = new ArrayList<>();
         for (ItemLabel itemLabel : item.getItemLabels()) {
             Label label = itemLabel.getLabel();
-            labels.add(LabelRS.builder()
-                    .labelNo(label.getLabelNo())
-                    .name(label.getName())
-                    .build());
+            labels.add(
+                    LabelRS.builder()
+                            .labelNo(label.getLabelNo())
+                            .name(label.getName())
+                            .build()
+            );
         }
 
         return ItemRS.builder()
