@@ -69,33 +69,39 @@ public class JpaItemRepository implements ItemRepository {
     @Override
     public List<ConsumableItemDTO> findConsumableByNameAndLabel(ConsumableSearch consumableSearch) {
         String sql = """
-                SELECT DISTINCT I.*, LATEST_PURCHASE as latestPurchase, LATEST_CONSUME as latestConsume
+                SELECT DISTINCT I.*, 
+                    LATEST_PURCHASE as latestPurchase, 
+                    LATEST_CONSUME as latestConsume
                 FROM ITEM I
-                LEFT JOIN USERS U ON I.USER_NO = U.USER_NO
-                LEFT JOIN (SELECT I2.ITEM_NO AS ITEM_NO, MAX(IQL.DATE) AS LATEST_PURCHASE
-                FROM ITEM I2
-                LEFT JOIN ITEM_QUANTITY_LOG IQL ON I2.ITEM_NO = IQL.ITEM_NO
-                GROUP BY I2.ITEM_NO, IQL.TYPE
-                HAVING IQL.TYPE = 'PURCHASE') AS PURCHASE ON I.ITEM_NO = PURCHASE.ITEM_NO
-                LEFT JOIN (SELECT I2.ITEM_NO AS ITEM_NO, MAX(IQL.DATE) AS LATEST_CONSUME
-                FROM ITEM I2
-                LEFT JOIN ITEM_QUANTITY_LOG IQL ON I2.ITEM_NO = IQL.ITEM_NO
-                GROUP BY I2.ITEM_NO, IQL.TYPE
-                HAVING IQL.TYPE = 'CONSUME') AS CONSUME ON I.ITEM_NO = CONSUME.ITEM_NO \n""";
-
+                LEFT JOIN (
+                    SELECT IQL.ITEM_NO, 
+                        MAX(IQL.DATE) AS LATEST_PURCHASE
+                    FROM ITEM_QUANTITY_LOG IQL
+                    WHERE IQL.TYPE = 'PURCHASE'
+                    GROUP BY IQL.ITEM_NO
+                ) AS PURCHASE ON I.ITEM_NO = PURCHASE.ITEM_NO
+                LEFT JOIN (
+                    SELECT IQL.ITEM_NO
+                        , MAX(IQL.DATE) AS LATEST_CONSUME
+                    FROM ITEM_QUANTITY_LOG IQL
+                    WHERE IQL.TYPE = 'CONSUME'
+                    GROUP BY IQL.ITEM_NO
+                ) AS CONSUME ON I.ITEM_NO = CONSUME.ITEM_NO
+                   """;
 
         if (consumableSearch.getLabelNos() != null && !consumableSearch.getLabelNos().isEmpty()) {
             sql += """
                     JOIN (
-                    SELECT IL.ITEM_NO
-                    FROM ITEM_LABEL IL
-                    WHERE IL.LABEL_NO IN :labelNos
-                    GROUP BY IL.ITEM_NO
-                    HAVING COUNT(IL.ITEM_NO) = :labelNosSize
-                    ) HAVE_LABEL ON I.ITEM_NO = HAVE_LABEL.ITEM_NO \n""";
+                        SELECT IL.ITEM_NO
+                        FROM ITEM_LABEL IL
+                        WHERE IL.LABEL_NO IN :labelNos
+                        GROUP BY IL.ITEM_NO
+                        HAVING COUNT(IL.ITEM_NO) = :labelNosSize
+                    ) HAVE_LABEL ON I.ITEM_NO = HAVE_LABEL.ITEM_NO 
+                    """;
         }
 
-        sql += "WHERE U.USER_NO = :userNo AND I.TYPE = 'CONSUMABLE' \n";
+        sql += "WHERE I.USER_NO = :userNo AND I.TYPE = 'CONSUMABLE' \n";
 
         if (StringUtils.hasText(consumableSearch.getName())) {
             sql += "AND I.NAME LIKE '%" + consumableSearch.getName() + "%' \n";
