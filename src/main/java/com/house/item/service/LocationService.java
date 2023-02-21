@@ -5,10 +5,7 @@ import com.house.item.domain.*;
 import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
-import com.house.item.exception.NonExistentLocationException;
-import com.house.item.exception.NonExistentRoomException;
-import com.house.item.exception.NotLocationTypePlaceException;
-import com.house.item.exception.NotLocationTypeRoomException;
+import com.house.item.exception.*;
 import com.house.item.repository.LocationRepository;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
@@ -59,15 +56,20 @@ public class LocationService {
         return place.getLocationNo();
     }
 
-    public void checkLocationType(Location location, LocationType type) throws NotLocationTypeRoomException, NotLocationTypePlaceException {
-        if (location.getType() != type) {
-            if (type == LocationType.ROOM) {
-                throw new NotLocationTypeRoomException(ExceptionCodeMessage.NOT_LOCATION_TYPE_ROOM.message());
-            }
-            if (type == LocationType.PLACE) {
-                throw new NotLocationTypePlaceException(ExceptionCodeMessage.NOT_LOCATION_TYPE_PLACE.message());
-            }
+    public void checkLocationType(Location location, LocationType type) throws NotLocationTypeRoomException, NotLocationTypePlaceException, UndefinedLocationTypeException {
+        if (location.getType() == type) {
+            return;
         }
+
+        if (type == LocationType.ROOM) {
+            throw new NotLocationTypeRoomException(ExceptionCodeMessage.NOT_LOCATION_TYPE_ROOM.message());
+        }
+
+        if (type == LocationType.PLACE) {
+            throw new NotLocationTypePlaceException(ExceptionCodeMessage.NOT_LOCATION_TYPE_PLACE.message());
+        }
+
+        throw new UndefinedLocationTypeException(ExceptionCodeMessage.UNDEFINED_LOCATION_TYPE.message());
     }
 
     public Location getLocation(Long locationNo) throws NonExistentLocationException {

@@ -20,6 +20,7 @@ public enum ExceptionCodeMessage {
     NON_EXISTENT_PLACE(CodeDefine.NON_EXISTENT_PLACE, MessageDefine.NON_EXISTENT_PLACE),
     NOT_LOCATION_TYPE_ROOM(CodeDefine.NOT_LOCATION_TYPE_ROOM, MessageDefine.NOT_LOCATION_TYPE_ROOM),
     NOT_LOCATION_TYPE_PLACE(CodeDefine.NOT_LOCATION_TYPE_PLACE, MessageDefine.NOT_LOCATION_TYPE_PLACE),
+    UNDEFINED_LOCATION_TYPE(CodeDefine.UNDEFINED_LOCATION_TYPE, MessageDefine.UNDEFINED_LOCATION_TYPE),
 
     /* Label */
     NON_EXISTENT_LABEL(CodeDefine.NON_EXISTENT_LABEL, MessageDefine.NON_EXISTENT_LABEL),
@@ -47,6 +48,7 @@ public enum ExceptionCodeMessage {
         int NON_EXISTENT_PLACE = 3002;
         int NOT_LOCATION_TYPE_ROOM = 3003;
         int NOT_LOCATION_TYPE_PLACE = 3004;
+        int UNDEFINED_LOCATION_TYPE = 3005;
 
         /* Label */
         int NON_EXISTENT_LABEL = 4001;
@@ -73,6 +75,7 @@ public enum ExceptionCodeMessage {
         String NON_EXISTENT_PLACE = "잘못된 위치 정보입니다";
         String NOT_LOCATION_TYPE_ROOM = "Location type이 방이어야 합니다";
         String NOT_LOCATION_TYPE_PLACE = "Location type이 위치여야 합니다";
+        String UNDEFINED_LOCATION_TYPE = "Location type이 정의되지 않았습니다";
         String NON_EXISTENT_LOCATION = "잘못된 방/위치 정보입니다";
 
         /* Label */
@@ -99,6 +102,7 @@ public enum ExceptionCodeMessage {
         String NON_EXISTENT_PLACE = CodeDefine.NON_EXISTENT_PLACE + " - " + MessageDefine.NON_EXISTENT_PLACE;
         String NOT_LOCATION_TYPE_ROOM = CodeDefine.NOT_LOCATION_TYPE_ROOM + " - " + MessageDefine.NOT_LOCATION_TYPE_ROOM;
         String NOT_LOCATION_TYPE_PLACE = CodeDefine.NOT_LOCATION_TYPE_PLACE + " - " + MessageDefine.NOT_LOCATION_TYPE_PLACE;
+        String UNDEFINED_LOCATION_TYPE = CodeDefine.UNDEFINED_LOCATION_TYPE + " - " + MessageDefine.UNDEFINED_LOCATION_TYPE;
 
         /* Label */
         String NON_EXISTENT_LABEL = CodeDefine.NON_EXISTENT_LABEL + " - " + MessageDefine.NON_EXISTENT_LABEL;
