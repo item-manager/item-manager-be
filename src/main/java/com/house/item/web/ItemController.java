@@ -94,8 +94,8 @@ public class ItemController {
 
 
     @Operation(summary = "소모품 목록 조회")
-    @PostMapping("/consumables")
-    public Result<List<ConsumableItemsRS>> getConsumableItems(@Validated @RequestBody ConsumableItemsRQ consumableItemsRQ) {
+    @GetMapping("/consumables")
+    public Result<List<ConsumableItemsRS>> getConsumableItems(@Validated @ModelAttribute ConsumableItemsRQ consumableItemsRQ) {
         List<ConsumableItemDTO> consumableItemDTOs = itemService.getConsumableItems(consumableItemsRQ);
 
         List<ConsumableItemsRS> consumableItemsRSList = new ArrayList<>();
