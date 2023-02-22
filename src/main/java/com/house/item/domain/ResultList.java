@@ -5,9 +5,9 @@ import lombok.Getter;
 
 import java.util.List;
 
-@Builder
 @Getter
-public class ConsumableItemsRS {
+@Builder
+public class ResultList<T> {
     private Page page;
-    private List<ConsumableItemRS> consumableItems;
+    private List<T> data;
 }

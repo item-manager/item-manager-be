@@ -95,10 +95,11 @@ public class ItemController {
 
     @Operation(summary = "소모품 목록 조회")
     @GetMapping("/consumables")
-    public Result<List<ConsumableItemsRS>> getConsumableItems(@Validated @ModelAttribute ConsumableItemsRQ consumableItemsRQ) {
-        List<ConsumableItemDTO> consumableItemDTOs = itemService.getConsumableItems(consumableItemsRQ);
+    public ResultList<ConsumableItemRS> getConsumableItems(@Validated @ModelAttribute ConsumableItemsRQ consumableItemsRQ) {
+        ConsumableSearch consumableSearch = itemService.getConsumableSearch(consumableItemsRQ);
+        List<ConsumableItemDTO> consumableItemDTOs = itemService.getConsumableItems(consumableSearch);
 
-        List<ConsumableItemsRS> consumableItemsRSList = new ArrayList<>();
+        List<ConsumableItemRS> consumableItemRSList = new ArrayList<>();
         for (ConsumableItemDTO consumableItemDTO : consumableItemDTOs) {
             Item item = consumableItemDTO.getItem();
 
@@ -109,8 +110,8 @@ public class ItemController {
             }
             List<LabelRS> labelRSList = labelService.labelToLabelRS(labels);
 
-            consumableItemsRSList.add(
-                    ConsumableItemsRS.builder()
+            consumableItemRSList.add(
+                    ConsumableItemRS.builder()
                             .itemNo(item.getItemNo())
                             .priority(item.getPriority())
                             .name(item.getName())
@@ -122,8 +123,11 @@ public class ItemController {
             );
         }
 
-        return Result.<List<ConsumableItemsRS>>builder()
-                .data(consumableItemsRSList)
+        Page consumableItemsPage = itemService.getConsumableItemsPage(consumableSearch);
+
+        return ResultList.<ConsumableItemRS>builder()
+                .page(consumableItemsPage)
+                .data(consumableItemRSList)
                 .build();
     }
 
