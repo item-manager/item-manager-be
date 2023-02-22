@@ -153,12 +153,8 @@ class ItemServiceTest {
         em.flush();
         em.clear();
 
-        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ();
-        ReflectionTestUtils.setField(consumableItemsRQ, "name", "item");
-        ReflectionTestUtils.setField(consumableItemsRQ, "labelNos", List.of(label1.getLabelNo(), label2.getLabelNo()));
-        ReflectionTestUtils.setField(consumableItemsRQ, "orderBy", ConsumableItemsOrderByType.priority);
-        ReflectionTestUtils.setField(consumableItemsRQ, "sort", "-");
-        ReflectionTestUtils.setField(consumableItemsRQ, "size", 2);
+//        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item", List.of(label1.getLabelNo(), label2.getLabelNo()), ConsumableItemsOrderByType.PRIORITY, "-", 1, 2);
+        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item", List.of(label1.getLabelNo(), label2.getLabelNo()), null, null, null, 2);
 
         //when
         List<ConsumableItemDTO> consumableItems = itemService.getConsumableItems(consumableItemsRQ);
@@ -172,12 +168,7 @@ class ItemServiceTest {
         //given
         User user = createSessionUser();
 
-        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ();
-        ReflectionTestUtils.setField(consumableItemsRQ, "name", "name");
-        ReflectionTestUtils.setField(consumableItemsRQ, "labelNos", List.of(1L, 2L));
-        ReflectionTestUtils.setField(consumableItemsRQ, "orderBy", ConsumableItemsOrderByType.priority);
-        ReflectionTestUtils.setField(consumableItemsRQ, "sort", "-");
-        ReflectionTestUtils.setField(consumableItemsRQ, "size", 5);
+        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("name", List.of(1L, 2L), ConsumableItemsOrderByType.LATEST_CONSUME_DATE, "-", null, 5);
 
         //when
         ConsumableSearch search = (ConsumableSearch) ReflectionTestUtils.invokeMethod(itemService, "getConsumableSearch", consumableItemsRQ);
@@ -186,7 +177,7 @@ class ItemServiceTest {
         Assertions.assertThat(search.getUserNo()).isEqualTo(user.getUserNo());
         Assertions.assertThat(search.getName()).isEqualTo("name");
         Assertions.assertThat(search.getLabelNos()).hasSize(2);
-        Assertions.assertThat(search.getOrderBy()).isEqualTo("priority");
+        Assertions.assertThat(search.getOrderBy()).isEqualTo("latestConsume");
         Assertions.assertThat(search.getSort()).isEqualTo("DESC");
         Assertions.assertThat(search.getPage()).isEqualTo(1);
         Assertions.assertThat(search.getSize()).isEqualTo(5);
