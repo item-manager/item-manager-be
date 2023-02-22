@@ -1,4 +1,4 @@
-package com.house.item.web.filter;
+package com.house.item.config.web;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.exception.NonExistentSessionUserException;
