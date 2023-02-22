@@ -123,6 +123,57 @@ class JpaItemRepositoryTest {
         Assertions.assertThat(consumables.get(0).getLatestConsume()).isEqualTo(quantityLog7.getDate());
     }
 
+    @Test
+    void getConsumableTotalPage() throws Exception {
+        //given
+        User user = createUser("user1", "username1");
+        Location location = createLocation();
+        Label label1 = createLabel(user, "label1");
+        Label label2 = createLabel(user, "label2");
+        Label label3 = createLabel(user, "label3");
+
+        Item item1 = getItem(user, location, "item1", ItemType.CONSUMABLE, 1, 2);
+        Item item2 = getItem(user, location, "item2", ItemType.CONSUMABLE, 2, 3);
+        Item item3 = getItem(user, location, "item3", ItemType.CONSUMABLE, 3, 1);
+
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
+
+        ItemLabel itemLabel1 = createItemLabel(item1, label1);
+        ItemLabel itemLabel2 = createItemLabel(item1, label2);
+        ItemLabel itemLabel3 = createItemLabel(item2, label2);
+        ItemLabel itemLabel4 = createItemLabel(item2, label3);
+        ItemLabel itemLabel5 = createItemLabel(item3, label3);
+
+        createQuantityLog(item1, QuantityType.PURCHASE, LocalDateTime.now().minusDays(25));
+        createQuantityLog(item1, QuantityType.PURCHASE, LocalDateTime.now().minusDays(20));
+        createQuantityLog(item2, QuantityType.PURCHASE, LocalDateTime.now().minusDays(12));
+        ItemQuantityLog quantityLog4 = createQuantityLog(item2, QuantityType.PURCHASE, LocalDateTime.now().minusDays(10));
+        createQuantityLog(item3, QuantityType.PURCHASE, LocalDateTime.now().minusDays(22));
+
+        createQuantityLog(item1, QuantityType.CONSUME, LocalDateTime.now().minusDays(10));
+        ItemQuantityLog quantityLog7 = createQuantityLog(item2, QuantityType.CONSUME, LocalDateTime.now().minusDays(5));
+        createQuantityLog(item3, QuantityType.CONSUME, LocalDateTime.now().minusDays(20));
+        createQuantityLog(item3, QuantityType.CONSUME, LocalDateTime.now().minusDays(2));
+
+        ConsumableSearch search = ConsumableSearch.builder()
+                .userNo(user.getUserNo())
+//                .name("2")
+                .labelNos(List.of(label2.getLabelNo()))
+//                .orderBy("priority")
+//                .sort("ASC")
+//                .size(2)
+//                .page(1)
+                .build();
+
+        //when
+        int rowCount = itemRepository.getConsumableRowCount(search);
+
+        //then
+        Assertions.assertThat(rowCount).isEqualTo(2);
+    }
+
     User createUser(String id, String username) {
         User user = User.builder()
                 .id(id)
