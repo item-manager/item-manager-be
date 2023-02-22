@@ -155,9 +155,10 @@ class ItemServiceTest {
 
 //        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item", List.of(label1.getLabelNo(), label2.getLabelNo()), ConsumableItemsOrderByType.PRIORITY, "-", 1, 2);
         ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item", List.of(label1.getLabelNo(), label2.getLabelNo()), null, null, null, 2);
+        ConsumableSearch consumableSearch = itemService.getConsumableSearch(consumableItemsRQ);
 
         //when
-        List<ConsumableItemDTO> consumableItems = itemService.getConsumableItems(consumableItemsRQ);
+        List<ConsumableItemDTO> consumableItems = itemService.getConsumableItems(consumableSearch);
 
         //then
         Assertions.assertThat(consumableItems).hasSize(2);
