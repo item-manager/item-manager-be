@@ -16,7 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -136,23 +139,19 @@ public class ItemService {
     private ConsumableSearch getConsumableSearch(ConsumableItemsRQ consumableItemsRQ) {
         SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
 
-        Map<ConsumableItemsOrderByType, String> orderByMapping = new EnumMap<>(ConsumableItemsOrderByType.class);
-        orderByMapping.put(ConsumableItemsOrderByType.priority, "priority");
-        orderByMapping.put(ConsumableItemsOrderByType.quantity, "quantity");
-        orderByMapping.put(ConsumableItemsOrderByType.latest_purchase_date, "latestPurchase");
-        orderByMapping.put(ConsumableItemsOrderByType.latest_consume_date, "latestConsume");
-
         Map<String, String> sortMapping = new HashMap<>();
         sortMapping.put("+", "ASC");
         sortMapping.put("-", "DESC");
 
         ConsumableSearch.ConsumableSearchBuilder consumableSearchBuilder = ConsumableSearch.builder()
                 .userNo(sessionUser.getUserNo())
-                .orderBy(orderByMapping.get(consumableItemsRQ.getOrderBy()))
                 .sort(sortMapping.get(consumableItemsRQ.getSort()))
                 .page(consumableItemsRQ.getPage())
                 .size(consumableItemsRQ.getSize());
 
+        if (consumableItemsRQ.getOrderBy() != null) {
+            consumableSearchBuilder.orderBy(consumableItemsRQ.getOrderBy().getColumn());
+        }
         if (StringUtils.hasText(consumableItemsRQ.getName())) {
             consumableSearchBuilder.name(consumableItemsRQ.getName());
         }
