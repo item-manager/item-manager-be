@@ -1,14 +1,31 @@
 package com.house.item.entity;
 
+import com.house.item.common.ExceptionCodeMessage;
+import com.house.item.domain.ConsumableItemDTO;
+import com.house.item.exception.SubtractCountExceedItemQuantityException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+@SqlResultSetMappings({
+        @SqlResultSetMapping(
+                name = "ConsumableItemMapping",
+                entities = {@EntityResult(entityClass = Item.class)},
+                classes = @ConstructorResult(
+                        targetClass = ConsumableItemDTO.class,
+                        columns = {
+                                @ColumnResult(name = "latestPurchase", type = LocalDateTime.class),
+                                @ColumnResult(name = "latestConsume", type = LocalDateTime.class)
+                        }
+                ))
+})
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -55,5 +72,43 @@ public class Item {
         if (itemLabels != null) {
             this.itemLabels = itemLabels;
         }
+    }
+
+    public void updateItem(String name, ItemType type, Location location, String locationMemo, String photoName, int priority, List<Long> labelNos) {
+        this.name = name;
+        this.type = type;
+        this.location = location;
+        this.locationMemo = locationMemo;
+        this.photoName = photoName;
+        this.priority = priority;
+
+        Iterator<ItemLabel> iterator = this.itemLabels.iterator();
+        while (iterator.hasNext()) {
+            Long labelNo = iterator.next().getLabel().getLabelNo();
+            if (labelNos.contains(labelNo)) {
+                labelNos.remove(labelNo);
+            } else {
+                iterator.remove();
+            }
+        }
+
+        for (Long labelNo : labelNos) {
+            this.itemLabels.add(ItemLabel.builder()
+                    .label(Label.builder()
+                            .labelNo(labelNo)
+                            .build())
+                    .build());
+        }
+    }
+
+    public void addQuantity(int count) {
+        this.quantity += count;
+    }
+
+    public void subtractQuantity(int count) {
+        if (this.quantity < count) {
+            throw new SubtractCountExceedItemQuantityException(ExceptionCodeMessage.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION.message());
+        }
+        this.quantity -= count;
     }
 }

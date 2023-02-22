@@ -5,6 +5,11 @@ spring:
     username: manager
     password: housemanager@ppdb
 
+  jpa:
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+
 #log
 logging:
   level:

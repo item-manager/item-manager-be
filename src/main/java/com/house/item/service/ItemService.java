@@ -2,17 +2,10 @@ package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.common.Props;
-import com.house.item.domain.CreateItemRQ;
-import com.house.item.domain.ItemRS;
-import com.house.item.domain.LabelRS;
-import com.house.item.domain.SessionUser;
+import com.house.item.domain.*;
 import com.house.item.entity.*;
-import com.house.item.exception.NonExistentItemException;
-import com.house.item.exception.NonExistentPlaceException;
-import com.house.item.exception.NonExistentSessionUserException;
-import com.house.item.exception.ServiceException;
+import com.house.item.exception.*;
 import com.house.item.repository.ItemRepository;
-import com.house.item.repository.LocationRepository;
 import com.house.item.util.FileUtil;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
@@ -20,26 +13,39 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ItemService {
-    private final AuthService authService;
-    private final ItemRepository itemRepository;
-    private final LocationRepository locationRepository;
     private final Props props;
+    private final ItemRepository itemRepository;
+    private final AuthService authService;
+    private final LocationService locationService;
 
     @Transactional
     public Long createItem(CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
         User loginUser = authService.getLoginUser();
-        Location location = getLocation(createItemRQ.getLocationNo());
-        String photoName = storePhoto(createItemRQ.getPhoto());
+        Location location;
+        try {
+            location = locationService.getLocation(createItemRQ.getLocationNo());
+            locationService.checkLocationType(location, LocationType.PLACE);
+        } catch (NonExistentLocationException e) {
+            throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
+        }
+
+        String photoName = null;
+        if (createItemRQ.getPhoto() != null) {
+            photoName = storePhoto(createItemRQ.getPhoto());
+        }
 
         Item item = Item.builder()
                 .user(loginUser)
@@ -52,13 +58,22 @@ public class ItemService {
                 .priority(createItemRQ.getPriority())
                 .build();
 
+        List<Long> labels = createItemRQ.getLabels();
+        for (Long labelNo : labels) {
+            Label label = Label.builder()
+                    .labelNo(labelNo)
+                    .build();
+
+            ItemLabel itemLabel = ItemLabel.builder()
+                    .item(item)
+                    .label(label)
+                    .build();
+
+            item.getItemLabels().add(itemLabel);
+        }
+
         itemRepository.save(item);
         return item.getItemNo();
-    }
-
-    private Location getLocation(Long locationNo) throws NonExistentPlaceException {
-        return locationRepository.findOne(locationNo)
-                .orElseThrow(() -> new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message()));
     }
 
     public Item getItem(Long itemNo) throws NonExistentItemException {
@@ -71,10 +86,12 @@ public class ItemService {
         List<LabelRS> labels = new ArrayList<>();
         for (ItemLabel itemLabel : item.getItemLabels()) {
             Label label = itemLabel.getLabel();
-            labels.add(LabelRS.builder()
-                    .labelNo(label.getLabelNo())
-                    .name(label.getName())
-                    .build());
+            labels.add(
+                    LabelRS.builder()
+                            .labelNo(label.getLabelNo())
+                            .name(label.getName())
+                            .build()
+            );
         }
 
         return ItemRS.builder()
@@ -84,10 +101,113 @@ public class ItemService {
                 .room(item.getLocation().getRoom().getName())
                 .place(item.getLocation().getName())
                 .locationMemo(item.getLocationMemo())
+                .photoUrl("/photo/" + item.getPhotoName())
                 .quantity(item.getQuantity())
                 .priority(item.getPriority())
                 .labels(labels)
                 .build();
+    }
+
+    public List<Item> getItems() {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        return itemRepository.findAll(sessionUser.getUserNo());
+    }
+
+    public List<ItemRS> itemsToItemRSList(List<Item> items) {
+        List<ItemRS> itemRSList = new ArrayList<>();
+        for (Item item : items) {
+            itemRSList.add(itemToItemRS(item));
+        }
+        return itemRSList;
+    }
+
+    public List<ConsumableItemDTO> getConsumableItems(ConsumableSearch consumableSearch) {
+        List<ConsumableItemDTO> consumableItemDTOS = itemRepository.findConsumableByNameAndLabel(consumableSearch);
+
+        for (ConsumableItemDTO consumableItemDTO : consumableItemDTOS) {
+            List<ItemLabel> itemLabels = consumableItemDTO.getItem().getItemLabels();
+            for (ItemLabel itemLabel : itemLabels) {
+                itemLabel.getLabel();
+            }
+        }
+
+        return consumableItemDTOS;
+    }
+
+    public ConsumableSearch getConsumableSearch(ConsumableItemsRQ consumableItemsRQ) {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+
+        Map<String, String> sortMapping = new HashMap<>();
+        sortMapping.put("+", "ASC");
+        sortMapping.put("-", "DESC");
+
+        ConsumableSearch.ConsumableSearchBuilder consumableSearchBuilder = ConsumableSearch.builder()
+                .userNo(sessionUser.getUserNo())
+                .sort(sortMapping.get(consumableItemsRQ.getSort()))
+                .page(consumableItemsRQ.getPage())
+                .size(consumableItemsRQ.getSize());
+
+        if (consumableItemsRQ.getOrderBy() != null) {
+            consumableSearchBuilder.orderBy(consumableItemsRQ.getOrderBy().getColumn());
+        }
+        if (StringUtils.hasText(consumableItemsRQ.getName())) {
+            consumableSearchBuilder.name(consumableItemsRQ.getName());
+        }
+        if (consumableItemsRQ.getLabelNos() != null && !consumableItemsRQ.getLabelNos().isEmpty()) {
+            consumableSearchBuilder.labelNos(consumableItemsRQ.getLabelNos());
+        }
+
+        return consumableSearchBuilder.build();
+    }
+
+    public Page getConsumableItemsPage(ConsumableSearch consumableSearch) {
+        int rowCount = itemRepository.getConsumableRowCount(consumableSearch);
+
+        int size = consumableSearch.getSize();
+        int totalPage = rowCount / size;
+        if (rowCount % size > 0) {
+            totalPage++;
+        }
+
+        return Page.builder()
+                .totalDataCnt(rowCount)
+                .totalPages(totalPage)
+                .requestPage(consumableSearch.getPage())
+                .requestSize(size)
+                .build();
+    }
+
+    @Transactional
+    public void updateItem(Long itemNo, UpdateItemRQ updateItemRQ) {
+        Item item = getItem(itemNo);
+
+        Location location;
+        try {
+            location = locationService.getLocation(updateItemRQ.getLocationNo());
+            locationService.checkLocationType(location, LocationType.PLACE);
+        } catch (NonExistentLocationException e) {
+            throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
+        }
+
+        //사진 변경이 발생했다고 가정
+        String photoDir = props.getDir().getPhoto();
+        if (StringUtils.hasText(item.getPhotoName())) {
+            FileUtil.deleteFile(photoDir, item.getPhotoName());
+        }
+
+        String photoName = "";
+        if (updateItemRQ.getPhoto() != null) {
+            photoName = storePhoto(updateItemRQ.getPhoto());
+        }
+
+        item.updateItem(
+                updateItemRQ.getName(),
+                updateItemRQ.getType(),
+                location,
+                updateItemRQ.getLocationMemo(),
+                photoName,
+                updateItemRQ.getPriority(),
+                updateItemRQ.getLabels());
     }
 
     private String storePhoto(MultipartFile photo) throws ServiceException {

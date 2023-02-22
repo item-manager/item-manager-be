@@ -4,11 +4,9 @@ import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.CreateLabel;
 import com.house.item.domain.LabelRS;
 import com.house.item.domain.SessionUser;
-import com.house.item.entity.Item;
-import com.house.item.entity.ItemLabel;
+import com.house.item.domain.UpdateLabelRQ;
 import com.house.item.entity.Label;
 import com.house.item.entity.User;
-import com.house.item.exception.NonExistentItemException;
 import com.house.item.exception.NonExistentLabelException;
 import com.house.item.exception.NonUniqueLabelNameException;
 import com.house.item.repository.LabelRepository;
@@ -35,7 +33,7 @@ public class LabelService {
     @Transactional
     public Long createLabel(CreateLabel createLabel) throws NonUniqueLabelNameException {
         User loginUser = authService.getLoginUser();
-        validateDuplicationLabelName(createLabel.getName(), loginUser.getUserNo());
+        validateDuplicationLabelName(createLabel.getName());
 
         Label label = Label.builder()
                 .user(loginUser)
@@ -46,8 +44,9 @@ public class LabelService {
         return label.getLabelNo();
     }
 
-    private void validateDuplicationLabelName(String name, Long userNo) throws NonUniqueLabelNameException {
-        labelRepository.findByNameAndUserNo(name, userNo)
+    private void validateDuplicationLabelName(String name) throws NonUniqueLabelNameException {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        labelRepository.findByNameAndUserNo(name, sessionUser.getUserNo())
                 .ifPresent(l -> {
                     throw new NonUniqueLabelNameException(ExceptionCodeMessage.NON_UNIQUE_LABEL_NAME.message());
                 });
@@ -82,21 +81,9 @@ public class LabelService {
     }
 
     @Transactional
-    public ItemLabel attachLabelToItem(Long itemNo, Long labelNo) throws NonExistentItemException, NonExistentLabelException {
-        Item item = itemService.getItem(itemNo);
+    public void updateLabel(Long labelNo, UpdateLabelRQ updateLabelRQ) throws NonExistentLabelException, NonUniqueLabelNameException {
+        validateDuplicationLabelName(updateLabelRQ.getName());
         Label label = getLabel(labelNo);
-
-        ItemLabel itemLabel = ItemLabel.builder()
-                .item(item)
-                .label(label)
-                .build();
-
-        List<ItemLabel> itemLabels = item.getItemLabels();
-        if (!itemLabels.contains(itemLabel)) {
-            itemLabels.add(itemLabel);
-        }
-
-        return itemLabel;
+        label.updateLabel(updateLabelRQ.getName());
     }
-
 }

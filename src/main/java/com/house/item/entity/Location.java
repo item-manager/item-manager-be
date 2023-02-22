@@ -31,4 +31,15 @@ public class Location {
     private List<Location> places = new ArrayList<>();
 
     private String name;
+
+    public void updateRoom(String name) {
+        this.name = name;
+    }
+
+    public void updatePlace(Location room, String name) {
+        if (room != null) {
+            this.room = room;
+        }
+        this.name = name;
+    }
 }

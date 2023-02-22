@@ -2,6 +2,7 @@ package com.house.item.service;
 
 import com.house.item.domain.CreateLabel;
 import com.house.item.domain.SessionUser;
+import com.house.item.domain.UpdateLabelRQ;
 import com.house.item.entity.*;
 import com.house.item.exception.NonExistentLabelException;
 import com.house.item.exception.NonUniqueLabelNameException;
@@ -12,6 +13,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -136,21 +138,25 @@ class LabelServiceTest {
         Assertions.assertThat(findLabel).isNull();
     }
 
-
     @Test
-    void 물품에_라벨링() throws Exception {
+    void 라벨정보수정() throws Exception {
         //given
         User user = createSessionUser();
-        Item item = createItem(user);
         Label label = getLabel(user, "label");
         em.persist(label);
+        Long labelNo = label.getLabelNo();
+
+        UpdateLabelRQ updateLabelRQ = new UpdateLabelRQ();
+        ReflectionTestUtils.setField(updateLabelRQ, "name", "new name");
 
         //when
-        ItemLabel itemLabel = labelService.attachLabelToItem(item.getItemNo(), label.getLabelNo());
+        labelService.updateLabel(labelNo, updateLabelRQ);
+        em.flush();
+        em.clear();
 
         //then
-        Assertions.assertThat(itemLabel.getItem()).isSameAs(item);
-        Assertions.assertThat(itemLabel.getLabel()).isSameAs(label);
+        Label findLabel = em.find(Label.class, labelNo);
+        Assertions.assertThat(findLabel.getName()).isEqualTo("new name");
     }
 
     User createSessionUser() {

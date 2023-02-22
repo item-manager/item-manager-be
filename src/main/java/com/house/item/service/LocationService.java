@@ -1,14 +1,11 @@
 package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
-import com.house.item.domain.CreatePlaceRQ;
-import com.house.item.domain.CreateRoomRQ;
-import com.house.item.domain.SessionUser;
+import com.house.item.domain.*;
 import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
-import com.house.item.exception.NonExistentRoomException;
-import com.house.item.exception.NotLocationTypeRoomException;
+import com.house.item.exception.*;
 import com.house.item.repository.LocationRepository;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
@@ -45,7 +42,8 @@ public class LocationService {
     @Transactional
     public Long createPlace(CreatePlaceRQ createPlaceRQ) throws NonExistentRoomException, NotLocationTypeRoomException {
         User loginUser = authService.getLoginUser();
-        Location room = checkRoom(createPlaceRQ.getRoomNo());
+        Location room = getLocation(createPlaceRQ.getRoomNo());
+        checkLocationType(room, LocationType.ROOM);
 
         Location place = Location.builder()
                 .user(loginUser)
@@ -58,14 +56,26 @@ public class LocationService {
         return place.getLocationNo();
     }
 
-    private Location checkRoom(Long roomNo) throws NonExistentRoomException, NotLocationTypeRoomException {
-        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        Location room = locationRepository.findByLocationNoAndUserNo(roomNo, sessionUser.getUserNo())
-                .orElseThrow(() -> new NonExistentRoomException(ExceptionCodeMessage.NON_EXISTENT_ROOM.message()));
-        if (room.getType() != LocationType.ROOM) {
+    public void checkLocationType(Location location, LocationType type) throws NotLocationTypeRoomException, NotLocationTypePlaceException, UndefinedLocationTypeException {
+        if (location.getType() == type) {
+            return;
+        }
+
+        if (type == LocationType.ROOM) {
             throw new NotLocationTypeRoomException(ExceptionCodeMessage.NOT_LOCATION_TYPE_ROOM.message());
         }
-        return room;
+
+        if (type == LocationType.PLACE) {
+            throw new NotLocationTypePlaceException(ExceptionCodeMessage.NOT_LOCATION_TYPE_PLACE.message());
+        }
+
+        throw new UndefinedLocationTypeException(ExceptionCodeMessage.UNDEFINED_LOCATION_TYPE.message());
+    }
+
+    public Location getLocation(Long locationNo) throws NonExistentLocationException {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        return locationRepository.findByLocationNoAndUserNo(locationNo, sessionUser.getUserNo())
+                .orElseThrow(() -> new NonExistentLocationException(ExceptionCodeMessage.MessageDefine.NON_EXISTENT_LOCATION));
     }
 
     public List<Location> getRooms() {
@@ -74,7 +84,26 @@ public class LocationService {
     }
 
     public List<Location> getPlacesByRoomNo(Long roomNo) throws NonExistentRoomException, NotLocationTypeRoomException {
-        checkRoom(roomNo);
+        Location room = getLocation(roomNo);
+        checkLocationType(room, LocationType.ROOM);
         return locationRepository.findByRoom(roomNo);
+    }
+
+    @Transactional
+    public void updateRoom(Long roomNo, UpdateRoomRQ updateRoomRQ) {
+        Location room = getLocation(roomNo);
+        room.updateRoom(updateRoomRQ.getName());
+    }
+
+    @Transactional
+    public void updatePlace(Long placeNo, UpdatePlaceRQ updatePlaceRQ) {
+        Location place = getLocation(placeNo);
+        Location room = null;
+        if (!place.getRoom().getLocationNo().equals(updatePlaceRQ.getRoomNo())) {
+            room = Location.builder()
+                    .locationNo(updatePlaceRQ.getRoomNo())
+                    .build();
+        }
+        place.updatePlace(room, updatePlaceRQ.getName());
     }
 }

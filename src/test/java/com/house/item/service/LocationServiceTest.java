@@ -1,12 +1,10 @@
 package com.house.item.service;
 
-import com.house.item.domain.CreatePlaceRQ;
-import com.house.item.domain.CreateRoomRQ;
-import com.house.item.domain.SessionUser;
+import com.house.item.domain.*;
 import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
-import com.house.item.exception.NonExistentRoomException;
+import com.house.item.exception.NonExistentLocationException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
@@ -51,7 +49,8 @@ class LocationServiceTest {
     void 위치_생성() throws Exception {
         //given
         User sessionUser = createSessionUser();
-        Location room = createRoom(sessionUser);
+        Location room = getLocation(sessionUser, LocationType.ROOM, "room1", null);
+        em.persist(room);
         CreatePlaceRQ createPlaceRQ = new CreatePlaceRQ();
         ReflectionTestUtils.setField(createPlaceRQ, "name", "place1");
         ReflectionTestUtils.setField(createPlaceRQ, "roomNo", room.getLocationNo());
@@ -76,7 +75,7 @@ class LocationServiceTest {
 
         //when
         Assertions.assertThatThrownBy(() -> locationService.createPlace(createPlaceRQ))
-                .isInstanceOf(NonExistentRoomException.class);
+                .isInstanceOf(NonExistentLocationException.class);
 
         //then
     }
@@ -86,7 +85,8 @@ class LocationServiceTest {
         //given
         User sessionUser = createSessionUser();
         User anotherUser = createAnotherUser();
-        Location room = createRoom(anotherUser);
+        Location room = getLocation(anotherUser, LocationType.ROOM, "room1", null);
+        em.persist(room);
 
         CreatePlaceRQ createPlaceRQ = new CreatePlaceRQ();
         ReflectionTestUtils.setField(createPlaceRQ, "name", "place1");
@@ -94,9 +94,68 @@ class LocationServiceTest {
 
         //when
         Assertions.assertThatThrownBy(() -> locationService.createPlace(createPlaceRQ))
-                .isInstanceOf(NonExistentRoomException.class);
+                .isInstanceOf(NonExistentLocationException.class);
 
         //then
+    }
+
+    @Test
+    void 방정보수정() throws Exception {
+        //given
+        User user = createSessionUser();
+        Location room = getLocation(user, LocationType.ROOM, "room", null);
+        em.persist(room);
+        Long locationNo = room.getLocationNo();
+
+        em.flush();
+        em.clear();
+
+        UpdateRoomRQ updateRoomRQ = UpdateRoomRQ.builder()
+                .name("new room")
+                .build();
+
+        //when
+        locationService.updateRoom(locationNo, updateRoomRQ);
+        em.flush();
+        em.clear();
+
+        //then
+        Location findRoom = em.find(Location.class, locationNo);
+        Assertions.assertThat(findRoom.getName()).isEqualTo("new room");
+    }
+
+    @Test
+    void 위치정보수정() throws Exception {
+        //given
+        User user = createSessionUser();
+        Location room1 = getLocation(user, LocationType.ROOM, "room1", null);
+        Location room2 = getLocation(user, LocationType.ROOM, "room2", null);
+        Location place = getLocation(user, LocationType.PLACE, "PLACE", room1);
+        em.persist(room1);
+        em.persist(room2);
+        em.persist(place);
+        Long room1LocationNo = room1.getLocationNo();
+        Long room2LocationNo = room2.getLocationNo();
+        Long placeLocationNo = place.getLocationNo();
+
+        em.flush();
+        em.clear();
+
+        UpdatePlaceRQ updatePlaceRQ = UpdatePlaceRQ.builder()
+                .roomNo(room2LocationNo)
+                .name("place")
+                .build();
+
+        //when
+        locationService.updatePlace(placeLocationNo, updatePlaceRQ);
+
+        em.flush();
+        em.clear();
+
+        //then
+        Location findPlace = em.find(Location.class, placeLocationNo);
+        Assertions.assertThat(findPlace.getRoom().getName()).isEqualTo("room2");
+        Assertions.assertThat(findPlace.getName()).isEqualTo("place");
     }
 
     User createSessionUser() {
@@ -127,14 +186,13 @@ class LocationServiceTest {
         return user;
     }
 
-    Location createRoom(User user) {
-        Location room1 = Location.builder()
+    Location getLocation(User user, LocationType type, String name, Location room) {
+        return Location.builder()
                 .user(user)
-                .type(LocationType.ROOM)
-                .name("room1")
+                .type(type)
+                .name(name)
+                .room(room)
                 .build();
-        em.persist(room1);
-        return room1;
     }
 
 }

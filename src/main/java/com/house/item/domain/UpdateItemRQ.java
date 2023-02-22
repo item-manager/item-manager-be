@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class CreateItemRQ {
+public class UpdateItemRQ {
     @NotBlank
     private String name;
     @NotNull
@@ -24,7 +24,7 @@ public class CreateItemRQ {
     private Integer priority;
     private List<Long> labels;
 
-    public CreateItemRQ(String name, ItemType type, Long locationNo, String locationMemo, MultipartFile photo, Integer priority, List<Long> labels) {
+    public UpdateItemRQ(String name, ItemType type, Long locationNo, String locationMemo, MultipartFile photo, Integer priority, List<Long> labels) {
         this.name = name;
         this.type = type;
         this.locationNo = locationNo;

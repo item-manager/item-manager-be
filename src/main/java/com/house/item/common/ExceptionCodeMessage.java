@@ -19,10 +19,15 @@ public enum ExceptionCodeMessage {
     NON_EXISTENT_ROOM(CodeDefine.NON_EXISTENT_ROOM, MessageDefine.NON_EXISTENT_ROOM),
     NON_EXISTENT_PLACE(CodeDefine.NON_EXISTENT_PLACE, MessageDefine.NON_EXISTENT_PLACE),
     NOT_LOCATION_TYPE_ROOM(CodeDefine.NOT_LOCATION_TYPE_ROOM, MessageDefine.NOT_LOCATION_TYPE_ROOM),
+    NOT_LOCATION_TYPE_PLACE(CodeDefine.NOT_LOCATION_TYPE_PLACE, MessageDefine.NOT_LOCATION_TYPE_PLACE),
+    UNDEFINED_LOCATION_TYPE(CodeDefine.UNDEFINED_LOCATION_TYPE, MessageDefine.UNDEFINED_LOCATION_TYPE),
 
     /* Label */
     NON_EXISTENT_LABEL(CodeDefine.NON_EXISTENT_LABEL, MessageDefine.NON_EXISTENT_LABEL),
     NON_UNIQUE_LABEL_NAME(CodeDefine.NON_UNIQUE_LABEL_NAME, MessageDefine.NON_UNIQUE_LABEL_NAME),
+
+    /* Item Quantity Log */
+    SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION(CodeDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION, MessageDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION),
 
     ;
 
@@ -42,10 +47,15 @@ public enum ExceptionCodeMessage {
         int NON_EXISTENT_ROOM = 3001;
         int NON_EXISTENT_PLACE = 3002;
         int NOT_LOCATION_TYPE_ROOM = 3003;
+        int NOT_LOCATION_TYPE_PLACE = 3004;
+        int UNDEFINED_LOCATION_TYPE = 3005;
 
         /* Label */
         int NON_EXISTENT_LABEL = 4001;
         int NON_UNIQUE_LABEL_NAME = 4002;
+
+        /* Item Quantity Log */
+        int SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = 5001;
     }
 
     public interface MessageDefine {
@@ -63,11 +73,17 @@ public enum ExceptionCodeMessage {
         /* Location */
         String NON_EXISTENT_ROOM = "잘못된 방 정보입니다";
         String NON_EXISTENT_PLACE = "잘못된 위치 정보입니다";
-        String NOT_LOCATION_TYPE_ROOM = "roomNo type이 방이 아닙니다";
+        String NOT_LOCATION_TYPE_ROOM = "Location type이 방이어야 합니다";
+        String NOT_LOCATION_TYPE_PLACE = "Location type이 위치여야 합니다";
+        String UNDEFINED_LOCATION_TYPE = "Location type이 정의되지 않았습니다";
+        String NON_EXISTENT_LOCATION = "잘못된 방/위치 정보입니다";
 
         /* Label */
         String NON_EXISTENT_LABEL = "잘못된 라벨 정보입니다";
         String NON_UNIQUE_LABEL_NAME = "이미 존재하는 라벨 이름입니다";
+
+        /* Item Quantity Log */
+        String SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = "사용하는 수량은 물품 수량을 초과할 수 없습니다";
     }
 
     public interface SwaggerDescription {
@@ -85,10 +101,15 @@ public enum ExceptionCodeMessage {
         String NON_EXISTENT_ROOM = CodeDefine.NON_EXISTENT_ROOM + " - " + MessageDefine.NON_EXISTENT_ROOM;
         String NON_EXISTENT_PLACE = CodeDefine.NON_EXISTENT_PLACE + " - " + MessageDefine.NON_EXISTENT_PLACE;
         String NOT_LOCATION_TYPE_ROOM = CodeDefine.NOT_LOCATION_TYPE_ROOM + " - " + MessageDefine.NOT_LOCATION_TYPE_ROOM;
+        String NOT_LOCATION_TYPE_PLACE = CodeDefine.NOT_LOCATION_TYPE_PLACE + " - " + MessageDefine.NOT_LOCATION_TYPE_PLACE;
+        String UNDEFINED_LOCATION_TYPE = CodeDefine.UNDEFINED_LOCATION_TYPE + " - " + MessageDefine.UNDEFINED_LOCATION_TYPE;
 
         /* Label */
         String NON_EXISTENT_LABEL = CodeDefine.NON_EXISTENT_LABEL + " - " + MessageDefine.NON_EXISTENT_LABEL;
         String NON_UNIQUE_LABEL_NAME = CodeDefine.NON_UNIQUE_LABEL_NAME + " - " + MessageDefine.NON_UNIQUE_LABEL_NAME;
+
+        /* Item Quantity Log */
+        String SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = CodeDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION + " - " + MessageDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION;
     }
 
     private final int code;
