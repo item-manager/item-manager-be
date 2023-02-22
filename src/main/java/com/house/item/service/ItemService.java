@@ -121,9 +121,7 @@ public class ItemService {
         return itemRSList;
     }
 
-    public List<ConsumableItemDTO> getConsumableItems(ConsumableItemsRQ consumableItemsRQ) {
-        ConsumableSearch consumableSearch = getConsumableSearch(consumableItemsRQ);
-
+    public List<ConsumableItemDTO> getConsumableItems(ConsumableSearch consumableSearch) {
         List<ConsumableItemDTO> consumableItemDTOS = itemRepository.findConsumableByNameAndLabel(consumableSearch);
 
         for (ConsumableItemDTO consumableItemDTO : consumableItemDTOS) {
@@ -136,7 +134,7 @@ public class ItemService {
         return consumableItemDTOS;
     }
 
-    private ConsumableSearch getConsumableSearch(ConsumableItemsRQ consumableItemsRQ) {
+    public ConsumableSearch getConsumableSearch(ConsumableItemsRQ consumableItemsRQ) {
         SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
 
         Map<String, String> sortMapping = new HashMap<>();
@@ -160,6 +158,23 @@ public class ItemService {
         }
 
         return consumableSearchBuilder.build();
+    }
+
+    public Page getConsumableItemsPage(ConsumableSearch consumableSearch) {
+        int rowCount = itemRepository.getConsumableRowCount(consumableSearch);
+
+        int size = consumableSearch.getSize();
+        int totalPage = rowCount / size;
+        if (rowCount % size > 0) {
+            totalPage++;
+        }
+
+        return Page.builder()
+                .totalDataCnt(rowCount)
+                .totalPages(totalPage)
+                .requestPage(consumableSearch.getPage())
+                .requestSize(size)
+                .build();
     }
 
     @Transactional
