@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -132,5 +133,61 @@ public class JpaItemRepository implements ItemRepository {
         }
 
         return consumableItemDTOS;
+    }
+
+    @Override
+    public int getConsumableRowCount(ConsumableSearch consumableSearch) {
+        String sql = """
+                SELECT COUNT(ITEM_NO)
+                FROM (
+                    SELECT DISTINCT I.*, 
+                        LATEST_PURCHASE as latestPurchase, 
+                        LATEST_CONSUME as latestConsume
+                    FROM ITEM I
+                    LEFT JOIN (
+                        SELECT IQL.ITEM_NO, 
+                            MAX(IQL.DATE) AS LATEST_PURCHASE
+                        FROM ITEM_QUANTITY_LOG IQL
+                        WHERE IQL.TYPE = 'PURCHASE'
+                        GROUP BY IQL.ITEM_NO
+                    ) AS PURCHASE ON I.ITEM_NO = PURCHASE.ITEM_NO
+                    LEFT JOIN (
+                        SELECT IQL.ITEM_NO
+                            , MAX(IQL.DATE) AS LATEST_CONSUME
+                        FROM ITEM_QUANTITY_LOG IQL
+                        WHERE IQL.TYPE = 'CONSUME'
+                        GROUP BY IQL.ITEM_NO
+                    ) AS CONSUME ON I.ITEM_NO = CONSUME.ITEM_NO
+                """;
+
+        if (consumableSearch.getLabelNos() != null && !consumableSearch.getLabelNos().isEmpty()) {
+            sql += """
+                        JOIN (
+                            SELECT IL.ITEM_NO
+                            FROM ITEM_LABEL IL
+                            WHERE IL.LABEL_NO IN :labelNos
+                            GROUP BY IL.ITEM_NO
+                            HAVING COUNT(IL.ITEM_NO) = :labelNosSize
+                        ) HAVE_LABEL ON I.ITEM_NO = HAVE_LABEL.ITEM_NO 
+                    """;
+        }
+
+        sql += "    WHERE I.USER_NO = :userNo AND I.TYPE = 'CONSUMABLE' \n";
+
+        if (StringUtils.hasText(consumableSearch.getName())) {
+            sql += "    AND I.NAME LIKE '%" + consumableSearch.getName() + "%' \n";
+        }
+
+        sql += ")";
+
+        Query query = em.createNativeQuery(sql)
+                .setParameter("userNo", consumableSearch.getUserNo());
+
+        if (consumableSearch.getLabelNos() != null && !consumableSearch.getLabelNos().isEmpty()) {
+            query.setParameter("labelNos", consumableSearch.getLabelNos());
+            query.setParameter("labelNosSize", consumableSearch.getLabelNos().size());
+        }
+
+        return ((BigInteger) query.getSingleResult()).intValue();
     }
 }
