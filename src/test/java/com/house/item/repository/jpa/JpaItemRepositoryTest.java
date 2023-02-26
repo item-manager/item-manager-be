@@ -70,6 +70,31 @@ class JpaItemRepositoryTest {
     }
 
     @Test
+    void findByLocationNo() throws Exception {
+        //given
+        User user = createUser("user1", "username1");
+        Location location1 = createLocation();
+        Location location2 = createLocation();
+        Item item1 = getItem(user, location1, "item1", ItemType.CONSUMABLE, 1, 1);
+        Item item2 = getItem(user, location1, "item2", ItemType.EQUIPMENT, 1, 1);
+        Item item3 = getItem(user, location2, "item3", ItemType.EQUIPMENT, 1, 1);
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
+
+        Long locationNo = location1.getLocationNo();
+        Long locationNo2 = location2.getLocationNo();
+
+        //when
+        List<Item> items = itemRepository.findByLocationNo(locationNo);
+
+        //then
+        Assertions.assertThat(items)
+                .containsExactly(item1, item2)
+                .doesNotContain(item3);
+    }
+
+    @Test
     void findConsumableByNameAndLabel() throws Exception {
         //given
         User user = createUser("user1", "username1");
