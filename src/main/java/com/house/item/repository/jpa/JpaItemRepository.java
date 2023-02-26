@@ -67,12 +67,12 @@ public class JpaItemRepository implements ItemRepository {
     }
 
     @Override
-    public List<Item> findByLocationNo(Long locationNo) {
+    public List<Item> findByPlaceNo(Long placeNo) {
         String jpql = SELECT_FROM_JPQL +
                 " join i.location p" +
-                " where p.locationNo = :locationNo";
+                " where p.locationNo = :placeNo";
         return em.createQuery(jpql, Item.class)
-                .setParameter("locationNo", locationNo)
+                .setParameter("placeNo", placeNo)
                 .getResultList();
     }
 

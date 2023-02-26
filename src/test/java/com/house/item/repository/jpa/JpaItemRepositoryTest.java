@@ -73,7 +73,7 @@ class JpaItemRepositoryTest {
     }
 
     @Test
-    void findByLocationNo() throws Exception {
+    void findByPlaceNo() throws Exception {
         //given
         User user = createUser("user1", "username1");
         Location room = createRoom("room");
@@ -90,7 +90,7 @@ class JpaItemRepositoryTest {
         Long locationNo2 = location2.getLocationNo();
 
         //when
-        List<Item> items = itemRepository.findByLocationNo(locationNo);
+        List<Item> items = itemRepository.findByPlaceNo(locationNo);
 
         //then
         Assertions.assertThat(items)
