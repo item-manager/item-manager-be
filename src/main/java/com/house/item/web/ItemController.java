@@ -6,10 +6,7 @@ import com.house.item.domain.*;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemLabel;
 import com.house.item.entity.Label;
-import com.house.item.exception.NonExistentItemException;
-import com.house.item.exception.NonExistentPlaceException;
-import com.house.item.exception.NonExistentSessionUserException;
-import com.house.item.exception.ServiceException;
+import com.house.item.exception.*;
 import com.house.item.service.ItemService;
 import com.house.item.service.LabelService;
 import com.house.item.service.QuantityLogService;
@@ -92,6 +89,34 @@ public class ItemController {
                 .build();
     }
 
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_LOCATION),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.UNDEFINED_LOCATION_TYPE)
+                    }
+            )
+    )
+    @Operation(summary = "방/위치 pk로 조회")
+    @GetMapping("/location")
+    public Result<List<ItemNameRS>> getItemsInLocation(@Validated @ModelAttribute ItemsInLocationRQ itemsInLocationRQ) throws NonExistentLocationException, UndefinedLocationTypeException {
+        List<Item> items = itemService.getItemsInLocation(itemsInLocationRQ.getLocationNo());
+
+        List<ItemNameRS> itemNameRSList = new ArrayList<>();
+        for (Item item : items) {
+            ItemNameRS itemNameRS = ItemNameRS.builder()
+                    .itemNo(item.getItemNo())
+                    .name(item.getName())
+                    .build();
+            itemNameRSList.add(itemNameRS);
+        }
+
+        return Result.<List<ItemNameRS>>builder()
+                .data(itemNameRSList)
+                .build();
+    }
 
     @Operation(summary = "소모품 목록 조회")
     @GetMapping("/consumables")
