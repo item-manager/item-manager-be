@@ -2,10 +2,12 @@ package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.*;
+import com.house.item.entity.Item;
 import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
 import com.house.item.exception.*;
+import com.house.item.repository.ItemRepository;
 import com.house.item.repository.LocationRepository;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
@@ -24,6 +26,7 @@ public class LocationService {
     private final AuthService authService;
 
     private final LocationRepository locationRepository;
+    private final ItemRepository itemRepository;
 
     @Transactional
     public Long createRoom(CreateRoomRQ createRoomRQ) {
@@ -105,5 +108,24 @@ public class LocationService {
                     .build();
         }
         place.updatePlace(room, updatePlaceRQ.getName());
+    }
+
+    @Transactional
+    public void deleteLocation(Long locationNo) {
+        Location location = getLocation(locationNo);
+
+        List<Item> items = null;
+        if (location.getType() == LocationType.PLACE) {
+            items = itemRepository.findByPlaceNo(locationNo);
+        }
+        if (location.getType() == LocationType.ROOM) {
+            items = itemRepository.findByRoomNo(locationNo);
+        }
+
+        if (items != null) {
+            throw new UnableToDeleteLocationInUseException(ExceptionCodeMessage.UNABLE_TO_DELETE_LOCATION_IN_USE_EXCEPTION.message());
+        }
+
+        locationRepository.delete(location);
     }
 }
