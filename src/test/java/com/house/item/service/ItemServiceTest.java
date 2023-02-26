@@ -43,7 +43,8 @@ class ItemServiceTest {
     void 물품생성() throws Exception {
         //given
         User user = createSessionUser();
-        Location location = createLocation(user, "place");
+        Location room = createRoom(user, "room");
+        Location location = createPlace(user, room, "place");
 
         MultipartFile photo = new MockMultipartFile(
                 "fileName",
@@ -80,7 +81,8 @@ class ItemServiceTest {
     void 물품_pk로_조회() throws Exception {
         //given
         User user = createSessionUser();
-        Location location = createLocation(user, "place");
+        Location room = createRoom(user, "room");
+        Location location = createPlace(user, room, "place");
         Item item = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
         em.persist(item);
 
@@ -95,7 +97,8 @@ class ItemServiceTest {
     void user_pk로_item_목록조회() throws Exception {
         //given
         User user = createSessionUser();
-        Location location = createLocation(user, "place");
+        Location room = createRoom(user, "room");
+        Location location = createPlace(user, room, "place");
         Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
         Item item2 = getItem(user, location, ItemType.CONSUMABLE, "item2", 2, 1);
         Item item3 = getItem(user, location, ItemType.CONSUMABLE, "item3", 2, 1);
@@ -115,7 +118,8 @@ class ItemServiceTest {
     void 소모품_검색() throws Exception {
         //given
         User user = createSessionUser();
-        Location location = createLocation(user, "place");
+        Location room = createRoom(user, "room");
+        Location location = createPlace(user, room, "place");
         Label label1 = createLabel(user, "label1");
         Label label2 = createLabel(user, "label2");
 
@@ -188,8 +192,9 @@ class ItemServiceTest {
     void 물품정보수정() throws Exception {
         //given
         User user = createSessionUser();
-        Location location = createLocation(user, "place");
-        Location location2 = createLocation(user, "place2");
+        Location room = createRoom(user, "room");
+        Location location = createPlace(user, room, "place");
+        Location location2 = createPlace(user, room, "place2");
         Label label1 = createLabel(user, "label1");
         Label label2 = createLabel(user, "label2");
         Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
@@ -246,14 +251,18 @@ class ItemServiceTest {
         return user;
     }
 
-    Location createLocation(User user, String name) {
+    Location createRoom(User user, String name) {
         Location room = Location.builder()
                 .user(user)
                 .type(LocationType.ROOM)
-                .name("room")
+                .name(name)
                 .build();
         locationRepository.save(room);
 
+        return room;
+    }
+
+    Location createPlace(User user, Location room, String name) {
         Location place = Location.builder()
                 .user(user)
                 .type(LocationType.PLACE)
