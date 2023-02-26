@@ -99,6 +99,33 @@ class JpaItemRepositoryTest {
     }
 
     @Test
+    void findByRoomNo() throws Exception {
+        //given
+        User user = createUser("user1", "username1");
+        Location room1 = createRoom("room1");
+        Location room2 = createRoom("room2");
+        Location location1 = createPlace(room1, "desk");
+        Location location2 = createPlace(room2, "desk");
+        Item item1 = getItem(user, location1, "item1", ItemType.CONSUMABLE, 1, 1);
+        Item item2 = getItem(user, location1, "item2", ItemType.EQUIPMENT, 1, 1);
+        Item item3 = getItem(user, location2, "item3", ItemType.EQUIPMENT, 1, 1);
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
+
+        Long roomNo1 = room1.getLocationNo();
+        Long roomNo2 = room2.getLocationNo();
+
+        //when
+        List<Item> items = itemRepository.findByRoomNo(roomNo1);
+
+        //then
+        Assertions.assertThat(items)
+                .containsExactly(item1, item2)
+                .doesNotContain(item3);
+    }
+
+    @Test
     void findConsumableByNameAndLabel() throws Exception {
         //given
         User user = createUser("user1", "username1");
