@@ -214,4 +214,18 @@ public class ItemService {
         String photoDir = props.getDir().getPhoto();
         return FileUtil.storeFile(photo, photoDir);
     }
+
+    public List<Item> getItemsInLocation(Long locationNo) {
+        Location location = locationService.getLocation(locationNo);
+
+        List<Item> items = null;
+        if (location.getType() == LocationType.PLACE) {
+            items = itemRepository.findByPlaceNo(locationNo);
+        }
+        if (location.getType() == LocationType.ROOM) {
+            items = itemRepository.findByRoomNo(locationNo);
+        }
+
+        return items;
+    }
 }
