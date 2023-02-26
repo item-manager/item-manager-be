@@ -76,6 +76,17 @@ public class JpaItemRepository implements ItemRepository {
                 .getResultList();
     }
 
+    @Override
+    public List<Item> findByRoomNo(Long roomNo) {
+        String jpql = SELECT_FROM_JPQL +
+                " join i.location p" +
+                " join p.room r" +
+                " where r.locationNo = :roomNo";
+        return em.createQuery(jpql, Item.class)
+                .setParameter("roomNo", roomNo)
+                .getResultList();
+    }
+
     //소모품 관리
     @Override
     public List<ConsumableItemDTO> findConsumableByNameAndLabel(ConsumableSearch consumableSearch) {
