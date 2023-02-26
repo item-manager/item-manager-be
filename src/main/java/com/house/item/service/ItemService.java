@@ -221,9 +221,10 @@ public class ItemService {
         List<Item> items = null;
         if (location.getType() == LocationType.PLACE) {
             items = itemRepository.findByPlaceNo(locationNo);
-        }
-        if (location.getType() == LocationType.ROOM) {
+        } else if (location.getType() == LocationType.ROOM) {
             items = itemRepository.findByRoomNo(locationNo);
+        } else {
+            throw new UndefinedLocationTypeException(ExceptionCodeMessage.UNDEFINED_LOCATION_TYPE.message());
         }
 
         return items;
