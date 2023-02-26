@@ -115,6 +115,53 @@ class ItemServiceTest {
     }
 
     @Test
+    void place_pk로_item_목록조회() throws Exception {
+        //given
+        User user = createSessionUser();
+        Location room = createRoom(user, "room");
+        Location place1 = createPlace(user, room, "place1");
+        Location place2 = createPlace(user, room, "place2");
+        Item item1 = getItem(user, place1, ItemType.CONSUMABLE, "item1", 2, 1);
+        Item item2 = getItem(user, place1, ItemType.CONSUMABLE, "item2", 2, 1);
+        Item item3 = getItem(user, place2, ItemType.CONSUMABLE, "item3", 2, 1);
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
+
+        //when
+        List<Item> items = itemService.getItemsInLocation(place1.getLocationNo());
+
+        //then
+        Assertions.assertThat(items)
+                .containsExactly(item1, item2)
+                .doesNotContain(item3);
+    }
+
+    @Test
+    void room_pk로_item_목록조회() throws Exception {
+        //given
+        User user = createSessionUser();
+        Location room1 = createRoom(user, "room1");
+        Location room2 = createRoom(user, "room2");
+        Location place1 = createPlace(user, room1, "place1");
+        Location place2 = createPlace(user, room2, "place2");
+        Item item1 = getItem(user, place1, ItemType.CONSUMABLE, "item1", 2, 1);
+        Item item2 = getItem(user, place1, ItemType.CONSUMABLE, "item2", 2, 1);
+        Item item3 = getItem(user, place2, ItemType.CONSUMABLE, "item3", 2, 1);
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
+
+        //when
+        List<Item> items = itemService.getItemsInLocation(room1.getLocationNo());
+
+        //then
+        Assertions.assertThat(items)
+                .containsExactly(item1, item2)
+                .doesNotContain(item3);
+    }
+
+    @Test
     void 소모품_검색() throws Exception {
         //given
         User user = createSessionUser();
