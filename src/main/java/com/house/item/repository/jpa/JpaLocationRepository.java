@@ -59,4 +59,9 @@ public class JpaLocationRepository implements LocationRepository {
                 .setParameter("roomNo", roomNo)
                 .getResultList();
     }
+
+    @Override
+    public void delete(Location location) {
+        em.remove(location);
+    }
 }

@@ -17,4 +17,6 @@ public interface LocationRepository {
     List<Location> findByTypeAndUserNo(LocationType type, Long userNo);
 
     List<Location> findByRoom(Long roomNo);
+
+    void delete(Location location);
 }

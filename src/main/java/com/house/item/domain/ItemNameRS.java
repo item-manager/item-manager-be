@@ -1,11 +1,11 @@
 package com.house.item.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 
-import javax.validation.constraints.NotBlank;
-
 @Getter
-public class UpdateRoomRQ {
-    @NotBlank
+@Builder
+public class ItemNameRS {
+    private Long itemNo;
     private String name;
 }

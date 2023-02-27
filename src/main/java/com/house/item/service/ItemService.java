@@ -38,7 +38,7 @@ public class ItemService {
         try {
             location = locationService.getLocation(createItemRQ.getLocationNo());
             locationService.checkLocationType(location, LocationType.PLACE);
-        } catch (NonExistentLocationException e) {
+        } catch (NonExistentLocationException | NotLocationTypePlaceException e) {
             throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
         }
 
@@ -213,5 +213,20 @@ public class ItemService {
     private String storePhoto(MultipartFile photo) throws ServiceException {
         String photoDir = props.getDir().getPhoto();
         return FileUtil.storeFile(photo, photoDir);
+    }
+
+    public List<Item> getItemsInLocation(Long locationNo) {
+        Location location = locationService.getLocation(locationNo);
+
+        List<Item> items = null;
+        if (location.getType() == LocationType.PLACE) {
+            items = itemRepository.findByPlaceNo(locationNo);
+        } else if (location.getType() == LocationType.ROOM) {
+            items = itemRepository.findByRoomNo(locationNo);
+        } else {
+            throw new UndefinedLocationTypeException(ExceptionCodeMessage.UNDEFINED_LOCATION_TYPE.message());
+        }
+
+        return items;
     }
 }

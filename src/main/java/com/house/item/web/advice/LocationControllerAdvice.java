@@ -15,6 +15,15 @@ public class LocationControllerAdvice {
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler
+    public ErrorResult nonExistentLocationException(NonExistentLocationException e) {
+        return ErrorResult.builder()
+                .code(ExceptionCodeMessage.NON_EXISTENT_LOCATION.code())
+                .message(e.getMessage())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler
     public ErrorResult nonExistentRoomException(NonExistentRoomException e) {
         return ErrorResult.builder()
                 .code(ExceptionCodeMessage.NON_EXISTENT_ROOM.code())

@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class LocationController {
 
     @Operation(summary = "보관장소(방) 생성")
     @PostMapping("/rooms")
-    public Result<CreateRoomRS> createRoom(@RequestBody CreateRoomRQ createRoomRQ) {
+    public Result<CreateRoomRS> createRoom(@Validated @RequestBody CreateRoomRQ createRoomRQ) {
         Long roomNo = locationService.createRoom(createRoomRQ);
 
         CreateRoomRS createRoomRS = CreateRoomRS.builder()
@@ -66,7 +67,7 @@ public class LocationController {
     )
     @Operation(summary = "'보관장소(방)'의 '위치' 목록 조회")
     @GetMapping("/places")
-    public Result<List<PlacesRS>> getPlacesByRoomNo(@ModelAttribute PlacesRQ placesRQ) throws NonExistentRoomException, NotLocationTypeRoomException {
+    public Result<List<PlacesRS>> getPlacesByRoomNo(@Validated @ModelAttribute PlacesRQ placesRQ) throws NonExistentRoomException, NotLocationTypeRoomException {
         List<Location> locations = locationService.getPlacesByRoomNo(placesRQ.getRoomNo());
 
         List<PlacesRS> placesRS = locations.stream()
@@ -92,7 +93,7 @@ public class LocationController {
     )
     @Operation(summary = "위치 생성")
     @PostMapping("/places")
-    public Result<CreatePlaceRS> createPlace(@RequestBody CreatePlaceRQ createPlaceRQ) throws NonExistentRoomException, NotLocationTypeRoomException {
+    public Result<CreatePlaceRS> createPlace(@Validated @RequestBody CreatePlaceRQ createPlaceRQ) throws NonExistentRoomException, NotLocationTypeRoomException {
         Long placeNo = locationService.createPlace(createPlaceRQ);
 
         CreatePlaceRS createPlaceRS = CreatePlaceRS.builder()
@@ -114,7 +115,7 @@ public class LocationController {
     )
     @Operation(summary = "보관장소(방) 정보 수정")
     @PatchMapping("/rooms/{roomNo}")
-    public Result<Void> patchRoom(@PathVariable Long roomNo, @RequestBody UpdateRoomRQ updateRoomRQ) {
+    public Result<Void> patchRoom(@PathVariable Long roomNo, @Validated @RequestBody UpdateRoomRQ updateRoomRQ) {
         locationService.updateRoom(roomNo, updateRoomRQ);
 
         return Result.<Void>builder()
@@ -134,8 +135,30 @@ public class LocationController {
     )
     @Operation(summary = "위치 정보 수정")
     @PatchMapping("/places/{placeNo}")
-    public Result<Void> patchPlace(@PathVariable Long placeNo, @RequestBody UpdatePlaceRQ updatePlaceRQ) {
+    public Result<Void> patchPlace(@PathVariable Long placeNo, @Validated @RequestBody UpdatePlaceRQ updatePlaceRQ) {
         locationService.updatePlace(placeNo, updatePlaceRQ);
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
+                .build();
+    }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_LOCATION),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.UNABLE_TO_DELETE_LOCATION_IN_USE_EXCEPTION),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.UNDEFINED_LOCATION_TYPE)
+                    }
+            )
+    )
+    @Operation(summary = "방/위치 삭제")
+    @DeleteMapping("/{locationNo}")
+    public Result<Void> deleteLocation(@PathVariable Long locationNo) {
+        locationService.deleteLocation(locationNo);
 
         return Result.<Void>builder()
                 .code(200)

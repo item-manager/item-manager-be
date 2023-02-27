@@ -16,6 +16,10 @@ public interface ItemRepository {
 
     List<Item> findAll(Long userNo);
 
+    List<Item> findByPlaceNo(Long placeNo);
+
+    List<Item> findByRoomNo(Long roomNo);
+
     List<ConsumableItemDTO> findConsumableByNameAndLabel(ConsumableSearch consumableSearch);
 
     int getConsumableRowCount(ConsumableSearch consumableSearch);

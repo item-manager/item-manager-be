@@ -28,7 +28,8 @@ class JpaItemRepositoryTest {
     void save() {
         //given
         User user = createUser("user1", "username1");
-        Location location = createLocation();
+        Location room = createRoom("room");
+        Location location = createPlace(room, "desk");
         Item item = getItem(user, location, "soup", ItemType.CONSUMABLE, 1, 1);
 
         //when
@@ -43,7 +44,8 @@ class JpaItemRepositoryTest {
     void findOne() {
         //given
         User user = createUser("user1", "username1");
-        Location location = createLocation();
+        Location room = createRoom("room");
+        Location location = createPlace(room, "desk");
         Item item = getItem(user, location, "soup", ItemType.CONSUMABLE, 1, 1);
         em.persist(item);
 
@@ -58,7 +60,8 @@ class JpaItemRepositoryTest {
     void findByItemNoAndUserNo() {
         //given
         User user = createUser("user1", "username1");
-        Location location = createLocation();
+        Location room = createRoom("room");
+        Location location = createPlace(room, "desk");
         Item item = getItem(user, location, "soup", ItemType.CONSUMABLE, 1, 1);
         em.persist(item);
 
@@ -70,10 +73,64 @@ class JpaItemRepositoryTest {
     }
 
     @Test
+    void findByPlaceNo() throws Exception {
+        //given
+        User user = createUser("user1", "username1");
+        Location room = createRoom("room");
+        Location location1 = createPlace(room, "desk");
+        Location location2 = createPlace(room, "desk");
+        Item item1 = getItem(user, location1, "item1", ItemType.CONSUMABLE, 1, 1);
+        Item item2 = getItem(user, location1, "item2", ItemType.EQUIPMENT, 1, 1);
+        Item item3 = getItem(user, location2, "item3", ItemType.EQUIPMENT, 1, 1);
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
+
+        Long locationNo = location1.getLocationNo();
+        Long locationNo2 = location2.getLocationNo();
+
+        //when
+        List<Item> items = itemRepository.findByPlaceNo(locationNo);
+
+        //then
+        Assertions.assertThat(items)
+                .containsExactly(item1, item2)
+                .doesNotContain(item3);
+    }
+
+    @Test
+    void findByRoomNo() throws Exception {
+        //given
+        User user = createUser("user1", "username1");
+        Location room1 = createRoom("room1");
+        Location room2 = createRoom("room2");
+        Location location1 = createPlace(room1, "desk");
+        Location location2 = createPlace(room2, "desk");
+        Item item1 = getItem(user, location1, "item1", ItemType.CONSUMABLE, 1, 1);
+        Item item2 = getItem(user, location1, "item2", ItemType.EQUIPMENT, 1, 1);
+        Item item3 = getItem(user, location2, "item3", ItemType.EQUIPMENT, 1, 1);
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
+
+        Long roomNo1 = room1.getLocationNo();
+        Long roomNo2 = room2.getLocationNo();
+
+        //when
+        List<Item> items = itemRepository.findByRoomNo(roomNo1);
+
+        //then
+        Assertions.assertThat(items)
+                .containsExactly(item1, item2)
+                .doesNotContain(item3);
+    }
+
+    @Test
     void findConsumableByNameAndLabel() throws Exception {
         //given
         User user = createUser("user1", "username1");
-        Location location = createLocation();
+        Location room = createRoom("room");
+        Location location = createPlace(room, "desk");
         Label label1 = createLabel(user, "label1");
         Label label2 = createLabel(user, "label2");
         Label label3 = createLabel(user, "label3");
@@ -127,7 +184,8 @@ class JpaItemRepositoryTest {
     void getConsumableTotalPage() throws Exception {
         //given
         User user = createUser("user1", "username1");
-        Location location = createLocation();
+        Location room = createRoom("room");
+        Location location = createPlace(room, "desk");
         Label label1 = createLabel(user, "label1");
         Label label2 = createLabel(user, "label2");
         Label label3 = createLabel(user, "label3");
@@ -185,17 +243,20 @@ class JpaItemRepositoryTest {
         return user;
     }
 
-    Location createLocation() {
+    Location createRoom(String name) {
         Location room = Location.builder()
                 .type(LocationType.ROOM)
-                .name("room1")
+                .name(name)
                 .build();
         em.persist(room);
+        return room;
+    }
 
+    Location createPlace(Location room, String name) {
         Location place = Location.builder()
                 .type(LocationType.PLACE)
                 .room(room)
-                .name("desk")
+                .name(name)
                 .build();
         em.persist(place);
         return place;

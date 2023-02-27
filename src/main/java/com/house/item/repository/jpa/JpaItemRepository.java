@@ -66,6 +66,27 @@ public class JpaItemRepository implements ItemRepository {
                 .getResultList();
     }
 
+    @Override
+    public List<Item> findByPlaceNo(Long placeNo) {
+        String jpql = SELECT_FROM_JPQL +
+                " join i.location p" +
+                " where p.locationNo = :placeNo";
+        return em.createQuery(jpql, Item.class)
+                .setParameter("placeNo", placeNo)
+                .getResultList();
+    }
+
+    @Override
+    public List<Item> findByRoomNo(Long roomNo) {
+        String jpql = SELECT_FROM_JPQL +
+                " join i.location p" +
+                " join p.room r" +
+                " where r.locationNo = :roomNo";
+        return em.createQuery(jpql, Item.class)
+                .setParameter("roomNo", roomNo)
+                .getResultList();
+    }
+
     //소모품 관리
     @Override
     public List<ConsumableItemDTO> findConsumableByNameAndLabel(ConsumableSearch consumableSearch) {
@@ -73,18 +94,18 @@ public class JpaItemRepository implements ItemRepository {
                 SELECT DISTINCT I.*, 
                     LATEST_PURCHASE as latestPurchase, 
                     LATEST_CONSUME as latestConsume
-                FROM ITEM I
+                FROM item I
                 LEFT JOIN (
                     SELECT IQL.ITEM_NO, 
                         MAX(IQL.DATE) AS LATEST_PURCHASE
-                    FROM ITEM_QUANTITY_LOG IQL
+                    FROM item_quantity_log IQL
                     WHERE IQL.TYPE = 'PURCHASE'
                     GROUP BY IQL.ITEM_NO
                 ) AS PURCHASE ON I.ITEM_NO = PURCHASE.ITEM_NO
                 LEFT JOIN (
                     SELECT IQL.ITEM_NO
                         , MAX(IQL.DATE) AS LATEST_CONSUME
-                    FROM ITEM_QUANTITY_LOG IQL
+                    FROM item_quantity_log IQL
                     WHERE IQL.TYPE = 'CONSUME'
                     GROUP BY IQL.ITEM_NO
                 ) AS CONSUME ON I.ITEM_NO = CONSUME.ITEM_NO
@@ -94,7 +115,7 @@ public class JpaItemRepository implements ItemRepository {
             sql += """
                     JOIN (
                         SELECT IL.ITEM_NO
-                        FROM ITEM_LABEL IL
+                        FROM item_label IL
                         WHERE IL.LABEL_NO IN :labelNos
                         GROUP BY IL.ITEM_NO
                         HAVING COUNT(IL.ITEM_NO) = :labelNosSize
@@ -143,18 +164,18 @@ public class JpaItemRepository implements ItemRepository {
                     SELECT DISTINCT I.*, 
                         LATEST_PURCHASE as latestPurchase, 
                         LATEST_CONSUME as latestConsume
-                    FROM ITEM I
+                    FROM item I
                     LEFT JOIN (
                         SELECT IQL.ITEM_NO, 
                             MAX(IQL.DATE) AS LATEST_PURCHASE
-                        FROM ITEM_QUANTITY_LOG IQL
+                        FROM item_quantity_log IQL
                         WHERE IQL.TYPE = 'PURCHASE'
                         GROUP BY IQL.ITEM_NO
                     ) AS PURCHASE ON I.ITEM_NO = PURCHASE.ITEM_NO
                     LEFT JOIN (
                         SELECT IQL.ITEM_NO
                             , MAX(IQL.DATE) AS LATEST_CONSUME
-                        FROM ITEM_QUANTITY_LOG IQL
+                        FROM item_quantity_log IQL
                         WHERE IQL.TYPE = 'CONSUME'
                         GROUP BY IQL.ITEM_NO
                     ) AS CONSUME ON I.ITEM_NO = CONSUME.ITEM_NO
@@ -164,7 +185,7 @@ public class JpaItemRepository implements ItemRepository {
             sql += """
                         JOIN (
                             SELECT IL.ITEM_NO
-                            FROM ITEM_LABEL IL
+                            FROM item_label IL
                             WHERE IL.LABEL_NO IN :labelNos
                             GROUP BY IL.ITEM_NO
                             HAVING COUNT(IL.ITEM_NO) = :labelNosSize
@@ -178,7 +199,7 @@ public class JpaItemRepository implements ItemRepository {
             sql += "    AND I.NAME LIKE '%" + consumableSearch.getName() + "%' \n";
         }
 
-        sql += ")";
+        sql += ") consumable_items";
 
         Query query = em.createNativeQuery(sql)
                 .setParameter("userNo", consumableSearch.getUserNo());

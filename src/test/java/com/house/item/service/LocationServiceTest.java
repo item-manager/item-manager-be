@@ -110,9 +110,8 @@ class LocationServiceTest {
         em.flush();
         em.clear();
 
-        UpdateRoomRQ updateRoomRQ = UpdateRoomRQ.builder()
-                .name("new room")
-                .build();
+        UpdateRoomRQ updateRoomRQ = new UpdateRoomRQ();
+        ReflectionTestUtils.setField(updateRoomRQ, "name", "new room");
 
         //when
         locationService.updateRoom(locationNo, updateRoomRQ);
@@ -141,10 +140,9 @@ class LocationServiceTest {
         em.flush();
         em.clear();
 
-        UpdatePlaceRQ updatePlaceRQ = UpdatePlaceRQ.builder()
-                .roomNo(room2LocationNo)
-                .name("place")
-                .build();
+        UpdatePlaceRQ updatePlaceRQ = new UpdatePlaceRQ();
+        ReflectionTestUtils.setField(updatePlaceRQ, "roomNo", room2LocationNo);
+        ReflectionTestUtils.setField(updatePlaceRQ, "name", "place");
 
         //when
         locationService.updatePlace(placeLocationNo, updatePlaceRQ);
