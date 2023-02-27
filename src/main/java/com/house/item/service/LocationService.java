@@ -122,7 +122,11 @@ public class LocationService {
             items = itemRepository.findByRoomNo(locationNo);
         }
 
-        if (items != null) {
+        if (items == null) {
+            throw new UndefinedLocationTypeException(ExceptionCodeMessage.UNDEFINED_LOCATION_TYPE.message());
+        }
+
+        if (!items.isEmpty()) {
             throw new UnableToDeleteLocationInUseException(ExceptionCodeMessage.UNABLE_TO_DELETE_LOCATION_IN_USE_EXCEPTION.message());
         }
 
