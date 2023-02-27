@@ -142,4 +142,26 @@ public class LocationController {
                 .message("ok")
                 .build();
     }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_LOCATION),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.UNABLE_TO_DELETE_LOCATION_IN_USE_EXCEPTION),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.UNDEFINED_LOCATION_TYPE)
+                    }
+            )
+    )
+    @Operation(summary = "방/위치 삭제")
+    @DeleteMapping("/{locationNo}")
+    public Result<Void> deleteLocation(@PathVariable Long locationNo) {
+        locationService.deleteLocation(locationNo);
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
+                .build();
+    }
 }
