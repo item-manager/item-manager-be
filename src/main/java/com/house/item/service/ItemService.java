@@ -38,7 +38,7 @@ public class ItemService {
         try {
             location = locationService.getLocation(createItemRQ.getLocationNo());
             locationService.checkLocationType(location, LocationType.PLACE);
-        } catch (NonExistentLocationException e) {
+        } catch (NonExistentLocationException | NotLocationTypePlaceException e) {
             throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
         }
 
