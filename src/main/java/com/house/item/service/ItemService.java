@@ -94,18 +94,22 @@ public class ItemService {
             );
         }
 
-        return ItemRS.builder()
+        ItemRS.ItemRSBuilder itemRSBuilder = ItemRS.builder()
                 .itemNo(item.getItemNo())
                 .name(item.getName())
                 .type(item.getType())
                 .room(item.getLocation().getRoom().getName())
                 .place(item.getLocation().getName())
                 .locationMemo(item.getLocationMemo())
-                .photoUrl("/photo/" + item.getPhotoName())
                 .quantity(item.getQuantity())
                 .priority(item.getPriority())
-                .labels(labels)
-                .build();
+                .labels(labels);
+
+        if (StringUtils.hasText(item.getPhotoName())) {
+            itemRSBuilder.photoUrl("/photo/" + item.getPhotoName());
+        }
+
+        return itemRSBuilder.build();
     }
 
     public List<Item> getItems() {
