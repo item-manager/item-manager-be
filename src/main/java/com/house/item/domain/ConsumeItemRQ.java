@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 public class ConsumeItemRQ {
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC")
     private LocalDateTime date;
     @Min(0)
     private int count;
