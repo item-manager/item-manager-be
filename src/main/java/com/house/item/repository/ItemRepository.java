@@ -2,6 +2,7 @@ package com.house.item.repository;
 
 import com.house.item.domain.ConsumableItemDTO;
 import com.house.item.domain.ConsumableSearch;
+import com.house.item.domain.EquipmentSearch;
 import com.house.item.entity.Item;
 
 import java.util.List;
@@ -23,4 +24,8 @@ public interface ItemRepository {
     List<ConsumableItemDTO> findConsumableByNameAndLabel(ConsumableSearch consumableSearch);
 
     int getConsumableRowCount(ConsumableSearch consumableSearch);
+
+    List<Item> findEquipmentByNameAndLabelAndPlace(EquipmentSearch equipmentSearch);
+
+    int getEquipmentRowCount(EquipmentSearch equipmentSearch);
 }
