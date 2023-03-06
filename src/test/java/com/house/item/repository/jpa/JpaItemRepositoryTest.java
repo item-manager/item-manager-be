@@ -272,7 +272,7 @@ class JpaItemRepositoryTest {
 
         //then
         Assertions.assertThat(items).hasSize(2)
-                .containsExactly(item1, item2)
+                .containsExactly(item2, item1)
                 .doesNotContain(item3);
     }
 

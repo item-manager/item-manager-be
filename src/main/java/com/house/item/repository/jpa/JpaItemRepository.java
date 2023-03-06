@@ -245,7 +245,7 @@ public class JpaItemRepository implements ItemRepository {
             jpql += " and l.labelNo in :labelNos group by i having count(i) = :labelNosSize";
         }
 
-        jpql += " order by i.itemNo";
+        jpql += " order by i.priority desc, i.itemNo";
 
         TypedQuery<Item> query = em.createQuery(jpql, Item.class)
                 .setParameter("userNo", equipmentSearch.getUserNo());
