@@ -221,14 +221,11 @@ public class JpaItemRepository implements ItemRepository {
                 select distinct i from Item i
                 join i.user u
                 join fetch i.location p
-                join fetch p.room r
+                join fetch p.room r \n
                 """;
 
-        if (equipmentSearch.getLabelNos() != null && !equipmentSearch.getLabelNos().isEmpty()) {
-            jpql += """
-                    join i.itemLabels il
-                    join il.label l
-                    """;
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            jpql += "join i.itemLabels il \n";
         }
 
         jpql += " where u.userNo = :userNo AND i.type = 'EQUIPMENT'";
@@ -241,8 +238,8 @@ public class JpaItemRepository implements ItemRepository {
             jpql += " and p.locationNo in :placeNos";
         }
 
-        if (equipmentSearch.getLabelNos() != null && !equipmentSearch.getLabelNos().isEmpty()) {
-            jpql += " and l.labelNo in :labelNos group by i having count(i) = :labelNosSize";
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            jpql += " and il.label in :labels group by i having count(i) = :labelsSize";
         }
 
         jpql += " order by i.priority desc, i.itemNo";
@@ -250,9 +247,9 @@ public class JpaItemRepository implements ItemRepository {
         TypedQuery<Item> query = em.createQuery(jpql, Item.class)
                 .setParameter("userNo", equipmentSearch.getUserNo());
 
-        if (equipmentSearch.getLabelNos() != null && !equipmentSearch.getLabelNos().isEmpty()) {
-            query.setParameter("labelNos", equipmentSearch.getLabelNos())
-                    .setParameter("labelNosSize", (long) equipmentSearch.getLabelNos().size());
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            query.setParameter("labels", equipmentSearch.getLabels())
+                    .setParameter("labelsSize", (long) equipmentSearch.getLabels().size());
         }
         if (equipmentSearch.getPlaceNos() != null && !equipmentSearch.getPlaceNos().isEmpty()) {
             query.setParameter("placeNos", equipmentSearch.getPlaceNos());
@@ -267,15 +264,14 @@ public class JpaItemRepository implements ItemRepository {
     public int getEquipmentRowCount(EquipmentSearch equipmentSearch) {
         String jpql = """
                 select distinct i.itemNo from Item i
-                join i.user u
-                join i.location p
+                join i.user u \n
                 """;
 
-        if (equipmentSearch.getLabelNos() != null && !equipmentSearch.getLabelNos().isEmpty()) {
-            jpql += """
-                    join i.itemLabels il
-                    join il.label l
-                    """;
+        if (equipmentSearch.getPlaceNos() != null && !equipmentSearch.getPlaceNos().isEmpty()) {
+            jpql += "join i.location p \n";
+        }
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            jpql += "join i.itemLabels il \n";
         }
 
         jpql += " where u.userNo = :userNo AND i.type = 'EQUIPMENT'";
@@ -288,16 +284,16 @@ public class JpaItemRepository implements ItemRepository {
             jpql += " and p.locationNo in :placeNos";
         }
 
-        if (equipmentSearch.getLabelNos() != null && !equipmentSearch.getLabelNos().isEmpty()) {
-            jpql += " and l.labelNo in :labelNos group by i having count(i) = :labelNosSize";
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            jpql += " and il.label in :labels group by i having count(i) = :labelsSize";
         }
 
         TypedQuery<Long> query = em.createQuery(jpql, Long.class)
                 .setParameter("userNo", equipmentSearch.getUserNo());
 
-        if (equipmentSearch.getLabelNos() != null && !equipmentSearch.getLabelNos().isEmpty()) {
-            query.setParameter("labelNos", equipmentSearch.getLabelNos())
-                    .setParameter("labelNosSize", (long) equipmentSearch.getLabelNos().size());
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            query.setParameter("labels", equipmentSearch.getLabels())
+                    .setParameter("labelsSize", (long) equipmentSearch.getLabels().size());
         }
         if (equipmentSearch.getPlaceNos() != null && !equipmentSearch.getPlaceNos().isEmpty()) {
             query.setParameter("placeNos", equipmentSearch.getPlaceNos());

@@ -261,7 +261,14 @@ class JpaItemRepositoryTest {
         EquipmentSearch search = EquipmentSearch.builder()
                 .userNo(user.getUserNo())
 //                .name("item")
-                .labelNos(List.of(label2.getLabelNo(), label3.getLabelNo()))
+                .labels(List.of(
+                        Label.builder()
+                                .labelNo(label2.getLabelNo())
+                                .build(),
+                        Label.builder()
+                                .labelNo(label3.getLabelNo())
+                                .build()
+                ))
                 .placeNos(List.of(location.getLocationNo()))
                 .page(1)
                 .size(3)
@@ -304,7 +311,7 @@ class JpaItemRepositoryTest {
         EquipmentSearch search = EquipmentSearch.builder()
                 .userNo(user.getUserNo())
 //                .name("item")
-                .labelNos(List.of(label2.getLabelNo(), label3.getLabelNo()))
+                .labels(List.of(label2, label3))
                 .build();
 
         //when
