@@ -97,7 +97,7 @@ public class ItemService {
         ItemRS.ItemRSBuilder itemRSBuilder = ItemRS.builder()
                 .itemNo(item.getItemNo())
                 .name(item.getName())
-                .type(ItemTypeRS.fromType(item.getType()).name())
+                .type(ItemTypeRS.fromType(item.getType()).getName())
                 .room(item.getLocation().getRoom().getName())
                 .place(item.getLocation().getName())
                 .locationMemo(item.getLocationMemo())
