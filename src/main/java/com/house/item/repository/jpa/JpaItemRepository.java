@@ -2,6 +2,7 @@ package com.house.item.repository.jpa;
 
 import com.house.item.domain.ConsumableItemDTO;
 import com.house.item.domain.ConsumableSearch;
+import com.house.item.domain.EquipmentSearch;
 import com.house.item.entity.Item;
 import com.house.item.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.util.StringUtils;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -210,5 +212,93 @@ public class JpaItemRepository implements ItemRepository {
         }
 
         return ((BigInteger) query.getSingleResult()).intValue();
+    }
+
+    //비품 관리
+    @Override
+    public List<Item> findEquipmentByNameAndLabelAndPlace(EquipmentSearch equipmentSearch) {
+        String jpql = """
+                select distinct i from Item i
+                join i.user u
+                join fetch i.location p
+                join fetch p.room r \n
+                """;
+
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            jpql += "join i.itemLabels il \n";
+        }
+
+        jpql += " where u.userNo = :userNo AND i.type = 'EQUIPMENT'";
+
+        if (StringUtils.hasText(equipmentSearch.getName())) {
+            jpql += " and i.name like '%" + equipmentSearch.getName() + "%'";
+        }
+
+        if (equipmentSearch.getPlaceNos() != null && !equipmentSearch.getPlaceNos().isEmpty()) {
+            jpql += " and p.locationNo in :placeNos";
+        }
+
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            jpql += " and il.label in :labels group by i having count(i) = :labelsSize";
+        }
+
+        jpql += " order by i.priority desc, i.itemNo";
+
+        TypedQuery<Item> query = em.createQuery(jpql, Item.class)
+                .setParameter("userNo", equipmentSearch.getUserNo());
+
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            query.setParameter("labels", equipmentSearch.getLabels())
+                    .setParameter("labelsSize", (long) equipmentSearch.getLabels().size());
+        }
+        if (equipmentSearch.getPlaceNos() != null && !equipmentSearch.getPlaceNos().isEmpty()) {
+            query.setParameter("placeNos", equipmentSearch.getPlaceNos());
+        }
+
+        return query.setFirstResult((equipmentSearch.getPage() - 1) * equipmentSearch.getSize()) //조회 시작 위치(0부터 시작)
+                .setMaxResults(equipmentSearch.getSize())
+                .getResultList();
+    }
+
+    @Override
+    public int getEquipmentRowCount(EquipmentSearch equipmentSearch) {
+        String jpql = """
+                select distinct i.itemNo from Item i
+                join i.user u \n
+                """;
+
+        if (equipmentSearch.getPlaceNos() != null && !equipmentSearch.getPlaceNos().isEmpty()) {
+            jpql += "join i.location p \n";
+        }
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            jpql += "join i.itemLabels il \n";
+        }
+
+        jpql += " where u.userNo = :userNo AND i.type = 'EQUIPMENT'";
+
+        if (StringUtils.hasText(equipmentSearch.getName())) {
+            jpql += " and i.name like '%" + equipmentSearch.getName() + "%'";
+        }
+
+        if (equipmentSearch.getPlaceNos() != null && !equipmentSearch.getPlaceNos().isEmpty()) {
+            jpql += " and p.locationNo in :placeNos";
+        }
+
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            jpql += " and il.label in :labels group by i having count(i) = :labelsSize";
+        }
+
+        TypedQuery<Long> query = em.createQuery(jpql, Long.class)
+                .setParameter("userNo", equipmentSearch.getUserNo());
+
+        if (equipmentSearch.getLabels() != null && !equipmentSearch.getLabels().isEmpty()) {
+            query.setParameter("labels", equipmentSearch.getLabels())
+                    .setParameter("labelsSize", (long) equipmentSearch.getLabels().size());
+        }
+        if (equipmentSearch.getPlaceNos() != null && !equipmentSearch.getPlaceNos().isEmpty()) {
+            query.setParameter("placeNos", equipmentSearch.getPlaceNos());
+        }
+
+        return query.getResultList().size();
     }
 }

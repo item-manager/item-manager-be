@@ -2,6 +2,7 @@ package com.house.item.repository.jpa;
 
 import com.house.item.domain.ConsumableItemDTO;
 import com.house.item.domain.ConsumableSearch;
+import com.house.item.domain.EquipmentSearch;
 import com.house.item.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -227,6 +228,94 @@ class JpaItemRepositoryTest {
 
         //when
         int rowCount = itemRepository.getConsumableRowCount(search);
+
+        //then
+        Assertions.assertThat(rowCount).isEqualTo(2);
+    }
+
+    @Test
+    void findEquipmentByNameAndLabelAndPlace() throws Exception {
+        //given
+        User user = createUser("user1", "username1");
+        Location room = createRoom("room");
+        Location location = createPlace(room, "desk");
+        Label label1 = createLabel(user, "label1");
+        Label label2 = createLabel(user, "label2");
+        Label label3 = createLabel(user, "label3");
+
+        Item item1 = getItem(user, location, "item1", ItemType.EQUIPMENT, 1, 2);
+        Item item2 = getItem(user, location, "item2", ItemType.EQUIPMENT, 2, 3);
+        Item item3 = getItem(user, location, "item3", ItemType.EQUIPMENT, 3, 1);
+
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
+
+        ItemLabel itemLabel1 = createItemLabel(item1, label1);
+        ItemLabel itemLabel2 = createItemLabel(item1, label2);
+        ItemLabel itemLabel6 = createItemLabel(item1, label3);
+        ItemLabel itemLabel3 = createItemLabel(item2, label2);
+        ItemLabel itemLabel4 = createItemLabel(item2, label3);
+        ItemLabel itemLabel5 = createItemLabel(item3, label3);
+
+        EquipmentSearch search = EquipmentSearch.builder()
+                .userNo(user.getUserNo())
+//                .name("item")
+                .labels(List.of(
+                        Label.builder()
+                                .labelNo(label2.getLabelNo())
+                                .build(),
+                        Label.builder()
+                                .labelNo(label3.getLabelNo())
+                                .build()
+                ))
+                .placeNos(List.of(location.getLocationNo()))
+                .page(1)
+                .size(3)
+                .build();
+
+        //when
+        List<Item> items = itemRepository.findEquipmentByNameAndLabelAndPlace(search);
+
+        //then
+        Assertions.assertThat(items).hasSize(2)
+                .containsExactly(item2, item1)
+                .doesNotContain(item3);
+    }
+
+    @Test
+    void getEquipmentRowCount() throws Exception {
+        //given
+        User user = createUser("user1", "username1");
+        Location room = createRoom("room");
+        Location location = createPlace(room, "desk");
+        Label label1 = createLabel(user, "label1");
+        Label label2 = createLabel(user, "label2");
+        Label label3 = createLabel(user, "label3");
+
+        Item item1 = getItem(user, location, "item1", ItemType.EQUIPMENT, 1, 2);
+        Item item2 = getItem(user, location, "item2", ItemType.EQUIPMENT, 2, 3);
+        Item item3 = getItem(user, location, "item3", ItemType.EQUIPMENT, 3, 1);
+
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
+
+        ItemLabel itemLabel1 = createItemLabel(item1, label1);
+        ItemLabel itemLabel2 = createItemLabel(item1, label2);
+        ItemLabel itemLabel6 = createItemLabel(item1, label3);
+        ItemLabel itemLabel3 = createItemLabel(item2, label2);
+        ItemLabel itemLabel4 = createItemLabel(item2, label3);
+        ItemLabel itemLabel5 = createItemLabel(item3, label3);
+
+        EquipmentSearch search = EquipmentSearch.builder()
+                .userNo(user.getUserNo())
+//                .name("item")
+                .labels(List.of(label2, label3))
+                .build();
+
+        //when
+        int rowCount = itemRepository.getEquipmentRowCount(search);
 
         //then
         Assertions.assertThat(rowCount).isEqualTo(2);

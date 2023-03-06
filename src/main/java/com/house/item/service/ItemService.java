@@ -94,18 +94,22 @@ public class ItemService {
             );
         }
 
-        return ItemRS.builder()
+        ItemRS.ItemRSBuilder itemRSBuilder = ItemRS.builder()
                 .itemNo(item.getItemNo())
                 .name(item.getName())
-                .type(item.getType())
+                .type(ItemTypeRS.fromType(item.getType()).name())
                 .room(item.getLocation().getRoom().getName())
                 .place(item.getLocation().getName())
                 .locationMemo(item.getLocationMemo())
-                .photoUrl("/photo/" + item.getPhotoName())
                 .quantity(item.getQuantity())
                 .priority(item.getPriority())
-                .labels(labels)
-                .build();
+                .labels(labels);
+
+        if (StringUtils.hasText(item.getPhotoName())) {
+            itemRSBuilder.photoUrl("/photo/" + item.getPhotoName());
+        }
+
+        return itemRSBuilder.build();
     }
 
     public List<Item> getItems() {
@@ -173,6 +177,78 @@ public class ItemService {
                 .totalDataCnt(rowCount)
                 .totalPages(totalPage)
                 .requestPage(consumableSearch.getPage())
+                .requestSize(size)
+                .build();
+    }
+
+    public List<Item> getEquipmentItems(EquipmentSearch equipmentSearch) {
+        List<Item> items = itemRepository.findEquipmentByNameAndLabelAndPlace(equipmentSearch);
+
+        for (Item item : items) {
+            List<ItemLabel> itemLabels = item.getItemLabels();
+            for (ItemLabel itemLabel : itemLabels) {
+                itemLabel.getLabel();
+            }
+        }
+        return items;
+    }
+
+    public EquipmentSearch getEquipmentSearch(EquipmentItemsRQ equipmentItemsRQ) {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+
+        EquipmentSearch.EquipmentSearchBuilder equipmentSearchBuilder = EquipmentSearch.builder()
+                .userNo(sessionUser.getUserNo())
+                .page(equipmentItemsRQ.getPage())
+                .size(equipmentItemsRQ.getSize());
+
+        if (StringUtils.hasText(equipmentItemsRQ.getName())) {
+            equipmentSearchBuilder.name(equipmentItemsRQ.getName());
+        }
+        if (equipmentItemsRQ.getLabelNos() != null && !equipmentItemsRQ.getLabelNos().isEmpty()) {
+            List<Label> labels = new ArrayList<>();
+
+            List<Long> labelNos = equipmentItemsRQ.getLabelNos();
+            for (Long labelNo : labelNos) {
+                labels.add(
+                        Label.builder()
+                                .labelNo(labelNo)
+                                .build()
+                );
+            }
+            equipmentSearchBuilder.labels(labels);
+        }
+        if (equipmentItemsRQ.getLocationNo() != null) {
+            List<Long> placeNos = new ArrayList<>();
+
+            Location location = locationService.getLocation(equipmentItemsRQ.getLocationNo());
+            if (location.getType() == LocationType.PLACE) {
+                placeNos.add(location.getLocationNo());
+            }
+            if (location.getType() == LocationType.ROOM) {
+                List<Location> places = locationService.getPlacesByRoomNo(location.getLocationNo());
+                for (Location place : places) {
+                    placeNos.add(place.getLocationNo());
+                }
+            }
+            equipmentSearchBuilder.placeNos(placeNos);
+        }
+
+        return equipmentSearchBuilder.build();
+    }
+
+    public Page getEquipmentItemsPage(EquipmentSearch equipmentSearch) {
+        int rowCount = itemRepository.getEquipmentRowCount(equipmentSearch);
+
+        int size = equipmentSearch.getSize();
+        int totalPage = rowCount / size;
+        if (rowCount % size > 0) {
+            totalPage++;
+        }
+
+        return Page.builder()
+                .totalDataCnt(rowCount)
+                .totalPages(totalPage)
+                .requestPage(equipmentSearch.getPage())
                 .requestSize(size)
                 .build();
     }
