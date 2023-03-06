@@ -156,6 +156,42 @@ public class ItemController {
                 .build();
     }
 
+    @Operation(summary = "비품 목록 조회")
+    @GetMapping("/equipments")
+    public ResultList<EquipmentItemRS> getEquipmentItems(@Validated @ModelAttribute EquipmentItemsRQ equipmentItemsRQ) {
+        EquipmentSearch equipmentSearch = itemService.getEquipmentSearch(equipmentItemsRQ);
+        List<Item> items = itemService.getEquipmentItems(equipmentSearch);
+
+        List<EquipmentItemRS> equipmentItemRSList = new ArrayList<>();
+        for (Item item : items) {
+            List<ItemLabel> itemLabels = item.getItemLabels();
+            List<Label> labels = new ArrayList<>();
+            for (ItemLabel itemLabel : itemLabels) {
+                labels.add(itemLabel.getLabel());
+            }
+            List<LabelRS> labelRSList = labelService.labelToLabelRS(labels);
+
+            equipmentItemRSList.add(
+                    EquipmentItemRS.builder()
+                            .itemNo(item.getItemNo())
+                            .priority(item.getPriority())
+                            .name(item.getName())
+                            .roomName(item.getLocation().getRoom().getName())
+                            .placeName(item.getLocation().getName())
+                            .locationMemo(item.getLocationMemo())
+                            .labels(labelRSList)
+                            .build()
+            );
+        }
+
+        Page equipmentItemsPage = itemService.getEquipmentItemsPage(equipmentSearch);
+
+        return ResultList.<EquipmentItemRS>builder()
+                .page(equipmentItemsPage)
+                .data(equipmentItemRSList)
+                .build();
+    }
+
     @ApiResponse(
             responseCode = "400",
             content = @Content(
