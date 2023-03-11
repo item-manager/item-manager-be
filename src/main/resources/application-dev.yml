@@ -5,9 +5,12 @@ spring:
     username: manager
     password: housemanager@ppdb
   jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: create #jpa ddl
+#    generate-ddl: true
+    #    hibernate:
+    #      ddl-auto: create #jpa ddl
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
 
 #log
 logging:
