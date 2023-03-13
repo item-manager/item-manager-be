@@ -60,13 +60,11 @@ public class FileUtil {
         try {
             Files.delete(Path.of(fullPath));
         } catch (NoSuchFileException e) {
-            throw new ServiceException("존재하지 않는 파일 제거 시도", e);
+            log.error("존재하지 않는 파일 제거 시도: e = ", e);
         } catch (IOException e) {
             log.error("파일 제거 중 IOException 발생: e = ", e);
-            throw new ServiceException("파일 제거 중 IOException 발생", e);
         } catch (SecurityException e) {
             log.error("파일 제거 권한이 없습니다: e = ", e);
-            throw new ServiceException("파일 제거 권한이 없습니다", e);
         }
     }
 
