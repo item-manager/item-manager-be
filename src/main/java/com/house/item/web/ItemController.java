@@ -203,8 +203,8 @@ public class ItemController {
             )
     )
     @Operation(summary = "물품 정보 수정")
-    @PatchMapping(value = "/{itemNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Result<Void> updateItem(@PathVariable Long itemNo, @Validated @ModelAttribute UpdateItemRQ updateItemRQ) {
+    @PatchMapping(value = "/{itemNo}")
+    public Result<Void> updateItem(@PathVariable Long itemNo, @Validated @RequestBody UpdateItemRQ updateItemRQ) {
         itemService.updateItem(itemNo, updateItemRQ);
 
         return Result.<Void>builder()

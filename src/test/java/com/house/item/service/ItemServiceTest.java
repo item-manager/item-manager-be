@@ -257,7 +257,14 @@ class ItemServiceTest {
         em.flush();
         em.clear();
 
-        UpdateItemRQ updateItemRQ = new UpdateItemRQ("new item", ItemType.EQUIPMENT, location2.getLocationNo(), "locationMemo", null, 3, List.of(label2.getLabelNo()));
+        UpdateItemRQ updateItemRQ = new UpdateItemRQ();
+        ReflectionTestUtils.setField(updateItemRQ, "name", "new item");
+        ReflectionTestUtils.setField(updateItemRQ, "type", ItemType.EQUIPMENT);
+        ReflectionTestUtils.setField(updateItemRQ, "locationNo", location2.getLocationNo());
+        ReflectionTestUtils.setField(updateItemRQ, "locationMemo", "locationMemo");
+        ReflectionTestUtils.setField(updateItemRQ, "photoName", null);
+        ReflectionTestUtils.setField(updateItemRQ, "priority", 3);
+        ReflectionTestUtils.setField(updateItemRQ, "labels", List.of(label2.getLabelNo()));
 
         //when
         itemService.updateItem(itemNo, updateItemRQ);

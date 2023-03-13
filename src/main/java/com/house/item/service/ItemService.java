@@ -106,7 +106,7 @@ public class ItemService {
                 .labels(labels);
 
         if (StringUtils.hasText(item.getPhotoName())) {
-            itemRSBuilder.photoUrl("/photo/" + item.getPhotoName());
+            itemRSBuilder.photoUrl("/images/" + item.getPhotoName());
         }
 
         return itemRSBuilder.build();
@@ -265,15 +265,9 @@ public class ItemService {
             throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
         }
 
-        //사진 변경이 발생했다고 가정
         String photoDir = props.getDir().getFile();
-        if (StringUtils.hasText(item.getPhotoName())) {
+        if (org.apache.commons.lang3.StringUtils.equals(item.getPhotoName(), updateItemRQ.getPhotoName())) {
             FileUtil.deleteFile(photoDir, item.getPhotoName());
-        }
-
-        String photoName = "";
-        if (updateItemRQ.getPhoto() != null) {
-            photoName = storePhoto(updateItemRQ.getPhoto());
         }
 
         item.updateItem(
@@ -281,9 +275,10 @@ public class ItemService {
                 updateItemRQ.getType(),
                 location,
                 updateItemRQ.getLocationMemo(),
-                photoName,
+                updateItemRQ.getPhotoName(),
                 updateItemRQ.getPriority(),
-                updateItemRQ.getLabels());
+                updateItemRQ.getLabels()
+        );
     }
 
     private String storePhoto(MultipartFile photo) throws ServiceException {
