@@ -266,7 +266,7 @@ public class ItemService {
         }
 
         //사진 변경이 발생했다고 가정
-        String photoDir = props.getDir().getPhoto();
+        String photoDir = props.getDir().getFile();
         if (StringUtils.hasText(item.getPhotoName())) {
             FileUtil.deleteFile(photoDir, item.getPhotoName());
         }
@@ -287,7 +287,7 @@ public class ItemService {
     }
 
     private String storePhoto(MultipartFile photo) throws ServiceException {
-        String photoDir = props.getDir().getPhoto();
+        String photoDir = props.getDir().getFile();
         return FileUtil.storeFile(photo, photoDir);
     }
 

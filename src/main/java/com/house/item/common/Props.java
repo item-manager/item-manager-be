@@ -15,6 +15,6 @@ public class Props {
     @Getter
     @AllArgsConstructor
     public static class Dir {
-        private String photo;
+        private String file;
     }
 }

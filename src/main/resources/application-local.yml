@@ -20,7 +20,7 @@ logging:
 #properties
 properties:
   dir:
-    photo: /Users/yurim/home/dev/webDev/projects/item-manager/stored-file/
+    file: /Users/yurim/home/dev/webDev/projects/item-manager/stored-file/
 
 #swagger
 springdoc:
