@@ -305,4 +305,11 @@ public class ItemService {
 
         return items;
     }
+
+    @Transactional
+    public void deleteItem(Long itemNo) {
+        Item item = getItem(itemNo);
+
+        itemRepository.delete(item);
+    }
 }

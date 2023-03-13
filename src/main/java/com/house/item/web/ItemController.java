@@ -257,4 +257,24 @@ public class ItemController {
                 .data(consumeItemRS)
                 .build();
     }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_ITEM)
+                    }
+            )
+    )
+    @Operation(summary = "물품 제거")
+    @DeleteMapping("/{itemNo}")
+    public Result<Void> deleteItem(@PathVariable Long itemNo) {
+        itemService.deleteItem(itemNo);
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
+                .build();
+    }
 }
