@@ -1,7 +1,9 @@
 package com.house.item.domain;
 
 import com.house.item.entity.ItemType;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CreateItemRQ {
     @NotBlank
     private String name;
@@ -20,9 +23,10 @@ public class CreateItemRQ {
     private Long locationNo;
     private String locationMemo;
     private MultipartFile photo;
+    private String photoName;
     @Range(min = 0, max = 5)
-    private Integer priority;
-    private List<Long> labels;
+    private Integer priority = 0;
+    private List<Long> labels = new ArrayList<>();
 
     public CreateItemRQ(String name, ItemType type, Long locationNo, String locationMemo, MultipartFile photo, Integer priority, List<Long> labels) {
         this.name = name;

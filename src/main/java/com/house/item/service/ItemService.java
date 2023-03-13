@@ -42,7 +42,7 @@ public class ItemService {
             throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
         }
 
-        String photoName = null;
+        String photoName = createItemRQ.getPhotoName();
         if (createItemRQ.getPhoto() != null) {
             photoName = storePhoto(createItemRQ.getPhoto());
         }
