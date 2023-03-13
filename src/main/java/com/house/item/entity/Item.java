@@ -58,6 +58,9 @@ public class Item {
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemLabel> itemLabels = new ArrayList<>();
 
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ItemQuantityLog> itemQuantityLogs = new ArrayList<>();
+
     @Builder
     private Item(Long itemNo, User user, String name, ItemType type, Location location, String locationMemo, String photoName, int quantity, int priority, List<ItemLabel> itemLabels) {
         this.itemNo = itemNo;
