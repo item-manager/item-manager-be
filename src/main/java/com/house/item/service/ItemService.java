@@ -42,18 +42,13 @@ public class ItemService {
             throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
         }
 
-        String photoName = createItemRQ.getPhotoName();
-        if (createItemRQ.getPhoto() != null) {
-            photoName = storePhoto(createItemRQ.getPhoto());
-        }
-
         Item item = Item.builder()
                 .user(loginUser)
                 .name(createItemRQ.getName())
                 .type(createItemRQ.getType())
                 .location(location)
                 .locationMemo(createItemRQ.getLocationMemo())
-                .photoName(photoName)
+                .photoName(createItemRQ.getPhotoName())
                 .quantity(0)
                 .priority(createItemRQ.getPriority())
                 .build();

@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -59,28 +58,6 @@ public class ItemController {
     @Operation(summary = "물품 생성")
     @PostMapping
     public Result<CreateItemRS> createItem(@Validated @RequestBody CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
-        Long itemNo = itemService.createItem(createItemRQ);
-
-        CreateItemRS createItemRS = CreateItemRS.builder()
-                .itemNo(itemNo)
-                .build();
-        return Result.<CreateItemRS>builder()
-                .data(createItemRS)
-                .build();
-    }
-
-    @ApiResponse(
-            responseCode = "400",
-            content = @Content(
-                    schema = @Schema(implementation = ErrorResult.class),
-                    examples = {
-                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_PLACE)
-                    }
-            )
-    )
-    @Operation(summary = "물품 생성")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Result<CreateItemRS> createItemWithImage(@Validated @ModelAttribute CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
         Long itemNo = itemService.createItem(createItemRQ);
 
         CreateItemRS createItemRS = CreateItemRS.builder()
