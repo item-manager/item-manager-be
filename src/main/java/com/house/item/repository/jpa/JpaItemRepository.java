@@ -301,4 +301,9 @@ public class JpaItemRepository implements ItemRepository {
 
         return query.getResultList().size();
     }
+
+    @Override
+    public void delete(Item item) {
+        em.remove(item);
+    }
 }

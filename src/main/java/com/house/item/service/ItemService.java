@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +29,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final AuthService authService;
     private final LocationService locationService;
+    private final LabelService labelService;
 
     @Transactional
     public Long createItem(CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
@@ -42,27 +42,20 @@ public class ItemService {
             throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
         }
 
-        String photoName = null;
-        if (createItemRQ.getPhoto() != null) {
-            photoName = storePhoto(createItemRQ.getPhoto());
-        }
-
         Item item = Item.builder()
                 .user(loginUser)
                 .name(createItemRQ.getName())
                 .type(createItemRQ.getType())
                 .location(location)
                 .locationMemo(createItemRQ.getLocationMemo())
-                .photoName(photoName)
+                .photoName(createItemRQ.getPhotoName())
                 .quantity(0)
                 .priority(createItemRQ.getPriority())
                 .build();
 
         List<Long> labels = createItemRQ.getLabels();
         for (Long labelNo : labels) {
-            Label label = Label.builder()
-                    .labelNo(labelNo)
-                    .build();
+            Label label = labelService.getLabel(labelNo);
 
             ItemLabel itemLabel = ItemLabel.builder()
                     .item(item)
@@ -97,7 +90,8 @@ public class ItemService {
         ItemRS.ItemRSBuilder itemRSBuilder = ItemRS.builder()
                 .itemNo(item.getItemNo())
                 .name(item.getName())
-                .type(ItemTypeRS.fromType(item.getType()).name())
+                .type(ItemTypeRS.fromType(item.getType()).getName())
+                .locationNo(item.getLocation().getLocationNo())
                 .room(item.getLocation().getRoom().getName())
                 .place(item.getLocation().getName())
                 .locationMemo(item.getLocationMemo())
@@ -106,7 +100,7 @@ public class ItemService {
                 .labels(labels);
 
         if (StringUtils.hasText(item.getPhotoName())) {
-            itemRSBuilder.photoUrl("/photo/" + item.getPhotoName());
+            itemRSBuilder.photoUrl("/images/" + item.getPhotoName());
         }
 
         return itemRSBuilder.build();
@@ -208,12 +202,10 @@ public class ItemService {
             List<Label> labels = new ArrayList<>();
 
             List<Long> labelNos = equipmentItemsRQ.getLabelNos();
+            Label label;
             for (Long labelNo : labelNos) {
-                labels.add(
-                        Label.builder()
-                                .labelNo(labelNo)
-                                .build()
-                );
+                label = labelService.getLabel(labelNo);
+                labels.add(label);
             }
             equipmentSearchBuilder.labels(labels);
         }
@@ -265,15 +257,15 @@ public class ItemService {
             throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
         }
 
-        //사진 변경이 발생했다고 가정
-        String photoDir = props.getDir().getPhoto();
-        if (StringUtils.hasText(item.getPhotoName())) {
-            FileUtil.deleteFile(photoDir, item.getPhotoName());
+        //유효한 label인지 확인
+        List<Long> labelNos = updateItemRQ.getLabels();
+        for (Long labelNo : labelNos) {
+            labelService.getLabel(labelNo);
         }
 
-        String photoName = "";
-        if (updateItemRQ.getPhoto() != null) {
-            photoName = storePhoto(updateItemRQ.getPhoto());
+        String photoDir = props.getDir().getFile();
+        if (StringUtils.hasText(item.getPhotoName()) && !item.getPhotoName().equals(updateItemRQ.getPhotoName())) {
+            FileUtil.deleteFile(photoDir, item.getPhotoName());
         }
 
         item.updateItem(
@@ -281,14 +273,10 @@ public class ItemService {
                 updateItemRQ.getType(),
                 location,
                 updateItemRQ.getLocationMemo(),
-                photoName,
+                updateItemRQ.getPhotoName(),
                 updateItemRQ.getPriority(),
-                updateItemRQ.getLabels());
-    }
-
-    private String storePhoto(MultipartFile photo) throws ServiceException {
-        String photoDir = props.getDir().getPhoto();
-        return FileUtil.storeFile(photo, photoDir);
+                updateItemRQ.getLabels()
+        );
     }
 
     public List<Item> getItemsInLocation(Long locationNo) {
@@ -304,5 +292,12 @@ public class ItemService {
         }
 
         return items;
+    }
+
+    @Transactional
+    public void deleteItem(Long itemNo) {
+        Item item = getItem(itemNo);
+
+        itemRepository.delete(item);
     }
 }

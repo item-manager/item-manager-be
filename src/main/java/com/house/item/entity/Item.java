@@ -58,6 +58,9 @@ public class Item {
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemLabel> itemLabels = new ArrayList<>();
 
+    @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<ItemQuantityLog> itemQuantityLogs = new ArrayList<>();
+
     @Builder
     private Item(Long itemNo, User user, String name, ItemType type, Location location, String locationMemo, String photoName, int quantity, int priority, List<ItemLabel> itemLabels) {
         this.itemNo = itemNo;
@@ -93,11 +96,16 @@ public class Item {
         }
 
         for (Long labelNo : labelNos) {
-            this.itemLabels.add(ItemLabel.builder()
-                    .label(Label.builder()
-                            .labelNo(labelNo)
-                            .build())
-                    .build());
+            this.itemLabels.add(
+                    ItemLabel.builder()
+                            .item(this)
+                            .label(
+                                    Label.builder()
+                                            .labelNo(labelNo)
+                                            .build()
+                            )
+                            .build()
+            );
         }
     }
 

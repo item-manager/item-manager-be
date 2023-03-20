@@ -28,7 +28,6 @@ public class LabelService {
 
     private final LabelRepository labelRepository;
     private final AuthService authService;
-    private final ItemService itemService;
 
     @Transactional
     public Long createLabel(CreateLabel createLabel) throws NonUniqueLabelNameException {

@@ -31,6 +31,9 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
 
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation 'org.apache.commons:commons-lang3'
+
     //swagger
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
 //	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'

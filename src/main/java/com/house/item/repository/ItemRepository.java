@@ -28,4 +28,6 @@ public interface ItemRepository {
     List<Item> findEquipmentByNameAndLabelAndPlace(EquipmentSearch equipmentSearch);
 
     int getEquipmentRowCount(EquipmentSearch equipmentSearch);
+
+    void delete(Item item);
 }

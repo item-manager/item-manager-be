@@ -12,6 +12,10 @@ spring:
       hibernate:
         default_batch_fetch_size: 100
 
+  servlet:
+    multipart:
+      max-file-size: 1MB #파일 하나의 최대 사이즈
+
 #log
 logging:
   level:
@@ -20,7 +24,7 @@ logging:
 #properties
 properties:
   dir:
-    photo: /Users/yurim/home/dev/webDev/projects/item-manager/stored-file/
+    file: /Users/yurim/home/dev/webDev/projects/item-manager/stored-file/
 
 #swagger
 springdoc:

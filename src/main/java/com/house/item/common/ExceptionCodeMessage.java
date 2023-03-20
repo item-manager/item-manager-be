@@ -31,6 +31,9 @@ public enum ExceptionCodeMessage {
     /* Item Quantity Log */
     SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION(CodeDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION, MessageDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION),
 
+    /* File */
+    NOT_CONTENT_TYPE_IMAGE_EXCEPTION(CodeDefine.NOT_CONTENT_TYPE_IMAGE_EXCEPTION, MessageDefine.NOT_CONTENT_TYPE_IMAGE_EXCEPTION),
+
     ;
 
     public interface CodeDefine {
@@ -60,6 +63,9 @@ public enum ExceptionCodeMessage {
 
         /* Item Quantity Log */
         int SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = 5001;
+
+        /* File */
+        int NOT_CONTENT_TYPE_IMAGE_EXCEPTION = 6001;
     }
 
     public interface MessageDefine {
@@ -89,6 +95,9 @@ public enum ExceptionCodeMessage {
 
         /* Item Quantity Log */
         String SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = "사용하는 수량은 물품 수량을 초과할 수 없습니다";
+
+        /* File */
+        String NOT_CONTENT_TYPE_IMAGE_EXCEPTION = "이미지 파일만 저장 가능합니다";
     }
 
     public interface SwaggerDescription {
@@ -117,6 +126,9 @@ public enum ExceptionCodeMessage {
 
         /* Item Quantity Log */
         String SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = CodeDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION + " - " + MessageDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION;
+
+        /* File */
+        String NOT_CONTENT_TYPE_IMAGE_EXCEPTION = CodeDefine.NOT_CONTENT_TYPE_IMAGE_EXCEPTION + " - " + MessageDefine.NOT_CONTENT_TYPE_IMAGE_EXCEPTION;
     }
 
     private final int code;

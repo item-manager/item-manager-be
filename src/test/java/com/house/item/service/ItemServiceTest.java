@@ -13,13 +13,10 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.EntityManager;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,27 +42,18 @@ class ItemServiceTest {
         User user = createSessionUser();
         Location room = createRoom(user, "room");
         Location location = createPlace(user, room, "place");
-
-        MultipartFile photo = new MockMultipartFile(
-                "fileName",
-                "/Users/yurim/Downloads/KakaoTalk_Photo_2023-01-27-16-28-12-3.jpeg",
-                "image/jpeg",
-                new FileInputStream("/Users/yurim/Downloads/KakaoTalk_Photo_2023-01-27-16-28-12-3.jpeg"));
-
         Label label1 = createLabel(user, "label1");
         Long label1No = label1.getLabelNo();
-
         Label label2 = createLabel(user, "label2");
         Long label2No = label2.getLabelNo();
 
-        CreateItemRQ createItemRQ = new CreateItemRQ(
-                "item1",
-                ItemType.CONSUMABLE,
-                location.getLocationNo(),
-                "location memo",
-                photo,
-                1,
-                new ArrayList<>(List.of(label1No, label2No)));
+        CreateItemRQ createItemRQ = new CreateItemRQ();
+        ReflectionTestUtils.setField(createItemRQ, "name", "item1");
+        ReflectionTestUtils.setField(createItemRQ, "type", ItemType.CONSUMABLE);
+        ReflectionTestUtils.setField(createItemRQ, "locationNo", location.getLocationNo());
+        ReflectionTestUtils.setField(createItemRQ, "locationMemo", "location memo");
+        ReflectionTestUtils.setField(createItemRQ, "priority", 1);
+        ReflectionTestUtils.setField(createItemRQ, "labels", new ArrayList<>(List.of(label1No, label2No)));
 
         //when
         Long itemNo = itemService.createItem(createItemRQ);
@@ -74,7 +62,7 @@ class ItemServiceTest {
         Item findItem = em.find(Item.class, itemNo);
         Assertions.assertThat(findItem.getQuantity()).isZero();
 
-        FileUtil.deleteFile(props.getDir().getPhoto(), findItem.getPhotoName());
+        FileUtil.deleteFile(props.getDir().getFile(), findItem.getPhotoName());
     }
 
     @Test
@@ -245,19 +233,30 @@ class ItemServiceTest {
         Label label1 = createLabel(user, "label1");
         Label label2 = createLabel(user, "label2");
         Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
-        item1.getItemLabels().add(ItemLabel.builder()
-                .item(item1)
-                .label(Label.builder()
-                        .labelNo(label1.getLabelNo())
-                        .build())
-                .build());
+        item1.getItemLabels().add(
+                ItemLabel.builder()
+                        .item(item1)
+                        .label(
+                                Label.builder()
+                                        .labelNo(label1.getLabelNo())
+                                        .build()
+                        )
+                        .build()
+        );
         em.persist(item1);
         Long itemNo = item1.getItemNo();
 
         em.flush();
         em.clear();
 
-        UpdateItemRQ updateItemRQ = new UpdateItemRQ("new item", ItemType.EQUIPMENT, location2.getLocationNo(), "locationMemo", null, 3, List.of(label2.getLabelNo()));
+        UpdateItemRQ updateItemRQ = new UpdateItemRQ();
+        ReflectionTestUtils.setField(updateItemRQ, "name", "new item");
+        ReflectionTestUtils.setField(updateItemRQ, "type", ItemType.EQUIPMENT);
+        ReflectionTestUtils.setField(updateItemRQ, "locationNo", location2.getLocationNo());
+        ReflectionTestUtils.setField(updateItemRQ, "locationMemo", "locationMemo");
+        ReflectionTestUtils.setField(updateItemRQ, "photoName", null);
+        ReflectionTestUtils.setField(updateItemRQ, "priority", 3);
+        ReflectionTestUtils.setField(updateItemRQ, "labels", List.of(label2.getLabelNo()));
 
         //when
         itemService.updateItem(itemNo, updateItemRQ);
