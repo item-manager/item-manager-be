@@ -11,6 +11,7 @@ public class ItemRS {
     private Long itemNo;
     private String name;
     private String type;
+    private Long locationNo;
     private String room;
     private String place;
     private String locationMemo;

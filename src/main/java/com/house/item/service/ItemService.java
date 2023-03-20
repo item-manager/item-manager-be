@@ -91,6 +91,7 @@ public class ItemService {
                 .itemNo(item.getItemNo())
                 .name(item.getName())
                 .type(ItemTypeRS.fromType(item.getType()).getName())
+                .locationNo(item.getLocation().getLocationNo())
                 .room(item.getLocation().getRoom().getName())
                 .place(item.getLocation().getName())
                 .locationMemo(item.getLocationMemo())
