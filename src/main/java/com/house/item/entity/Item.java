@@ -96,11 +96,16 @@ public class Item {
         }
 
         for (Long labelNo : labelNos) {
-            this.itemLabels.add(ItemLabel.builder()
-                    .label(Label.builder()
-                            .labelNo(labelNo)
-                            .build())
-                    .build());
+            this.itemLabels.add(
+                    ItemLabel.builder()
+                            .item(this)
+                            .label(
+                                    Label.builder()
+                                            .labelNo(labelNo)
+                                            .build()
+                            )
+                            .build()
+            );
         }
     }
 
