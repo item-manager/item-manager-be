@@ -263,7 +263,7 @@ public class ItemService {
         }
 
         String photoDir = props.getDir().getFile();
-        if (org.apache.commons.lang3.StringUtils.equals(item.getPhotoName(), updateItemRQ.getPhotoName())) {
+        if (StringUtils.hasText(item.getPhotoName()) && !item.getPhotoName().equals(updateItemRQ.getPhotoName())) {
             FileUtil.deleteFile(photoDir, item.getPhotoName());
         }
 
