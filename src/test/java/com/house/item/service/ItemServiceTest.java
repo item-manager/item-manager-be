@@ -233,12 +233,16 @@ class ItemServiceTest {
         Label label1 = createLabel(user, "label1");
         Label label2 = createLabel(user, "label2");
         Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
-        item1.getItemLabels().add(ItemLabel.builder()
-                .item(item1)
-                .label(Label.builder()
-                        .labelNo(label1.getLabelNo())
-                        .build())
-                .build());
+        item1.getItemLabels().add(
+                ItemLabel.builder()
+                        .item(item1)
+                        .label(
+                                Label.builder()
+                                        .labelNo(label1.getLabelNo())
+                                        .build()
+                        )
+                        .build()
+        );
         em.persist(item1);
         Long itemNo = item1.getItemNo();
 
