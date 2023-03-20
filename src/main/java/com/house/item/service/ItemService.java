@@ -30,6 +30,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final AuthService authService;
     private final LocationService locationService;
+    private final LabelService labelService;
 
     @Transactional
     public Long createItem(CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
@@ -55,9 +56,7 @@ public class ItemService {
 
         List<Long> labels = createItemRQ.getLabels();
         for (Long labelNo : labels) {
-            Label label = Label.builder()
-                    .labelNo(labelNo)
-                    .build();
+            Label label = labelService.getLabel(labelNo);
 
             ItemLabel itemLabel = ItemLabel.builder()
                     .item(item)
@@ -203,12 +202,10 @@ public class ItemService {
             List<Label> labels = new ArrayList<>();
 
             List<Long> labelNos = equipmentItemsRQ.getLabelNos();
+            Label label;
             for (Long labelNo : labelNos) {
-                labels.add(
-                        Label.builder()
-                                .labelNo(labelNo)
-                                .build()
-                );
+                label = labelService.getLabel(labelNo);
+                labels.add(label);
             }
             equipmentSearchBuilder.labels(labels);
         }
@@ -258,6 +255,12 @@ public class ItemService {
             locationService.checkLocationType(location, LocationType.PLACE);
         } catch (NonExistentLocationException e) {
             throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
+        }
+
+        //유효한 label인지 확인
+        List<Long> labelNos = updateItemRQ.getLabels();
+        for (Long labelNo : labelNos) {
+            labelService.getLabel(labelNo);
         }
 
         String photoDir = props.getDir().getFile();
