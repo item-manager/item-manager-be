@@ -14,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -277,11 +276,6 @@ public class ItemService {
                 updateItemRQ.getPriority(),
                 updateItemRQ.getLabels()
         );
-    }
-
-    private String storePhoto(MultipartFile photo) throws ServiceException {
-        String photoDir = props.getDir().getFile();
-        return FileUtil.storeFile(photo, photoDir);
     }
 
     public List<Item> getItemsInLocation(Long locationNo) {
