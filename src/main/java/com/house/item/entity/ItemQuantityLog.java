@@ -28,5 +28,5 @@ public class ItemQuantityLog {
 
     private int count;
 
-    private int price;
+    private Integer price;
 }
