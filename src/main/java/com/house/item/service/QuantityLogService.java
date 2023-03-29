@@ -70,9 +70,14 @@ public class QuantityLogService {
         sortMapping.put("+", "ASC");
         sortMapping.put("-", "DESC");
 
+        QuantityType type = null;
+        if (quantityLogsRQ.getType() != null) {
+            type = quantityLogsRQ.getType().getType();
+        }
+
         return QuantityLogSearch.builder()
                 .item(item)
-                .type(quantityLogsRQ.getType())
+                .type(type)
                 .year(quantityLogsRQ.getYear())
                 .month(quantityLogsRQ.getMonth())
                 .orderBy(quantityLogsRQ.getOrderBy().getColumn())

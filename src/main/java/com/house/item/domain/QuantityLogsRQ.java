@@ -1,6 +1,5 @@
 package com.house.item.domain;
 
-import com.house.item.entity.QuantityType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
@@ -9,7 +8,8 @@ import javax.validation.constraints.Pattern;
 @Getter
 public class QuantityLogsRQ {
     private Long itemNo;
-    private QuantityType type;
+    @Schema(description = "purchase(구매), consume(사용), null(전체)")
+    private QuantityTypeRQ type;
     private Integer year;
     private Integer month;
     @Schema(description = "date(일자), count(수량), price(단위금액), null(일자)")
@@ -22,7 +22,7 @@ public class QuantityLogsRQ {
     @Schema(defaultValue = "10")
     private Integer size;
 
-    public QuantityLogsRQ(Long itemNo, QuantityType type, Integer year, Integer month, QuantityLogsOrderByType orderBy, String sort, Integer page, Integer size) {
+    public QuantityLogsRQ(Long itemNo, QuantityTypeRQ type, Integer year, Integer month, QuantityLogsOrderByType orderBy, String sort, Integer page, Integer size) {
         this.itemNo = itemNo;
         this.type = type;
         this.year = year;
