@@ -1,10 +1,7 @@
 package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
-import com.house.item.domain.ConsumeItemRQ;
-import com.house.item.domain.PurchaseItemRQ;
-import com.house.item.domain.QuantityLogSearch;
-import com.house.item.domain.QuantityLogsRQ;
+import com.house.item.domain.*;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemQuantityLog;
 import com.house.item.entity.QuantityType;
@@ -87,5 +84,22 @@ public class QuantityLogService {
 
     public List<ItemQuantityLog> getItemQuantityLogs(QuantityLogSearch quantityLogSearch) {
         return quantityLogRepository.findByItemNoAndTypeAndYearAndMonth(quantityLogSearch);
+    }
+
+    public Page getItemQuantityLogsPage(QuantityLogSearch quantityLogSearch) {
+        int rowCount = Math.toIntExact(quantityLogRepository.getLogsByItemNoRowCount(quantityLogSearch));
+
+        int size = quantityLogSearch.getSize();
+        int totalPage = rowCount / size;
+        if (rowCount % size > 0) {
+            totalPage++;
+        }
+
+        return Page.builder()
+                .totalDataCnt(rowCount)
+                .totalPages(totalPage)
+                .requestPage(quantityLogSearch.getPage())
+                .requestSize(size)
+                .build();
     }
 }
