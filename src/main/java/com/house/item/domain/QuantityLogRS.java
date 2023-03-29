@@ -11,6 +11,6 @@ public class QuantityLogRS {
     private QuantityTypeRS type;
     private LocalDateTime date;
     private int count;
-    private int price;
+    private Integer price;
     private String mall;
 }
