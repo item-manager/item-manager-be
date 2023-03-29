@@ -47,6 +47,7 @@ public class QuantityLogController {
         for (ItemQuantityLog log : logs) {
             quantityLogRSList.add(
                     QuantityLogRS.builder()
+                            .quantityLogNo(log.getItemQuantityLogNo())
                             .type(QuantityTypeRS.fromType(log.getType()))
                             .date(log.getDate())
                             .count(log.getCount())

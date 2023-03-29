@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Builder
 @Getter
 public class QuantityLogRS {
+    private Long quantityLogNo;
     private QuantityTypeRS type;
     private LocalDateTime date;
     private int count;
