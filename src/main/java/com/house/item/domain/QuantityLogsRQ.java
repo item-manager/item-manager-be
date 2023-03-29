@@ -3,10 +3,12 @@ package com.house.item.domain;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 @Getter
 public class QuantityLogsRQ {
+    @NotNull
     private Long itemNo;
     @Schema(description = "purchase(구매), consume(사용), null(전체)")
     private QuantityTypeRQ type;
