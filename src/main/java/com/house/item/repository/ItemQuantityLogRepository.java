@@ -9,4 +9,6 @@ public interface ItemQuantityLogRepository {
     void save(ItemQuantityLog itemQuantityLog);
 
     List<ItemQuantityLog> findByItemNoAndTypeAndYearAndMonth(QuantityLogSearch quantityLogSearch);
+
+    Long getLogsByItemNoRowCount(QuantityLogSearch quantityLogSearch);
 }

@@ -91,6 +91,58 @@ class ItemQuantityLogRepositoryTest {
         Assertions.assertThat(logs).containsExactly(quantityLog7, quantityLog1);
     }
 
+    @Test
+    void getLogsByItemNoRowCount() throws Exception {
+        //given
+        User user = createUser();
+        Location location = createLocation();
+
+        Item item1 = createItem(user, location);
+        Item item2 = createItem(user, location);
+        Item item3 = createItem(user, location);
+
+        ItemQuantityLog quantityLog1 = getItemQuantityLog(item1, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(25), 1000, 2);
+        ItemQuantityLog quantityLog2 = getItemQuantityLog(item1, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(20), 2000, 3);
+        ItemQuantityLog quantityLog3 = getItemQuantityLog(item2, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(12), 3000, 4);
+        ItemQuantityLog quantityLog4 = getItemQuantityLog(item2, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(10), 4000, 5);
+        ItemQuantityLog quantityLog5 = getItemQuantityLog(item3, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(22), 5000, 6);
+        ItemQuantityLog quantityLog6 = getItemQuantityLog(item3, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(22), 6000, 7);
+
+        ItemQuantityLog quantityLog7 = getItemQuantityLog(item1, QuantityType.CONSUME, null, LocalDateTime.now().minusDays(10), null, 1);
+        ItemQuantityLog quantityLog8 = getItemQuantityLog(item2, QuantityType.CONSUME, null, LocalDateTime.now().minusDays(5), null, 2);
+        ItemQuantityLog quantityLog9 = getItemQuantityLog(item3, QuantityType.CONSUME, null, LocalDateTime.now().minusDays(20), null, 3);
+        ItemQuantityLog quantityLog10 = getItemQuantityLog(item3, QuantityType.CONSUME, null, LocalDateTime.now().minusDays(2), null, 4);
+
+        em.persist(quantityLog1);
+        em.persist(quantityLog2);
+        em.persist(quantityLog3);
+        em.persist(quantityLog4);
+        em.persist(quantityLog5);
+        em.persist(quantityLog6);
+        em.persist(quantityLog7);
+        em.persist(quantityLog8);
+        em.persist(quantityLog9);
+        em.persist(quantityLog10);
+
+        QuantityLogSearch search = QuantityLogSearch.builder()
+                .item(
+                        Item.builder()
+                                .itemNo(item1.getItemNo())
+                                .build()
+                )
+                .orderBy("l.count")
+                .sort("asc")
+                .page(1)
+                .size(2)
+                .build();
+
+        //when
+        long rowCount = quantityLogRepository.getLogsByItemNoRowCount(search);
+
+        //then
+        Assertions.assertThat(rowCount).isEqualTo(3);
+    }
+
     User createUser() {
         User user = User.builder()
                 .id("user1")

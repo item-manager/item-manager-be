@@ -60,4 +60,35 @@ public class JpaItemQuantityLogRepository implements ItemQuantityLogRepository {
                 .setMaxResults(quantityLogSearch.getSize())
                 .getResultList();
     }
+
+    @Override
+    public Long getLogsByItemNoRowCount(QuantityLogSearch quantityLogSearch) {
+        String jpql = "select count(l) from ItemQuantityLog l" +
+                " where l.item = :item";
+
+        if (quantityLogSearch.getType() != null) {
+            jpql += " and l.type = :type";
+        }
+        if (quantityLogSearch.getYear() != null) {
+            jpql += " and YEAR(l.date) = :year";
+        }
+        if (quantityLogSearch.getMonth() != null) {
+            jpql += " and MONTH(l.date) = :month";
+        }
+
+        TypedQuery<Long> query = em.createQuery(jpql, Long.class)
+                .setParameter("item", quantityLogSearch.getItem());
+
+        if (quantityLogSearch.getType() != null) {
+            query.setParameter("type", quantityLogSearch.getType());
+        }
+        if (quantityLogSearch.getYear() != null) {
+            query.setParameter("year", quantityLogSearch.getYear());
+        }
+        if (quantityLogSearch.getMonth() != null) {
+            query.setParameter("month", quantityLogSearch.getMonth());
+        }
+
+        return query.getSingleResult();
+    }
 }
