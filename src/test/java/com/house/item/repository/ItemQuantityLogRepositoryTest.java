@@ -40,6 +40,24 @@ class ItemQuantityLogRepositoryTest {
     }
 
     @Test
+    void findByItemQuantityLogNoAndUserNo() throws Exception {
+        //given
+        User user = createUser();
+        Location location = createLocation();
+        Item item = createItem(user, location);
+
+        ItemQuantityLog itemQuantityLog = getItemQuantityLog(item, QuantityType.PURCHASE, "mall", LocalDateTime.now(), 1000, 1);
+
+        em.persist(itemQuantityLog);
+
+        //when
+        ItemQuantityLog findLog = quantityLogRepository.findByItemQuantityLogNoAndUserNo(itemQuantityLog.getItemQuantityLogNo(), user.getUserNo()).get();
+
+        //then
+        Assertions.assertThat(findLog).isEqualTo(itemQuantityLog);
+    }
+
+    @Test
     void findByItemNoAndTypeAndYearAndMonth() throws Exception {
         //given
         User user = createUser();

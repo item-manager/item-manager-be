@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -18,6 +19,20 @@ public class JpaItemQuantityLogRepository implements ItemQuantityLogRepository {
     @Override
     public void save(ItemQuantityLog itemQuantityLog) {
         em.persist(itemQuantityLog);
+    }
+
+    @Override
+    public Optional<ItemQuantityLog> findByItemQuantityLogNoAndUserNo(Long itemQuantityLogNo, Long userNo) {
+        String jpql = "select l from ItemQuantityLog l" +
+                " join l.item i" +
+                " join i.user u" +
+                " where l.itemQuantityLogNo = :logNo and u.userNo = :userNo";
+
+        List<ItemQuantityLog> logs = em.createQuery(jpql, ItemQuantityLog.class)
+                .setParameter("logNo", itemQuantityLogNo)
+                .setParameter("userNo", userNo)
+                .getResultList();
+        return logs.stream().findAny();
     }
 
     @Override

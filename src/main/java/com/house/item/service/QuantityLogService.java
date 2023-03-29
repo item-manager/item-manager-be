@@ -5,8 +5,11 @@ import com.house.item.domain.*;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemQuantityLog;
 import com.house.item.entity.QuantityType;
+import com.house.item.exception.NonExistentItemQuantityLogException;
 import com.house.item.exception.SubtractCountExceedItemQuantityException;
 import com.house.item.repository.ItemQuantityLogRepository;
+import com.house.item.util.SessionUtils;
+import com.house.item.web.SessionConst;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,12 @@ import java.util.Map;
 public class QuantityLogService {
     private final ItemQuantityLogRepository quantityLogRepository;
     private final ItemService itemService;
+
+    public ItemQuantityLog getQuantityLog(Long quantityLogNo) throws NonExistentItemQuantityLogException {
+        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        return quantityLogRepository.findByItemQuantityLogNoAndUserNo(quantityLogNo, sessionUser.getUserNo())
+                .orElseThrow(() -> new NonExistentItemQuantityLogException(ExceptionCodeMessage.NON_EXISTENT_ITEM_QUANTITY_LOG.message()));
+    }
 
     @Transactional
     public int purchaseItem(Long itemNo, PurchaseItemRQ purchaseItemRQ) {
