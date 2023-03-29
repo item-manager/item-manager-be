@@ -97,7 +97,7 @@ public enum ExceptionCodeMessage {
 
         /* Item Quantity Log */
         String NON_EXISTENT_ITEM_QUANTITY_LOG = "잘못된 구매, 사용 기록 정보입니다";
-        String SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = "사용하는 수량은 물품 수량을 초과할 수 없습니다";
+        String SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = "물품 수량은 0보다 작은 수가 될 수 없습니다";
 
         /* File */
         String NOT_CONTENT_TYPE_IMAGE_EXCEPTION = "이미지 파일만 저장 가능합니다";
