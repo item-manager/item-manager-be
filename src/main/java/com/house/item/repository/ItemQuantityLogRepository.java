@@ -14,4 +14,6 @@ public interface ItemQuantityLogRepository {
     List<ItemQuantityLog> findByItemNoAndTypeAndYearAndMonth(QuantityLogSearch quantityLogSearch);
 
     Long getLogsByItemNoRowCount(QuantityLogSearch quantityLogSearch);
+
+    void delete(ItemQuantityLog itemQuantityLog);
 }

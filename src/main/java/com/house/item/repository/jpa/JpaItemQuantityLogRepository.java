@@ -106,4 +106,9 @@ public class JpaItemQuantityLogRepository implements ItemQuantityLogRepository {
 
         return query.getSingleResult();
     }
+
+    @Override
+    public void delete(ItemQuantityLog itemQuantityLog) {
+        em.remove(itemQuantityLog);
+    }
 }

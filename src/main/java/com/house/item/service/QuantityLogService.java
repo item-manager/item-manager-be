@@ -116,4 +116,18 @@ public class QuantityLogService {
                 .requestSize(size)
                 .build();
     }
+
+    @Transactional
+    public void deleteQuantityLog(Long quantityLogNo) throws NonExistentItemQuantityLogException, SubtractCountExceedItemQuantityException {
+        ItemQuantityLog quantityLog = getQuantityLog(quantityLogNo);
+
+        Item item = quantityLog.getItem();
+        if (quantityLog.getType() == QuantityType.PURCHASE) {
+            item.subtractQuantity(quantityLog.getCount());
+        } else if (quantityLog.getType() == QuantityType.CONSUME) {
+            item.addQuantity(quantityLog.getCount());
+        }
+
+        quantityLogRepository.delete(quantityLog);
+    }
 }
