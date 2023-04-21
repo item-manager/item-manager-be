@@ -1,6 +1,7 @@
 package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
+import com.house.item.common.Props;
 import com.house.item.domain.ChangePasswordRQ;
 import com.house.item.domain.CreateUserRQ;
 import com.house.item.domain.UpdateUserInfoRQ;
@@ -12,6 +13,7 @@ import com.house.item.exception.NonUniqueUserIdException;
 import com.house.item.exception.NonUniqueUsernameException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.EncryptUtils;
+import com.house.item.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
@@ -27,6 +29,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class UserService {
 
+    private final Props props;
     private final UserRepository userRepository;
 
     @Transactional
@@ -76,6 +79,11 @@ public class UserService {
 
     @Transactional
     public void updateUserInfo(User loginUser, UpdateUserInfoRQ updateUserInfoRQ) {
+        String photoDir = props.getDir().getFile();
+        if (StringUtils.hasText(loginUser.getPhotoName()) && !loginUser.getPhotoName().equals(updateUserInfoRQ.getPhotoName())) {
+            FileUtil.deleteFile(photoDir, loginUser.getPhotoName());
+        }
+
         loginUser.updateUserInfo(updateUserInfoRQ.getUsername(), updateUserInfoRQ.getPhotoName());
     }
 
