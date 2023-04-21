@@ -107,7 +107,7 @@ public class UserController {
     )
     @Operation(summary = "회원 비밀번호 수정")
     @PatchMapping("/newPassword")
-    public Result<Void> changePassword(@RequestBody ChangePasswordRQ changePasswordRQ) {
+    public Result<Void> changePassword(@Validated @RequestBody ChangePasswordRQ changePasswordRQ) {
         User loginUser = authService.getLoginUser();
 
         userService.changePassword(loginUser, changePasswordRQ);
