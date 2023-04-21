@@ -14,9 +14,9 @@ public class CreateUserRQ {
     @Pattern(regexp = "^\\w{2,10}$")
     private String id;
 
-    @Pattern(regexp = "^(?=\\w*\\d)(?=\\w*[a-z])(?=\\w*[A-Z])\\w{6,20}$")
+    @Pattern(regexp = "^(?=\\w*\\d)(?=\\w*[a-z])(?=\\w*[A-Z])[a-zA-Z\\\\d`~!@#$%^&*()-_=+]{6,20}$")
     private String password;
 
-    @Pattern(regexp = "^[ㄱ-ㅎ가-힣\\w]{2,10}$")
+    @Pattern(regexp = "^[ㄱ-ㅎ가-힣a-zA-Z\\\\d`~!@#$%^&*()-_=+]{2,10}$")
     private String username;
 }
