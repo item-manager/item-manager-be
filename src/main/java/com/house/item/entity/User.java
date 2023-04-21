@@ -26,5 +26,10 @@ public class User {
 
     @Column(nullable = false)
     private String username;
+
+    public void changePasswordAndSalt(String newPassword, String newSalt) {
+        password = newPassword;
+        salt = newSalt;
+    }
 }
 

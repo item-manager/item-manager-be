@@ -1,8 +1,10 @@
 package com.house.item.service;
 
 import com.house.item.common.ExceptionCodeMessage;
+import com.house.item.domain.ChangePasswordRQ;
 import com.house.item.domain.CreateUserRQ;
 import com.house.item.entity.User;
+import com.house.item.exception.IncorrectUserIdPasswordException;
 import com.house.item.exception.NonExistentUserException;
 import com.house.item.exception.NonUniqueUserIdException;
 import com.house.item.exception.NonUniqueUsernameException;
@@ -55,6 +57,21 @@ public class UserService {
         user.ifPresent(u -> {
             throw new NonUniqueUsernameException(ExceptionCodeMessage.NON_UNIQUE_USERNAME.message());
         });
+    }
+
+    @Transactional
+    public void changePassword(User loginUser, ChangePasswordRQ changePasswordRQ) throws NonExistentUserException, IncorrectUserIdPasswordException {
+        checkPassword(loginUser, changePasswordRQ.getCurrentPassword());
+
+        String newSalt = EncryptUtils.getSalt();
+
+        loginUser.changePasswordAndSalt(EncryptUtils.getEncrypt(changePasswordRQ.getNewPassword(), newSalt), newSalt);
+    }
+
+    private void checkPassword(User loginUser, String inputPassword) {
+        if (!EncryptUtils.isRightPassword(loginUser.getPassword(), loginUser.getSalt(), inputPassword)) {
+            throw new IncorrectUserIdPasswordException(ExceptionCodeMessage.INCORRECT_USER_ID_PASSWORD.message());
+        }
     }
 
     @Transactional
