@@ -3,6 +3,7 @@ package com.house.item.service;
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ChangePasswordRQ;
 import com.house.item.domain.CreateUserRQ;
+import com.house.item.domain.UpdateUserInfoRQ;
 import com.house.item.entity.User;
 import com.house.item.exception.IncorrectUserIdPasswordException;
 import com.house.item.exception.NonExistentUserException;
@@ -57,6 +58,11 @@ public class UserService {
         user.ifPresent(u -> {
             throw new NonUniqueUsernameException(ExceptionCodeMessage.NON_UNIQUE_USERNAME.message());
         });
+    }
+
+    @Transactional
+    public void updateUserInfo(User loginUser, UpdateUserInfoRQ updateUserInfoRQ) {
+        loginUser.updateUserInfo(updateUserInfoRQ.getUsername(), updateUserInfoRQ.getPhotoName());
     }
 
     @Transactional

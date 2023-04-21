@@ -66,6 +66,28 @@ public class UserController {
             content = @Content(
                     schema = @Schema(implementation = ErrorResult.class),
                     examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_USER)
+                    }
+            )
+    )
+    @Operation(summary = "회원 정보 수정")
+    @PatchMapping
+    public Result<Void> updateUserInfo(@RequestBody UpdateUserInfoRQ updateUserInfoRQ) {
+        User loginUser = authService.getLoginUser();
+
+        userService.updateUserInfo(loginUser, updateUserInfoRQ);
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
+                .build();
+    }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
                             @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_USER),
                             @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.INCORRECT_USER_ID_PASSWORD)
                     }

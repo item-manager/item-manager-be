@@ -33,5 +33,10 @@ public class User {
         password = newPassword;
         salt = newSalt;
     }
+
+    public void updateUserInfo(String username, String photoName) {
+        this.username = username;
+        this.photoName = photoName;
+    }
 }
 
