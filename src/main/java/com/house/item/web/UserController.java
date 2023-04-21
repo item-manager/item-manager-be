@@ -52,12 +52,24 @@ public class UserController {
                 .build();
     }
 
-    @Operation(summary = "로그인한 유저 pk, id")
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_USER)
+                    }
+            )
+    )
+    @Operation(summary = "로그인한 회원 정보")
     @GetMapping("/session")
-    public Result<SessionUser> getUser() {
-        SessionUser loginUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        return Result.<SessionUser>builder()
-                .data(loginUser)
+    public Result<UserRS> getUser() {
+        User loginUser = authService.getLoginUser();
+
+        UserRS userRS = userService.userToUserRS(loginUser);
+
+        return Result.<UserRS>builder()
+                .data(userRS)
                 .build();
     }
 

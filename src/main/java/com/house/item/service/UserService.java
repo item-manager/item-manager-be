@@ -4,6 +4,7 @@ import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ChangePasswordRQ;
 import com.house.item.domain.CreateUserRQ;
 import com.house.item.domain.UpdateUserInfoRQ;
+import com.house.item.domain.UserRS;
 import com.house.item.entity.User;
 import com.house.item.exception.IncorrectUserIdPasswordException;
 import com.house.item.exception.NonExistentUserException;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -58,6 +60,18 @@ public class UserService {
         user.ifPresent(u -> {
             throw new NonUniqueUsernameException(ExceptionCodeMessage.NON_UNIQUE_USERNAME.message());
         });
+    }
+
+    public UserRS userToUserRS(User user) {
+        UserRS.UserRSBuilder userRSBuilder = UserRS.builder()
+                .userNo(user.getUserNo())
+                .username(user.getUsername());
+
+        if (StringUtils.hasText(user.getPhotoName())) {
+            userRSBuilder.photoUrl("/images/" + user.getPhotoName());
+        }
+
+        return userRSBuilder.build();
     }
 
     @Transactional
