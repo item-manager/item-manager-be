@@ -1,7 +1,22 @@
 package com.house.item.service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.house.item.common.ExceptionCodeMessage;
-import com.house.item.domain.*;
+import com.house.item.domain.ConsumeItemRQ;
+import com.house.item.domain.Page;
+import com.house.item.domain.PurchaseItemRQ;
+import com.house.item.domain.QuantityLogSearch;
+import com.house.item.domain.QuantityLogSumDto;
+import com.house.item.domain.QuantityLogSumSearch;
+import com.house.item.domain.QuantityLogSumsRQ;
+import com.house.item.domain.QuantityLogsRQ;
+import com.house.item.domain.SessionUser;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemQuantityLog;
 import com.house.item.entity.QuantityType;
@@ -10,14 +25,9 @@ import com.house.item.exception.SubtractCountExceedItemQuantityException;
 import com.house.item.repository.ItemQuantityLogRepository;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 @Slf4j
@@ -110,15 +120,36 @@ public class QuantityLogService {
         }
 
         return Page.builder()
-                .totalDataCnt(rowCount)
-                .totalPages(totalPage)
-                .requestPage(quantityLogSearch.getPage())
-                .requestSize(size)
-                .build();
+            .totalDataCnt(rowCount)
+            .totalPages(totalPage)
+            .requestPage(quantityLogSearch.getPage())
+            .requestSize(size)
+            .build();
+    }
+
+    public QuantityLogSumSearch getQuantityLogSumSearch(QuantityLogSumsRQ quantityLogSumsRQ) {
+        Item item = itemService.getItem(quantityLogSumsRQ.getItemNo());
+
+        QuantityType type = null;
+        if (quantityLogSumsRQ.getType() != null) {
+            type = quantityLogSumsRQ.getType().getType();
+        }
+
+        return QuantityLogSumSearch.builder()
+            .item(item)
+            .year(quantityLogSumsRQ.getYear())
+            .type(type)
+            .build();
+    }
+
+    public List<QuantityLogSumDto> getItemQuantityLogSumByDate(QuantityLogSumSearch quantityLogSumSearch) {
+        return quantityLogRepository.sumByDate(quantityLogSumSearch);
     }
 
     @Transactional
-    public void deleteQuantityLog(Long quantityLogNo) throws NonExistentItemQuantityLogException, SubtractCountExceedItemQuantityException {
+    public void deleteQuantityLog(Long quantityLogNo) throws
+        NonExistentItemQuantityLogException,
+        SubtractCountExceedItemQuantityException {
         ItemQuantityLog quantityLog = getQuantityLog(quantityLogNo);
 
         Item item = quantityLog.getItem();
