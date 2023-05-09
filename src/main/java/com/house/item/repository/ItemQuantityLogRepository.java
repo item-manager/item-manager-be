@@ -1,10 +1,12 @@
 package com.house.item.repository;
 
-import com.house.item.domain.QuantityLogSearch;
-import com.house.item.entity.ItemQuantityLog;
-
 import java.util.List;
 import java.util.Optional;
+
+import com.house.item.domain.QuantityLogSearch;
+import com.house.item.domain.QuantityLogSumDto;
+import com.house.item.domain.QuantityLogSumSearch;
+import com.house.item.entity.ItemQuantityLog;
 
 public interface ItemQuantityLogRepository {
     void save(ItemQuantityLog itemQuantityLog);
@@ -14,6 +16,8 @@ public interface ItemQuantityLogRepository {
     List<ItemQuantityLog> findByItemNoAndTypeAndYearAndMonth(QuantityLogSearch quantityLogSearch);
 
     Long getLogsByItemNoRowCount(QuantityLogSearch quantityLogSearch);
+
+    List<QuantityLogSumDto> sumByDate(QuantityLogSumSearch quantityLogSumSearch);
 
     void delete(ItemQuantityLog itemQuantityLog);
 }
