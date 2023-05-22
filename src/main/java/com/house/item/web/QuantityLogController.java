@@ -2,6 +2,7 @@ package com.house.item.web;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,14 +17,16 @@ import com.house.item.domain.ErrorResult;
 import com.house.item.domain.Page;
 import com.house.item.domain.QuantityLogRS;
 import com.house.item.domain.QuantityLogSearch;
-import com.house.item.domain.QuantityLogSumDto;
+import com.house.item.domain.QuantityLogSumByDate;
 import com.house.item.domain.QuantityLogSumSearch;
 import com.house.item.domain.QuantityLogSumsRQ;
+import com.house.item.domain.QuantityLogSumsRS;
 import com.house.item.domain.QuantityLogsRQ;
 import com.house.item.domain.QuantityTypeRS;
 import com.house.item.domain.Result;
 import com.house.item.domain.ResultList;
 import com.house.item.entity.ItemQuantityLog;
+import com.house.item.entity.QuantityType;
 import com.house.item.service.QuantityLogService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -90,13 +93,18 @@ public class QuantityLogController {
     )
     @Operation(summary = "구매, 사용 수량 통계 조회")
     @GetMapping("/sums")
-    public Result<List<QuantityLogSumDto>> getQuantityLogSums(
+    public Result<QuantityLogSumsRS> getQuantityLogSums(
         @Validated @ModelAttribute QuantityLogSumsRQ quantityLogSumsRQ) {
         QuantityLogSumSearch quantityLogSumSearch = quantityLogService.getQuantityLogSumSearch(quantityLogSumsRQ);
-        List<QuantityLogSumDto> sums = quantityLogService.getItemQuantityLogSumByDate(quantityLogSumSearch);
+        Map<QuantityType, List<QuantityLogSumByDate>> sums = quantityLogService.getItemQuantityLogSumByDate(
+            quantityLogSumSearch);
 
-        return Result.<List<QuantityLogSumDto>>builder()
-            .data(sums)
+        return Result.<QuantityLogSumsRS>builder()
+            .data(
+                QuantityLogSumsRS.builder()
+                    .logSumByType(sums)
+                    .build()
+            )
             .build();
     }
 
