@@ -298,6 +298,11 @@ public class ItemService {
     public void deleteItem(Long itemNo) {
         Item item = getItem(itemNo);
 
+        String photoDir = props.getDir().getFile();
+        if (StringUtils.hasText(item.getPhotoName())) {
+            FileUtil.deleteFile(photoDir, item.getPhotoName());
+        }
+
         itemRepository.delete(item);
     }
 }

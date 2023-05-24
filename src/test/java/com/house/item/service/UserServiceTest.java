@@ -1,16 +1,22 @@
 package com.house.item.service;
 
+import com.house.item.domain.ChangePasswordRQ;
 import com.house.item.domain.CreateUserRQ;
+import com.house.item.domain.UpdateUserInfoRQ;
 import com.house.item.entity.User;
 import com.house.item.exception.NonUniqueUserIdException;
 import com.house.item.exception.NonUniqueUsernameException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.EncryptUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.EntityManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -24,6 +30,8 @@ class UserServiceTest {
     UserService userService;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    EntityManager em;
 
     @Test
     void 정상_회원가입() throws Exception {
@@ -69,4 +77,50 @@ class UserServiceTest {
         //then
     }
 
+    @Test
+    void 회원정보_수정() throws Exception {
+        //given
+        CreateUserRQ createUserRQ = new CreateUserRQ("testUser", "testUser2@", "user");
+        Long createdId = userService.signUp(createUserRQ);
+
+        User createUser = userRepository.findOne(createdId).get();
+
+        UpdateUserInfoRQ updateUserInfoRQ = new UpdateUserInfoRQ();
+        ReflectionTestUtils.setField(updateUserInfoRQ, "username", "newUsername");
+        ReflectionTestUtils.setField(updateUserInfoRQ, "photoName", "newPhotoName");
+
+        //when
+        userService.updateUserInfo(createUser, updateUserInfoRQ);
+
+        em.flush();
+        em.clear();
+
+        //then
+        User findUser = userRepository.findOne(createdId).get();
+        Assertions.assertThat(findUser.getUsername()).isEqualTo(updateUserInfoRQ.getUsername());
+        Assertions.assertThat(findUser.getPhotoName()).isEqualTo(updateUserInfoRQ.getPhotoName());
+    }
+
+    @Test
+    void 비밀번호_변경() throws Exception {
+        //given
+        CreateUserRQ createUserRQ = new CreateUserRQ("testUser", "testUser2@", "user");
+        Long createdId = userService.signUp(createUserRQ);
+
+        User createUser = userRepository.findOne(createdId).get();
+
+        ChangePasswordRQ changePasswordRQ = new ChangePasswordRQ();
+        ReflectionTestUtils.setField(changePasswordRQ, "currentPassword", "testUser2@");
+        ReflectionTestUtils.setField(changePasswordRQ, "newPassword", "newPassword2@");
+
+        //when
+        userService.changePassword(createUser, changePasswordRQ);
+
+        em.flush();
+        em.clear();
+
+        //then
+        User findUser = userRepository.findOne(createdId).get();
+        Assertions.assertThat(findUser.getPassword()).isEqualTo(EncryptUtils.getEncrypt(changePasswordRQ.getNewPassword(), findUser.getSalt()));
+    }
 }

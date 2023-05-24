@@ -2,8 +2,10 @@ package com.house.item.web;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.*;
+import com.house.item.entity.User;
 import com.house.item.exception.NonExistentUserException;
 import com.house.item.exception.NonUniqueUserIdException;
+import com.house.item.service.AuthService;
 import com.house.item.service.UserService;
 import com.house.item.util.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,6 +27,7 @@ import javax.servlet.http.HttpSession;
 public class UserController {
 
     private final UserService userService;
+    private final AuthService authService;
 
     @ApiResponse(
             responseCode = "400",
@@ -49,12 +52,69 @@ public class UserController {
                 .build();
     }
 
-    @Operation(summary = "로그인한 유저 pk, id")
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_USER)
+                    }
+            )
+    )
+    @Operation(summary = "로그인한 회원 정보")
     @GetMapping("/session")
-    public Result<SessionUser> getUser() {
-        SessionUser loginUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        return Result.<SessionUser>builder()
-                .data(loginUser)
+    public Result<UserRS> getUser() {
+        User loginUser = authService.getLoginUser();
+
+        UserRS userRS = userService.userToUserRS(loginUser);
+
+        return Result.<UserRS>builder()
+                .data(userRS)
+                .build();
+    }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_USER)
+                    }
+            )
+    )
+    @Operation(summary = "회원 정보 수정")
+    @PatchMapping
+    public Result<Void> updateUserInfo(@RequestBody UpdateUserInfoRQ updateUserInfoRQ) {
+        User loginUser = authService.getLoginUser();
+
+        userService.updateUserInfo(loginUser, updateUserInfoRQ);
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
+                .build();
+    }
+
+    @ApiResponse(
+            responseCode = "400",
+            content = @Content(
+                    schema = @Schema(implementation = ErrorResult.class),
+                    examples = {
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.NON_EXISTENT_USER),
+                            @ExampleObject(name = ExceptionCodeMessage.SwaggerDescription.INCORRECT_USER_ID_PASSWORD)
+                    }
+            )
+    )
+    @Operation(summary = "회원 비밀번호 수정")
+    @PatchMapping("/newPassword")
+    public Result<Void> changePassword(@Validated @RequestBody ChangePasswordRQ changePasswordRQ) {
+        User loginUser = authService.getLoginUser();
+
+        userService.changePassword(loginUser, changePasswordRQ);
+
+        return Result.<Void>builder()
+                .code(200)
+                .message("ok")
                 .build();
     }
 

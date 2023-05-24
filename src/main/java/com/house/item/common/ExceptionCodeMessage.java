@@ -29,6 +29,7 @@ public enum ExceptionCodeMessage {
     NON_UNIQUE_LABEL_NAME(CodeDefine.NON_UNIQUE_LABEL_NAME, MessageDefine.NON_UNIQUE_LABEL_NAME),
 
     /* Item Quantity Log */
+    NON_EXISTENT_ITEM_QUANTITY_LOG(CodeDefine.NON_EXISTENT_ITEM_QUANTITY_LOG, MessageDefine.NON_EXISTENT_ITEM_QUANTITY_LOG),
     SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION(CodeDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION, MessageDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION),
 
     /* File */
@@ -62,7 +63,8 @@ public enum ExceptionCodeMessage {
         int NON_UNIQUE_LABEL_NAME = 4002;
 
         /* Item Quantity Log */
-        int SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = 5001;
+        int NON_EXISTENT_ITEM_QUANTITY_LOG = 5001;
+        int SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = 5002;
 
         /* File */
         int NOT_CONTENT_TYPE_IMAGE_EXCEPTION = 6001;
@@ -94,7 +96,8 @@ public enum ExceptionCodeMessage {
         String NON_UNIQUE_LABEL_NAME = "이미 존재하는 라벨 이름입니다";
 
         /* Item Quantity Log */
-        String SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = "사용하는 수량은 물품 수량을 초과할 수 없습니다";
+        String NON_EXISTENT_ITEM_QUANTITY_LOG = "잘못된 구매, 사용 기록 정보입니다";
+        String SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = "물품 수량은 0보다 작은 수가 될 수 없습니다";
 
         /* File */
         String NOT_CONTENT_TYPE_IMAGE_EXCEPTION = "이미지 파일만 저장 가능합니다";
@@ -125,6 +128,7 @@ public enum ExceptionCodeMessage {
         String NON_UNIQUE_LABEL_NAME = CodeDefine.NON_UNIQUE_LABEL_NAME + " - " + MessageDefine.NON_UNIQUE_LABEL_NAME;
 
         /* Item Quantity Log */
+        String NON_EXISTENT_ITEM_QUANTITY_LOG = CodeDefine.NON_EXISTENT_ITEM_QUANTITY_LOG + " - " + MessageDefine.NON_EXISTENT_ITEM_QUANTITY_LOG;
         String SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION = CodeDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION + " - " + MessageDefine.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION;
 
         /* File */

@@ -6,6 +6,7 @@ import com.house.item.domain.SessionUser;
 import com.house.item.entity.User;
 import com.house.item.exception.IncorrectUserIdPasswordException;
 import com.house.item.exception.NonExistentSessionUserException;
+import com.house.item.exception.NonExistentUserException;
 import com.house.item.exception.ServiceException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.EncryptUtils;
@@ -42,12 +43,12 @@ public class AuthService {
                 .build();
     }
 
-    public User getLoginUser() throws NonExistentSessionUserException {
+    public User getLoginUser() throws NonExistentSessionUserException, NonExistentUserException {
         SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
         if (sessionUser == null) {
             throw new NonExistentSessionUserException(ExceptionCodeMessage.NON_EXISTENT_SESSION_USER.message());
         }
         return userRepository.findOne(sessionUser.getUserNo())
-                .orElseThrow(() -> new NonExistentSessionUserException(ExceptionCodeMessage.NON_EXISTENT_SESSION_USER.message()));
+                .orElseThrow(() -> new NonExistentUserException(ExceptionCodeMessage.NON_EXISTENT_USER.message()));
     }
 }
