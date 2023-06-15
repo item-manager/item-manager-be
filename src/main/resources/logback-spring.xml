@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 변수 설정 -->
+    <property name="LOG_DIR_SERVER" value="/var/log"/>
+    <property name="LOG_FILE" value="logfile.log"/>
+    <property name="LOG_FILE_PROD" value="${LOG_DIR_SERVER}/${LOG_FILE}"/>
+
+    <springProfile name="local | dev">
+        <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+            <layout class="ch.qos.logback.classic.PatternLayout">
+                <Pattern>[%d{yyyy-MM-dd HH:mm:ss}][%thread] %highlight(%-5level) %logger{36} - %msg%n</Pattern>
+            </layout>
+        </appender>
+    </springProfile>
+
+    <springProfile name="prod">
+        <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+            <file>${LOG_FILE_PROD}</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <fileNamePattern>${LOG_DIR_SERVER}/${LOG_FILE}.%d{yyyy-MM-dd}.log</fileNamePattern>
+                <maxHistory>180</maxHistory>
+                <totalSizeCap>3GB</totalSizeCap>
+            </rollingPolicy>
+
+            <encoder>
+                <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-4relative][%thread] %-5level %logger{35} - %msg%n</pattern>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <!-- Logging level - TRACE > DEBUG > INFO > WARN > ERROR > FATAL -->
+    <!-- 모든 로그 레벨을 INFO로 설정 : INFO, WARN, ERROR, FATAL 레벨 출력 -->
+    <root>
+        <springProfile name="local | dev">
+            <appender-ref ref="console"/>
+        </springProfile>
+        <springProfile name="prod">
+            <appender-ref ref="file"/>
+        </springProfile>
+    </root>
+
+</configuration>
