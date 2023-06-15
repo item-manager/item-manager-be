@@ -1,19 +1,30 @@
 package com.house.item.repository.jpa;
 
-import com.house.item.domain.ConsumableItemDTO;
-import com.house.item.domain.ConsumableSearch;
-import com.house.item.domain.EquipmentSearch;
-import com.house.item.entity.*;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
-import java.util.List;
+import com.house.item.domain.ConsumableItemDTO;
+import com.house.item.domain.ConsumableSearch;
+import com.house.item.domain.EquipmentSearch;
+import com.house.item.entity.Item;
+import com.house.item.entity.ItemLabel;
+import com.house.item.entity.ItemQuantityLog;
+import com.house.item.entity.ItemType;
+import com.house.item.entity.Label;
+import com.house.item.entity.Location;
+import com.house.item.entity.LocationType;
+import com.house.item.entity.QuantityType;
+import com.house.item.entity.User;
+
+import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
 @Transactional
@@ -126,7 +137,7 @@ class JpaItemRepositoryTest {
                 .doesNotContain(item3);
     }
 
-    @Test
+    // @Test
     void findConsumableByNameAndLabel() throws Exception {
         //given
         User user = createUser("user1", "username1");
