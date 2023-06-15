@@ -39,3 +39,6 @@ out/
 ### dev ###
 **/src/main/**/dev/
 schema_v.sql
+
+## application.yml ##
+**/src/main/resources/application-*
