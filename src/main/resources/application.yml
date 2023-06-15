@@ -1,2 +1,38 @@
 server:
   port: 8080
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+  servlet:
+    multipart:
+      max-file-size: 1MB #파일 하나의 최대 사이즈
+
+#swagger
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+  api-docs:
+    path: /api-docs
+
+
+### prod
+#spring:
+#  datasource:
+#    driver-class-name:
+#    url:
+#    username:
+#    password:
+#
+##log
+#logging:
+#  level:
+#    root:
+#    com.house.item:
+#
+##properties
+#properties:
+#  dir:
+#    file:
