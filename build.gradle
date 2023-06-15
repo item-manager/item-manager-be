@@ -19,20 +19,23 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 //	//SQL 파라미터 바인딩 logging - 운영 성능 테스트 필수
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.1'
+
+    //db
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     runtimeOnly 'com.h2database:h2'
 
-    implementation 'org.springframework.boot:spring-boot-starter-websocket:2.6.14'
     compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
 
+    // StringUtils
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
-    implementation 'org.apache.commons:commons-lang3'
+//    implementation 'org.apache.commons:commons-lang3'
 
     //swagger
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.14'
