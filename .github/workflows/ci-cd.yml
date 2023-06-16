@@ -64,15 +64,15 @@ jobs:
         password: ${{ secrets.SERVER_PASSWORD }}
         port: ${{ secrets.SERVER_PORT }}
         script: |
-            sudo docker rm -f $(sudo docker ps -qa -f "status=exited")
+            sudo docker stop item-manager-be
+            sudo docker rm item-manager-be
             sudo docker pull ${{ secrets.DOCKER_REPO }}
-            sudo docker image prune -f
             sudo docker run -d -t \
             --add-host=host.docker.internal:host-gateway \
             -v /home/${{ secrets.SERVER_USERNAME }}/app/item/log:/var/log \
             -v /home/${{ secrets.SERVER_USERNAME }}/app/item/image:/image \
             -p 8080:8080 \
-            --name item-manager \
+            --name item-manager-be \
             ${{ secrets.DOCKER_REPO }}
             
   ## discord
