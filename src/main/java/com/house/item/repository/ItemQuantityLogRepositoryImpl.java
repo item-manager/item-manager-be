@@ -1,7 +1,6 @@
-package com.house.item.repository.jpa;
+package com.house.item.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -12,33 +11,13 @@ import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumDto;
 import com.house.item.domain.QuantityLogSumSearch;
 import com.house.item.entity.ItemQuantityLog;
-import com.house.item.repository.ItemQuantityLogRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Repository
 @RequiredArgsConstructor
-public class JpaItemQuantityLogRepository implements ItemQuantityLogRepository {
+public class ItemQuantityLogRepositoryImpl implements ItemQuantityLogRepositoryCustom {
 	private final EntityManager em;
-
-	@Override
-	public void save(ItemQuantityLog itemQuantityLog) {
-		em.persist(itemQuantityLog);
-	}
-
-	@Override
-	public Optional<ItemQuantityLog> findByItemQuantityLogNoAndUserNo(Long itemQuantityLogNo, Long userNo) {
-		String jpql = "select l from ItemQuantityLog l" +
-			" join l.item i" +
-			" join i.user u" +
-			" where l.itemQuantityLogNo = :logNo and u.userNo = :userNo";
-
-		List<ItemQuantityLog> logs = em.createQuery(jpql, ItemQuantityLog.class)
-			.setParameter("logNo", itemQuantityLogNo)
-			.setParameter("userNo", userNo)
-			.getResultList();
-		return logs.stream().findAny();
-	}
 
 	@Override
 	public List<ItemQuantityLog> findByItemNoAndTypeAndYearAndMonth(QuantityLogSearch quantityLogSearch) {
@@ -150,10 +129,5 @@ public class JpaItemQuantityLogRepository implements ItemQuantityLogRepository {
 		}
 
 		return query.getResultList();
-	}
-
-	@Override
-	public void delete(ItemQuantityLog itemQuantityLog) {
-		em.remove(itemQuantityLog);
 	}
 }
