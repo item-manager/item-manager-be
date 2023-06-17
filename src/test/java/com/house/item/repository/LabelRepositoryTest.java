@@ -1,128 +1,110 @@
 package com.house.item.repository;
 
-import com.house.item.entity.Label;
-import com.house.item.entity.User;
-import org.assertj.core.api.Assertions;
+import static org.assertj.core.api.Assertions.*;
+
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
+import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import java.util.List;
+import com.house.item.entity.Label;
+import com.house.item.entity.User;
 
 @SpringBootTest
 @Transactional
 class LabelRepositoryTest {
 
-    @Autowired
-    private LabelRepository labelRepository;
-    @Autowired
-    private EntityManager em;
+	@Autowired
+	private LabelRepository labelRepository;
+	@Autowired
+	private EntityManager em;
 
-    @Test
-    void save() {
-        //given
-        User user = createUser();
-        Label label = getLabel(user, "label");
+	@DisplayName("user로 Label 목록 조회")
+	@Test
+	void findByUser() throws Exception {
+		//given
+		User user1 = createUser("user1");
+		User user2 = createUser("user2");
+		em.persist(user1);
+		em.persist(user2);
 
-        //when
-        labelRepository.save(label);
+		Label label1 = createLabel(user1, "label1");
+		Label label2 = createLabel(user1, "label2");
+		Label label3 = createLabel(user2, "label3");
+		Label label4 = createLabel(user1, "label4");
+		Label label5 = createLabel(user2, "label5");
+		Label label6 = createLabel(user2, "label6");
+		Label label7 = createLabel(user1, "label7");
+		labelRepository.saveAll(List.of(label1, label2, label3, label4, label5, label6, label7));
 
-        //then
-        Label findLabel = em.find(Label.class, label.getLabelNo());
-        Assertions.assertThat(findLabel).isSameAs(label);
-    }
+		User searchUser = User.builder()
+			.userNo(user2.getUserNo())
+			.build();
 
-    @Test
-    void findOne() {
-        //given
-        User user = createUser();
-        Label label = getLabel(user, "label");
-        em.persist(label);
+		//when
+		List<Label> findLabels = labelRepository.findByUser(searchUser);
 
-        //when
-        Label findLabel = labelRepository.findOne(label.getLabelNo()).get();
+		//then
+		assertThat(findLabels).hasSize(3)
+			.extracting("user.id", "name")
+			.containsExactlyInAnyOrder(
+				Tuple.tuple("user2", "label3"),
+				Tuple.tuple("user2", "label5"),
+				Tuple.tuple("user2", "label6")
+			);
+	}
 
-        //then
-        Assertions.assertThat(findLabel).isSameAs(label);
-    }
+	@DisplayName("user와 name으로 Label을 조회한다")
+	@Test
+	void findByNameAndUser() throws Exception {
+		//given
+		User user1 = createUser("user1");
+		User user2 = createUser("user2");
+		em.persist(user1);
+		em.persist(user2);
 
-    @Test
-    void findByLabelNoAndUserNo() {
-        //given
-        User user = createUser();
-        Label label = getLabel(user, "label");
-        em.persist(label);
+		Label label1 = createLabel(user1, "label1");
+		Label label2 = createLabel(user1, "label2");
+		Label label3 = createLabel(user2, "label3");
+		Label label4 = createLabel(user1, "label4");
+		Label label5 = createLabel(user2, "label5");
+		Label label6 = createLabel(user2, "label");
+		Label label7 = createLabel(user1, "label");
+		labelRepository.saveAll(List.of(label1, label2, label3, label4, label5, label6, label7));
 
-        //when
-        Label findLabel = labelRepository.findByLabelNoAndUserNo(label.getLabelNo(), user.getUserNo()).get();
+		User searchUser = User.builder()
+			.userNo(user1.getUserNo())
+			.build();
+		String searchName = "label";
 
-        //then
-        Assertions.assertThat(findLabel).isSameAs(label);
-    }
+		//when
+		List<Label> findLabels = labelRepository.findByNameAndUser(searchName, searchUser);
 
-    @Test
-    void findByNameAndUserNo() throws Exception {
-        //given
-        User user = createUser();
-        Label label = getLabel(user, "label");
-        em.persist(label);
+		//then
+		assertThat(findLabels).hasSize(1)
+			.extracting("user.id", "name")
+			.containsExactly(Tuple.tuple("user1", "label"));
+	}
 
-        //when
-        Label findLabel = labelRepository.findByNameAndUserNo(label.getName(), user.getUserNo()).get();
+	User createUser(String id) {
+		return User.builder()
+			.id(id)
+			.password("password")
+			.salt("salt")
+			.username("username")
+			.build();
+	}
 
-        //then
-        Assertions.assertThat(findLabel).isSameAs(label);
-    }
-
-    @Test
-    void findByUserNo() throws Exception {
-        //given
-        User user = createUser();
-        Label label1 = getLabel(user, "label1");
-        em.persist(label1);
-        Label label2 = getLabel(user, "label2");
-        em.persist(label2);
-
-        //when
-        List<Label> labels = labelRepository.findByUserNo(user.getUserNo());
-
-        //then
-        Assertions.assertThat(labels).containsExactly(label1, label2);
-    }
-
-    @Test
-    void deleteByLabelNo() throws Exception {
-        //given
-        User user = createUser();
-        Label label = getLabel(user, "label");
-        em.persist(label);
-        Long labelNo = label.getLabelNo();
-
-        //when
-        labelRepository.deleteByLabelNo(labelNo);
-
-        //then
-        Label findLabel = em.find(Label.class, labelNo);
-        Assertions.assertThat(findLabel).isNull();
-    }
-
-    User createUser() {
-        User user = User.builder()
-                .id("user1")
-                .password("user1pw")
-                .salt("salt")
-                .username("username1")
-                .build();
-        em.persist(user);
-        return user;
-    }
-
-    Label getLabel(User user, String name) {
-        return Label.builder()
-                .user(user)
-                .name(name)
-                .build();
-    }
+	Label createLabel(User user, String name) {
+		return Label.builder()
+			.user(user)
+			.name(name)
+			.build();
+	}
 }

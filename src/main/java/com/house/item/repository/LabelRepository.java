@@ -1,20 +1,14 @@
 package com.house.item.repository;
 
-import com.house.item.entity.Label;
-
 import java.util.List;
-import java.util.Optional;
 
-public interface LabelRepository {
-    void save(Label label);
+import org.springframework.data.jpa.repository.JpaRepository;
 
-    Optional<Label> findOne(Long labelNo);
+import com.house.item.entity.Label;
+import com.house.item.entity.User;
 
-    Optional<Label> findByLabelNoAndUserNo(Long labelNo, Long userNo);
+public interface LabelRepository extends JpaRepository<Label, Long> {
+    List<Label> findByUser(User user);
 
-    Optional<Label> findByNameAndUserNo(String name, Long userNo);
-
-    List<Label> findByUserNo(Long userNo);
-
-    void deleteByLabelNo(Long labelNo);
+    List<Label> findByNameAndUser(String name, User user);
 }
