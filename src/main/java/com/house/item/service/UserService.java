@@ -1,5 +1,12 @@
 package com.house.item.service;
 
+import java.util.Optional;
+
+import org.hibernate.service.spi.ServiceException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.common.Props;
 import com.house.item.domain.ChangePasswordRQ;
@@ -14,14 +21,9 @@ import com.house.item.exception.NonUniqueUsernameException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.EncryptUtils;
 import com.house.item.util.FileUtil;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.service.spi.ServiceException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -104,8 +106,9 @@ public class UserService {
 
     @Transactional
     public void removeUser(Long userNo) throws NonExistentUserException {
-        Optional<User> optionalUser = userRepository.findOne(userNo);
-        User user = optionalUser.orElseThrow(() -> new NonExistentUserException(ExceptionCodeMessage.NON_EXISTENT_USER.message()));
+        Optional<User> optionalUser = userRepository.findById(userNo);
+        User user = optionalUser.orElseThrow(
+            () -> new NonExistentUserException(ExceptionCodeMessage.NON_EXISTENT_USER.message()));
         userRepository.delete(user);
     }
 }

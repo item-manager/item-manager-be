@@ -1,5 +1,16 @@
 package com.house.item.service;
 
+import static org.assertj.core.api.Assertions.*;
+
+import javax.persistence.EntityManager;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.house.item.domain.ChangePasswordRQ;
 import com.house.item.domain.CreateUserRQ;
 import com.house.item.domain.UpdateUserInfoRQ;
@@ -8,18 +19,8 @@ import com.house.item.exception.NonUniqueUserIdException;
 import com.house.item.exception.NonUniqueUsernameException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.EncryptUtils;
+
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
 @Transactional
@@ -43,7 +44,7 @@ class UserServiceTest {
         Long createdId = userService.signUp(createUserRQ);
 
         //then
-        User findUser = userRepository.findOne(createdId).get();
+        User findUser = userRepository.findById(createdId).get();
         assertThat(findUser.getId()).isEqualTo(createUserRQ.getId());
         assertThat(findUser.getPassword())
                 .isEqualTo(EncryptUtils.getEncrypt(createUserRQ.getPassword(), findUser.getSalt()));
@@ -83,7 +84,7 @@ class UserServiceTest {
         CreateUserRQ createUserRQ = new CreateUserRQ("testUser", "testUser2@", "user");
         Long createdId = userService.signUp(createUserRQ);
 
-        User createUser = userRepository.findOne(createdId).get();
+        User createUser = userRepository.findById(createdId).get();
 
         UpdateUserInfoRQ updateUserInfoRQ = new UpdateUserInfoRQ();
         ReflectionTestUtils.setField(updateUserInfoRQ, "username", "newUsername");
@@ -96,7 +97,7 @@ class UserServiceTest {
         em.clear();
 
         //then
-        User findUser = userRepository.findOne(createdId).get();
+        User findUser = userRepository.findById(createdId).get();
         Assertions.assertThat(findUser.getUsername()).isEqualTo(updateUserInfoRQ.getUsername());
         Assertions.assertThat(findUser.getPhotoName()).isEqualTo(updateUserInfoRQ.getPhotoName());
     }
@@ -107,7 +108,7 @@ class UserServiceTest {
         CreateUserRQ createUserRQ = new CreateUserRQ("testUser", "testUser2@", "user");
         Long createdId = userService.signUp(createUserRQ);
 
-        User createUser = userRepository.findOne(createdId).get();
+        User createUser = userRepository.findById(createdId).get();
 
         ChangePasswordRQ changePasswordRQ = new ChangePasswordRQ();
         ReflectionTestUtils.setField(changePasswordRQ, "currentPassword", "testUser2@");
@@ -120,7 +121,7 @@ class UserServiceTest {
         em.clear();
 
         //then
-        User findUser = userRepository.findOne(createdId).get();
+        User findUser = userRepository.findById(createdId).get();
         Assertions.assertThat(findUser.getPassword()).isEqualTo(EncryptUtils.getEncrypt(changePasswordRQ.getNewPassword(), findUser.getSalt()));
     }
 }
