@@ -1,24 +1,48 @@
 package com.house.item.service;
 
-import com.house.item.common.ExceptionCodeMessage;
-import com.house.item.common.Props;
-import com.house.item.domain.*;
-import com.house.item.entity.*;
-import com.house.item.exception.*;
-import com.house.item.repository.ItemRepository;
-import com.house.item.util.FileUtil;
-import com.house.item.util.SessionUtils;
-import com.house.item.web.SessionConst;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import com.house.item.common.ExceptionCodeMessage;
+import com.house.item.common.Props;
+import com.house.item.domain.ConsumableItemDTO;
+import com.house.item.domain.ConsumableItemsRQ;
+import com.house.item.domain.ConsumableSearch;
+import com.house.item.domain.CreateItemRQ;
+import com.house.item.domain.EquipmentItemsRQ;
+import com.house.item.domain.EquipmentSearch;
+import com.house.item.domain.ItemRS;
+import com.house.item.domain.ItemTypeRS;
+import com.house.item.domain.LabelRS;
+import com.house.item.domain.Page;
+import com.house.item.domain.SessionUser;
+import com.house.item.domain.UpdateItemRQ;
+import com.house.item.entity.Item;
+import com.house.item.entity.ItemLabel;
+import com.house.item.entity.Label;
+import com.house.item.entity.Location;
+import com.house.item.entity.LocationType;
+import com.house.item.entity.User;
+import com.house.item.exception.NonExistentItemException;
+import com.house.item.exception.NonExistentLocationException;
+import com.house.item.exception.NonExistentPlaceException;
+import com.house.item.exception.NonExistentSessionUserException;
+import com.house.item.exception.NotLocationTypePlaceException;
+import com.house.item.exception.ServiceException;
+import com.house.item.exception.UndefinedLocationTypeException;
+import com.house.item.repository.ItemRepository;
+import com.house.item.util.FileUtil;
+import com.house.item.util.SessionUtils;
+import com.house.item.web.SessionConst;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -70,9 +94,14 @@ public class ItemService {
     }
 
     public Item getItem(Long itemNo) throws NonExistentItemException {
-        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        return itemRepository.findByItemNoAndUserNo(itemNo, sessionUser.getUserNo())
-                .orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
+        SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        Item item = itemRepository.findById(itemNo)
+            .orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
+
+        if (item.getUser().getUserNo().equals(sessionUser.getUserNo())) {
+            return item;
+        }
+        throw new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message());
     }
 
     public ItemRS itemToItemRS(Item item) {
@@ -108,7 +137,7 @@ public class ItemService {
 
     public List<Item> getItems() {
         SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        return itemRepository.findAll(sessionUser.getUserNo());
+        return itemRepository.findByUser(sessionUser.toUser());
     }
 
     public List<ItemRS> itemsToItemRSList(List<Item> items) {
@@ -284,9 +313,9 @@ public class ItemService {
 
         List<Item> items = null;
         if (location.getType() == LocationType.PLACE) {
-            items = itemRepository.findByPlaceNo(locationNo);
+            items = itemRepository.findByLocation(location);
         } else if (location.getType() == LocationType.ROOM) {
-            items = itemRepository.findByRoomNo(locationNo);
+            items = itemRepository.findByRoom(location);
         } else {
             throw new UndefinedLocationTypeException(ExceptionCodeMessage.UNDEFINED_LOCATION_TYPE.message());
         }

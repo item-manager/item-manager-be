@@ -1,4 +1,4 @@
-package com.house.item.repository.jpa;
+package com.house.item.repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,63 +29,15 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootTest
 @Transactional
 @Slf4j
-class JpaItemRepositoryTest {
+class ItemRepositoryTest {
 
     @Autowired
-    JpaItemRepository itemRepository;
+    ItemRepository itemRepository;
     @Autowired
     EntityManager em;
 
     @Test
-    void save() {
-        //given
-        User user = createUser("user1", "username1");
-        Location room = createRoom("room");
-        Location location = createPlace(room, "desk");
-        Item item = getItem(user, location, "soup", ItemType.CONSUMABLE, 1, 1);
-
-        //when
-        itemRepository.save(item);
-
-        //then
-        Item findItem = em.find(Item.class, item.getItemNo());
-        Assertions.assertThat(findItem).isSameAs(item);
-    }
-
-    @Test
-    void findOne() {
-        //given
-        User user = createUser("user1", "username1");
-        Location room = createRoom("room");
-        Location location = createPlace(room, "desk");
-        Item item = getItem(user, location, "soup", ItemType.CONSUMABLE, 1, 1);
-        em.persist(item);
-
-        //when
-        Item findItem = itemRepository.findOne(item.getItemNo()).get();
-
-        //then
-        Assertions.assertThat(findItem).isSameAs(item);
-    }
-
-    @Test
-    void findByItemNoAndUserNo() {
-        //given
-        User user = createUser("user1", "username1");
-        Location room = createRoom("room");
-        Location location = createPlace(room, "desk");
-        Item item = getItem(user, location, "soup", ItemType.CONSUMABLE, 1, 1);
-        em.persist(item);
-
-        //when
-        Item findItem = itemRepository.findByItemNoAndUserNo(item.getItemNo(), user.getUserNo()).get();
-
-        //then
-        Assertions.assertThat(findItem).isSameAs(item);
-    }
-
-    @Test
-    void findByPlaceNo() throws Exception {
+    void findByLocation() throws Exception {
         //given
         User user = createUser("user1", "username1");
         Location room = createRoom("room");
@@ -102,16 +54,18 @@ class JpaItemRepositoryTest {
         Long locationNo2 = location2.getLocationNo();
 
         //when
-        List<Item> items = itemRepository.findByPlaceNo(locationNo);
+        List<Item> items = itemRepository.findByLocation(Location.builder()
+            .locationNo(locationNo)
+            .build());
 
         //then
         Assertions.assertThat(items)
-                .containsExactly(item1, item2)
-                .doesNotContain(item3);
+            .containsExactly(item1, item2)
+            .doesNotContain(item3);
     }
 
     @Test
-    void findByRoomNo() throws Exception {
+    void findByRoom() throws Exception {
         //given
         User user = createUser("user1", "username1");
         Location room1 = createRoom("room1");
@@ -129,12 +83,14 @@ class JpaItemRepositoryTest {
         Long roomNo2 = room2.getLocationNo();
 
         //when
-        List<Item> items = itemRepository.findByRoomNo(roomNo1);
+        List<Item> items = itemRepository.findByRoom(Location.builder()
+            .locationNo(roomNo1)
+            .build());
 
         //then
         Assertions.assertThat(items)
-                .containsExactly(item1, item2)
-                .doesNotContain(item3);
+            .containsExactly(item1, item2)
+            .doesNotContain(item3);
     }
 
     // @Test

@@ -132,10 +132,10 @@ public class LocationService {
 
         List<Item> items = null;
         if (location.getType() == LocationType.PLACE) {
-            items = itemRepository.findByPlaceNo(locationNo);
+            items = itemRepository.findByLocation(location);
         }
         if (location.getType() == LocationType.ROOM) {
-            items = itemRepository.findByRoomNo(locationNo);
+            items = itemRepository.findByRoom(location);
         }
 
         if (items == null) {

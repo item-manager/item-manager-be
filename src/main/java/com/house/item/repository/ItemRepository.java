@@ -1,33 +1,16 @@
 package com.house.item.repository;
 
-import com.house.item.domain.ConsumableItemDTO;
-import com.house.item.domain.ConsumableSearch;
-import com.house.item.domain.EquipmentSearch;
-import com.house.item.entity.Item;
-
 import java.util.List;
-import java.util.Optional;
 
-public interface ItemRepository {
-    void save(Item item);
+import org.springframework.data.jpa.repository.JpaRepository;
 
-    Optional<Item> findOne(Long itemNo);
+import com.house.item.entity.Item;
+import com.house.item.entity.Location;
+import com.house.item.entity.User;
 
-    Optional<Item> findByItemNoAndUserNo(Long itemNo, Long userNo);
+public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositoryCustom {
 
-    List<Item> findAll(Long userNo);
+    List<Item> findByUser(User user);
 
-    List<Item> findByPlaceNo(Long placeNo);
-
-    List<Item> findByRoomNo(Long roomNo);
-
-    List<ConsumableItemDTO> findConsumableByNameAndLabel(ConsumableSearch consumableSearch);
-
-    int getConsumableRowCount(ConsumableSearch consumableSearch);
-
-    List<Item> findEquipmentByNameAndLabelAndPlace(EquipmentSearch equipmentSearch);
-
-    int getEquipmentRowCount(EquipmentSearch equipmentSearch);
-
-    void delete(Item item);
+    List<Item> findByLocation(Location location);
 }
