@@ -1,22 +1,33 @@
 package com.house.item.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.house.item.common.ExceptionCodeMessage;
-import com.house.item.domain.*;
+import com.house.item.domain.CreatePlaceRQ;
+import com.house.item.domain.CreateRoomRQ;
+import com.house.item.domain.SessionUser;
+import com.house.item.domain.UpdatePlaceRQ;
+import com.house.item.domain.UpdateRoomRQ;
 import com.house.item.entity.Item;
 import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
-import com.house.item.exception.*;
+import com.house.item.exception.NonExistentLocationException;
+import com.house.item.exception.NonExistentRoomException;
+import com.house.item.exception.NotLocationTypePlaceException;
+import com.house.item.exception.NotLocationTypeRoomException;
+import com.house.item.exception.UnableToDeleteLocationInUseException;
+import com.house.item.exception.UndefinedLocationTypeException;
 import com.house.item.repository.ItemRepository;
 import com.house.item.repository.LocationRepository;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @Slf4j
@@ -76,20 +87,25 @@ public class LocationService {
     }
 
     public Location getLocation(Long locationNo) throws NonExistentLocationException {
-        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        return locationRepository.findByLocationNoAndUserNo(locationNo, sessionUser.getUserNo())
-                .orElseThrow(() -> new NonExistentLocationException(ExceptionCodeMessage.MessageDefine.NON_EXISTENT_LOCATION));
+        SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        Location location = locationRepository.findById(locationNo)
+            .orElseThrow(
+                () -> new NonExistentLocationException(ExceptionCodeMessage.MessageDefine.NON_EXISTENT_LOCATION));
+        if (location.getUser().getUserNo().equals(sessionUser.getUserNo())) {
+            return location;
+        }
+        throw new NonExistentLocationException(ExceptionCodeMessage.MessageDefine.NON_EXISTENT_LOCATION);
     }
 
     public List<Location> getRooms() {
         SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        return locationRepository.findByTypeAndUserNo(LocationType.ROOM, sessionUser.getUserNo());
+        return locationRepository.findByTypeAndUser(LocationType.ROOM, sessionUser.toUser());
     }
 
     public List<Location> getPlacesByRoomNo(Long roomNo) throws NonExistentRoomException, NotLocationTypeRoomException {
         Location room = getLocation(roomNo);
         checkLocationType(room, LocationType.ROOM);
-        return locationRepository.findByRoom(roomNo);
+        return locationRepository.findByRoom(room);
     }
 
     @Transactional
