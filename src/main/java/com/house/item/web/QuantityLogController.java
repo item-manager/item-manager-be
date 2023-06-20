@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ErrorResult;
-import com.house.item.domain.Page;
+import com.house.item.domain.PageRS;
 import com.house.item.domain.QuantityLogRS;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
@@ -74,10 +74,10 @@ public class QuantityLogController {
             );
         }
 
-        Page quantityLogsPage = quantityLogService.getItemQuantityLogsPage(quantityLogSearch);
+        PageRS quantityLogsPageRS = quantityLogService.getItemQuantityLogsPage(quantityLogSearch);
 
         return ResultList.<QuantityLogRS>builder()
-            .page(quantityLogsPage)
+            .page(quantityLogsPageRS)
             .data(quantityLogRSList)
             .build();
     }

@@ -2,6 +2,8 @@ package com.house.item.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import com.house.item.domain.ConsumableItemDTO;
 import com.house.item.domain.ConsumableSearch;
 import com.house.item.domain.EquipmentSearch;
@@ -12,11 +14,7 @@ public interface ItemRepositoryCustom {
 
 	List<Item> findByRoom(Location room);
 
-	List<ConsumableItemDTO> findConsumableByNameAndLabel(ConsumableSearch consumableSearch);
+	Page<ConsumableItemDTO> findConsumableByNameAndLabel(ConsumableSearch consumableSearch);
 
-	int getConsumableRowCount(ConsumableSearch consumableSearch);
-
-	List<Item> findEquipmentByNameAndLabelAndPlace(EquipmentSearch equipmentSearch);
-
-	int getEquipmentRowCount(EquipmentSearch equipmentSearch);
+	Page<Item> findEquipmentByNameAndLabelAndPlace(EquipmentSearch equipmentSearch);
 }

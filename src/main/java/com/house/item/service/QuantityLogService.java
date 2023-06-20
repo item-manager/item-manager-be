@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ConsumeItemRQ;
-import com.house.item.domain.Page;
+import com.house.item.domain.PageRS;
 import com.house.item.domain.PurchaseItemRQ;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
@@ -122,7 +122,7 @@ public class QuantityLogService {
 		return quantityLogRepository.findByItemNoAndTypeAndYearAndMonth(quantityLogSearch);
 	}
 
-	public Page getItemQuantityLogsPage(QuantityLogSearch quantityLogSearch) {
+	public PageRS getItemQuantityLogsPage(QuantityLogSearch quantityLogSearch) {
 		int rowCount = Math.toIntExact(quantityLogRepository.getLogsByItemNoRowCount(quantityLogSearch));
 
 		int size = quantityLogSearch.getSize();
@@ -131,7 +131,7 @@ public class QuantityLogService {
 			totalPage++;
 		}
 
-		return Page.builder()
+		return PageRS.builder()
 			.totalDataCnt(rowCount)
 			.totalPages(totalPage)
 			.requestPage(quantityLogSearch.getPage())

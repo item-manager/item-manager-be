@@ -6,9 +6,11 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import org.assertj.core.api.Assertions;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.house.item.domain.ConsumableItemDTO;
@@ -31,331 +33,237 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 class ItemRepositoryTest {
 
-    @Autowired
-    ItemRepository itemRepository;
-    @Autowired
-    EntityManager em;
+	@Autowired
+	ItemRepository itemRepository;
+	@Autowired
+	EntityManager em;
 
-    @Test
-    void findByLocation() throws Exception {
-        //given
-        User user = createUser("user1", "username1");
-        Location room = createRoom("room");
-        Location location1 = createPlace(room, "desk");
-        Location location2 = createPlace(room, "desk");
-        Item item1 = getItem(user, location1, "item1", ItemType.CONSUMABLE, 1, 1);
-        Item item2 = getItem(user, location1, "item2", ItemType.EQUIPMENT, 1, 1);
-        Item item3 = getItem(user, location2, "item3", ItemType.EQUIPMENT, 1, 1);
-        em.persist(item1);
-        em.persist(item2);
-        em.persist(item3);
+	@Test
+	void findByLocation() throws Exception {
+		//given
+		User user = createUser("user1", "username1");
+		Location room = createRoom("room");
+		Location location1 = createPlace(room, "desk");
+		Location location2 = createPlace(room, "desk");
+		Item item1 = getItem(user, location1, "item1", ItemType.CONSUMABLE, 1, 1);
+		Item item2 = getItem(user, location1, "item2", ItemType.EQUIPMENT, 1, 1);
+		Item item3 = getItem(user, location2, "item3", ItemType.EQUIPMENT, 1, 1);
+		em.persist(item1);
+		em.persist(item2);
+		em.persist(item3);
 
-        Long locationNo = location1.getLocationNo();
-        Long locationNo2 = location2.getLocationNo();
+		Long locationNo = location1.getLocationNo();
+		Long locationNo2 = location2.getLocationNo();
 
-        //when
-        List<Item> items = itemRepository.findByLocation(Location.builder()
-            .locationNo(locationNo)
-            .build());
+		//when
+		List<Item> items = itemRepository.findByLocation(Location.builder()
+			.locationNo(locationNo)
+			.build());
 
-        //then
-        Assertions.assertThat(items)
-            .containsExactly(item1, item2)
-            .doesNotContain(item3);
-    }
+		//then
+		Assertions.assertThat(items)
+			.containsExactly(item1, item2)
+			.doesNotContain(item3);
+	}
 
-    @Test
-    void findByRoom() throws Exception {
-        //given
-        User user = createUser("user1", "username1");
-        Location room1 = createRoom("room1");
-        Location room2 = createRoom("room2");
-        Location location1 = createPlace(room1, "desk");
-        Location location2 = createPlace(room2, "desk");
-        Item item1 = getItem(user, location1, "item1", ItemType.CONSUMABLE, 1, 1);
-        Item item2 = getItem(user, location1, "item2", ItemType.EQUIPMENT, 1, 1);
-        Item item3 = getItem(user, location2, "item3", ItemType.EQUIPMENT, 1, 1);
-        em.persist(item1);
-        em.persist(item2);
-        em.persist(item3);
+	@Test
+	void findByRoom() throws Exception {
+		//given
+		User user = createUser("user1", "username1");
+		Location room1 = createRoom("room1");
+		Location room2 = createRoom("room2");
+		Location location1 = createPlace(room1, "desk");
+		Location location2 = createPlace(room2, "desk");
+		Item item1 = getItem(user, location1, "item1", ItemType.CONSUMABLE, 1, 1);
+		Item item2 = getItem(user, location1, "item2", ItemType.EQUIPMENT, 1, 1);
+		Item item3 = getItem(user, location2, "item3", ItemType.EQUIPMENT, 1, 1);
+		em.persist(item1);
+		em.persist(item2);
+		em.persist(item3);
 
-        Long roomNo1 = room1.getLocationNo();
-        Long roomNo2 = room2.getLocationNo();
+		Long roomNo1 = room1.getLocationNo();
+		Long roomNo2 = room2.getLocationNo();
 
-        //when
-        List<Item> items = itemRepository.findByRoom(Location.builder()
-            .locationNo(roomNo1)
-            .build());
+		//when
+		List<Item> items = itemRepository.findByRoom(Location.builder()
+			.locationNo(roomNo1)
+			.build());
 
-        //then
-        Assertions.assertThat(items)
-            .containsExactly(item1, item2)
-            .doesNotContain(item3);
-    }
+		//then
+		Assertions.assertThat(items)
+			.containsExactly(item1, item2)
+			.doesNotContain(item3);
+	}
 
-    // @Test
-    void findConsumableByNameAndLabel() throws Exception {
-        //given
-        User user = createUser("user1", "username1");
-        Location room = createRoom("room");
-        Location location = createPlace(room, "desk");
-        Label label1 = createLabel(user, "label1");
-        Label label2 = createLabel(user, "label2");
-        Label label3 = createLabel(user, "label3");
+	@Test
+	void findConsumableByNameAndLabel() throws Exception {
+		//given
+		User user = createUser("user1", "username1");
+		Location room = createRoom("room");
+		Location location = createPlace(room, "desk");
+		Label label1 = createLabel(user, "label1");
+		Label label2 = createLabel(user, "label2");
+		Label label3 = createLabel(user, "label3");
 
-        Item item1 = getItem(user, location, "item1", ItemType.CONSUMABLE, 1, 2);
-        Item item2 = getItem(user, location, "item2", ItemType.CONSUMABLE, 2, 3);
-        Item item3 = getItem(user, location, "item3", ItemType.CONSUMABLE, 3, 1);
+		Item item1 = getItem(user, location, "item1", ItemType.CONSUMABLE, 1, 2);
+		Item item2 = getItem(user, location, "item2", ItemType.CONSUMABLE, 2, 3);
+		Item item3 = getItem(user, location, "item3", ItemType.CONSUMABLE, 3, 1);
 
-        em.persist(item1);
-        em.persist(item2);
-        em.persist(item3);
+		em.persist(item1);
+		em.persist(item2);
+		em.persist(item3);
 
-        ItemLabel itemLabel1 = createItemLabel(item1, label1);
-        ItemLabel itemLabel2 = createItemLabel(item1, label2);
-        ItemLabel itemLabel3 = createItemLabel(item2, label2);
-        ItemLabel itemLabel4 = createItemLabel(item2, label3);
-        ItemLabel itemLabel5 = createItemLabel(item3, label3);
+		ItemLabel itemLabel1 = createItemLabel(item1, label1);
+		ItemLabel itemLabel2 = createItemLabel(item1, label2);
+		ItemLabel itemLabel3 = createItemLabel(item2, label2);
+		ItemLabel itemLabel4 = createItemLabel(item2, label3);
+		ItemLabel itemLabel5 = createItemLabel(item3, label3);
 
-        createQuantityLog(item1, QuantityType.PURCHASE, LocalDateTime.now().minusDays(25));
-        createQuantityLog(item1, QuantityType.PURCHASE, LocalDateTime.now().minusDays(20));
-        createQuantityLog(item2, QuantityType.PURCHASE, LocalDateTime.now().minusDays(12));
-        ItemQuantityLog quantityLog4 = createQuantityLog(item2, QuantityType.PURCHASE, LocalDateTime.now().minusDays(10));
-        createQuantityLog(item3, QuantityType.PURCHASE, LocalDateTime.now().minusDays(22));
+		createQuantityLog(item1, QuantityType.PURCHASE, LocalDateTime.now().minusDays(25));
+		createQuantityLog(item1, QuantityType.PURCHASE, LocalDateTime.now().minusDays(20));
+		createQuantityLog(item2, QuantityType.PURCHASE, LocalDateTime.now().minusDays(12));
+		ItemQuantityLog quantityLog4 = createQuantityLog(item2, QuantityType.PURCHASE,
+			LocalDateTime.now().minusDays(10));
+		createQuantityLog(item3, QuantityType.PURCHASE, LocalDateTime.now().minusDays(22));
 
-        createQuantityLog(item1, QuantityType.CONSUME, LocalDateTime.now().minusDays(10));
-        ItemQuantityLog quantityLog7 = createQuantityLog(item2, QuantityType.CONSUME, LocalDateTime.now().minusDays(5));
-        createQuantityLog(item3, QuantityType.CONSUME, LocalDateTime.now().minusDays(20));
-        createQuantityLog(item3, QuantityType.CONSUME, LocalDateTime.now().minusDays(2));
+		createQuantityLog(item1, QuantityType.CONSUME, LocalDateTime.now().minusDays(10));
+		ItemQuantityLog quantityLog7 = createQuantityLog(item2, QuantityType.CONSUME, LocalDateTime.now().minusDays(5));
+		createQuantityLog(item3, QuantityType.CONSUME, LocalDateTime.now().minusDays(20));
+		createQuantityLog(item3, QuantityType.CONSUME, LocalDateTime.now().minusDays(2));
 
-        ConsumableSearch search = ConsumableSearch.builder()
-                .userNo(user.getUserNo())
-//                .name("2")
-                .labelNos(List.of(label2.getLabelNo(), label3.getLabelNo()))
-                .orderBy("priority")
-                .sort("ASC")
-                .size(2)
-                .page(1)
-                .build();
+		ConsumableSearch search = ConsumableSearch.builder()
+			.userNo(user.getUserNo())
+			//                .name("2")
+			.labelNos(List.of(label2.getLabelNo(), label3.getLabelNo()))
+			// .orderBy("priority")
+			.orderBy("latestPurchase")
+			.sort("ASC")
+			.size(2)
+			.page(1)
+			.build();
 
-        //when
-        List<ConsumableItemDTO> consumables = itemRepository.findConsumableByNameAndLabel(search);
+		//when
+		Page<ConsumableItemDTO> consumables = itemRepository.findConsumableByNameAndLabel(search);
 
-        //then
-        Assertions.assertThat(consumables).hasSize(1);
-        Assertions.assertThat(consumables.get(0).getItem()).isEqualTo(item2);
-        Assertions.assertThat(consumables.get(0).getLatestPurchase()).isEqualTo(quantityLog4.getDate());
-        Assertions.assertThat(consumables.get(0).getLatestConsume()).isEqualTo(quantityLog7.getDate());
-    }
+		//then
+		Assertions.assertThat(consumables).hasSize(1)
+			.extracting("item.name", "latestPurchase", "latestConsume")
+			.containsOnly(
+				Tuple.tuple(item2.getName(), quantityLog4.getDate(), quantityLog7.getDate())
+			);
+	}
 
-    @Test
-    void getConsumableTotalPage() throws Exception {
-        //given
-        User user = createUser("user1", "username1");
-        Location room = createRoom("room");
-        Location location = createPlace(room, "desk");
-        Label label1 = createLabel(user, "label1");
-        Label label2 = createLabel(user, "label2");
-        Label label3 = createLabel(user, "label3");
+	@Test
+	void findEquipmentByNameAndLabelAndPlace() throws Exception {
+		//given
+		User user = createUser("user1", "username1");
+		Location room = createRoom("room");
+		Location location = createPlace(room, "desk");
+		Label label1 = createLabel(user, "label1");
+		Label label2 = createLabel(user, "label2");
+		Label label3 = createLabel(user, "label3");
 
-        Item item1 = getItem(user, location, "item1", ItemType.CONSUMABLE, 1, 2);
-        Item item2 = getItem(user, location, "item2", ItemType.CONSUMABLE, 2, 3);
-        Item item3 = getItem(user, location, "item3", ItemType.CONSUMABLE, 3, 1);
+		Item item1 = getItem(user, location, "item1", ItemType.EQUIPMENT, 1, 2);
+		Item item2 = getItem(user, location, "item2", ItemType.EQUIPMENT, 2, 3);
+		Item item3 = getItem(user, location, "item3", ItemType.EQUIPMENT, 3, 1);
 
-        em.persist(item1);
-        em.persist(item2);
-        em.persist(item3);
+		em.persist(item1);
+		em.persist(item2);
+		em.persist(item3);
 
-        ItemLabel itemLabel1 = createItemLabel(item1, label1);
-        ItemLabel itemLabel2 = createItemLabel(item1, label2);
-        ItemLabel itemLabel3 = createItemLabel(item2, label2);
-        ItemLabel itemLabel4 = createItemLabel(item2, label3);
-        ItemLabel itemLabel5 = createItemLabel(item3, label3);
+		ItemLabel itemLabel1 = createItemLabel(item1, label1);
+		ItemLabel itemLabel2 = createItemLabel(item1, label2);
+		ItemLabel itemLabel6 = createItemLabel(item1, label3);
+		ItemLabel itemLabel3 = createItemLabel(item2, label2);
+		ItemLabel itemLabel4 = createItemLabel(item2, label3);
+		ItemLabel itemLabel5 = createItemLabel(item3, label3);
 
-        createQuantityLog(item1, QuantityType.PURCHASE, LocalDateTime.now().minusDays(25));
-        createQuantityLog(item1, QuantityType.PURCHASE, LocalDateTime.now().minusDays(20));
-        createQuantityLog(item2, QuantityType.PURCHASE, LocalDateTime.now().minusDays(12));
-        ItemQuantityLog quantityLog4 = createQuantityLog(item2, QuantityType.PURCHASE, LocalDateTime.now().minusDays(10));
-        createQuantityLog(item3, QuantityType.PURCHASE, LocalDateTime.now().minusDays(22));
+		EquipmentSearch search = EquipmentSearch.builder()
+			.userNo(user.getUserNo())
+			//                .name("item")
+			.labelNos(List.of(label2.getLabelNo(), label3.getLabelNo()))
+			.placeNos(List.of(location.getLocationNo()))
+			.page(1)
+			.size(3)
+			.build();
 
-        createQuantityLog(item1, QuantityType.CONSUME, LocalDateTime.now().minusDays(10));
-        ItemQuantityLog quantityLog7 = createQuantityLog(item2, QuantityType.CONSUME, LocalDateTime.now().minusDays(5));
-        createQuantityLog(item3, QuantityType.CONSUME, LocalDateTime.now().minusDays(20));
-        createQuantityLog(item3, QuantityType.CONSUME, LocalDateTime.now().minusDays(2));
+		//when
+		Page<Item> items = itemRepository.findEquipmentByNameAndLabelAndPlace(search);
 
-        ConsumableSearch search = ConsumableSearch.builder()
-                .userNo(user.getUserNo())
-//                .name("2")
-                .labelNos(List.of(label2.getLabelNo()))
-//                .orderBy("priority")
-//                .sort("ASC")
-//                .size(2)
-//                .page(1)
-                .build();
+		//then
+		Assertions.assertThat(items).hasSize(2)
+			.containsExactly(item2, item1)
+			.doesNotContain(item3);
+	}
 
-        //when
-        int rowCount = itemRepository.getConsumableRowCount(search);
+	User createUser(String id, String username) {
+		User user = User.builder()
+			.id(id)
+			.password("user1pw")
+			.salt("salt")
+			.username(username)
+			.build();
+		em.persist(user);
+		return user;
+	}
 
-        //then
-        Assertions.assertThat(rowCount).isEqualTo(2);
-    }
+	Location createRoom(String name) {
+		Location room = Location.builder()
+			.type(LocationType.ROOM)
+			.name(name)
+			.build();
+		em.persist(room);
+		return room;
+	}
 
-    @Test
-    void findEquipmentByNameAndLabelAndPlace() throws Exception {
-        //given
-        User user = createUser("user1", "username1");
-        Location room = createRoom("room");
-        Location location = createPlace(room, "desk");
-        Label label1 = createLabel(user, "label1");
-        Label label2 = createLabel(user, "label2");
-        Label label3 = createLabel(user, "label3");
+	Location createPlace(Location room, String name) {
+		Location place = Location.builder()
+			.type(LocationType.PLACE)
+			.room(room)
+			.name(name)
+			.build();
+		em.persist(place);
+		return place;
+	}
 
-        Item item1 = getItem(user, location, "item1", ItemType.EQUIPMENT, 1, 2);
-        Item item2 = getItem(user, location, "item2", ItemType.EQUIPMENT, 2, 3);
-        Item item3 = getItem(user, location, "item3", ItemType.EQUIPMENT, 3, 1);
+	Label createLabel(User user, String name) {
+		Label label = Label.builder()
+			.user(user)
+			.name(name)
+			.build();
+		em.persist(label);
+		return label;
+	}
 
-        em.persist(item1);
-        em.persist(item2);
-        em.persist(item3);
+	Item getItem(User user, Location location, String name, ItemType type, int quantity, int priority) {
+		Item item = Item.builder()
+			.user(user)
+			.name(name)
+			.type(type)
+			.location(location)
+			.locationMemo("under the desk")
+			.quantity(quantity)
+			.priority(priority)
+			.build();
+		return item;
+	}
 
-        ItemLabel itemLabel1 = createItemLabel(item1, label1);
-        ItemLabel itemLabel2 = createItemLabel(item1, label2);
-        ItemLabel itemLabel6 = createItemLabel(item1, label3);
-        ItemLabel itemLabel3 = createItemLabel(item2, label2);
-        ItemLabel itemLabel4 = createItemLabel(item2, label3);
-        ItemLabel itemLabel5 = createItemLabel(item3, label3);
+	ItemLabel createItemLabel(Item item, Label label) {
+		ItemLabel itemLabel = ItemLabel.builder()
+			.item(item)
+			.label(label)
+			.build();
+		em.persist(itemLabel);
+		return itemLabel;
+	}
 
-        EquipmentSearch search = EquipmentSearch.builder()
-                .userNo(user.getUserNo())
-//                .name("item")
-                .labels(List.of(
-                        Label.builder()
-                                .labelNo(label2.getLabelNo())
-                                .build(),
-                        Label.builder()
-                                .labelNo(label3.getLabelNo())
-                                .build()
-                ))
-                .placeNos(List.of(location.getLocationNo()))
-                .page(1)
-                .size(3)
-                .build();
-
-        //when
-        List<Item> items = itemRepository.findEquipmentByNameAndLabelAndPlace(search);
-
-        //then
-        Assertions.assertThat(items).hasSize(2)
-                .containsExactly(item2, item1)
-                .doesNotContain(item3);
-    }
-
-    @Test
-    void getEquipmentRowCount() throws Exception {
-        //given
-        User user = createUser("user1", "username1");
-        Location room = createRoom("room");
-        Location location = createPlace(room, "desk");
-        Label label1 = createLabel(user, "label1");
-        Label label2 = createLabel(user, "label2");
-        Label label3 = createLabel(user, "label3");
-
-        Item item1 = getItem(user, location, "item1", ItemType.EQUIPMENT, 1, 2);
-        Item item2 = getItem(user, location, "item2", ItemType.EQUIPMENT, 2, 3);
-        Item item3 = getItem(user, location, "item3", ItemType.EQUIPMENT, 3, 1);
-
-        em.persist(item1);
-        em.persist(item2);
-        em.persist(item3);
-
-        ItemLabel itemLabel1 = createItemLabel(item1, label1);
-        ItemLabel itemLabel2 = createItemLabel(item1, label2);
-        ItemLabel itemLabel6 = createItemLabel(item1, label3);
-        ItemLabel itemLabel3 = createItemLabel(item2, label2);
-        ItemLabel itemLabel4 = createItemLabel(item2, label3);
-        ItemLabel itemLabel5 = createItemLabel(item3, label3);
-
-        EquipmentSearch search = EquipmentSearch.builder()
-                .userNo(user.getUserNo())
-//                .name("item")
-                .labels(List.of(label2, label3))
-                .build();
-
-        //when
-        int rowCount = itemRepository.getEquipmentRowCount(search);
-
-        //then
-        Assertions.assertThat(rowCount).isEqualTo(2);
-    }
-
-    User createUser(String id, String username) {
-        User user = User.builder()
-                .id(id)
-                .password("user1pw")
-                .salt("salt")
-                .username(username)
-                .build();
-        em.persist(user);
-        return user;
-    }
-
-    Location createRoom(String name) {
-        Location room = Location.builder()
-                .type(LocationType.ROOM)
-                .name(name)
-                .build();
-        em.persist(room);
-        return room;
-    }
-
-    Location createPlace(Location room, String name) {
-        Location place = Location.builder()
-                .type(LocationType.PLACE)
-                .room(room)
-                .name(name)
-                .build();
-        em.persist(place);
-        return place;
-    }
-
-    Label createLabel(User user, String name) {
-        Label label = Label.builder()
-                .user(user)
-                .name(name)
-                .build();
-        em.persist(label);
-        return label;
-    }
-
-    Item getItem(User user, Location location, String name, ItemType type, int quantity, int priority) {
-        Item item = Item.builder()
-                .user(user)
-                .name(name)
-                .type(type)
-                .location(location)
-                .locationMemo("under the desk")
-                .quantity(quantity)
-                .priority(priority)
-                .build();
-        return item;
-    }
-
-    ItemLabel createItemLabel(Item item, Label label) {
-        ItemLabel itemLabel = ItemLabel.builder()
-                .item(item)
-                .label(label)
-                .build();
-        em.persist(itemLabel);
-        return itemLabel;
-    }
-
-    ItemQuantityLog createQuantityLog(Item item, QuantityType type, LocalDateTime date) {
-        ItemQuantityLog quantityLog = ItemQuantityLog.builder()
-                .item(item)
-                .type(type)
-                .date(date)
-                .build();
-        em.persist(quantityLog);
-        return quantityLog;
-    }
+	ItemQuantityLog createQuantityLog(Item item, QuantityType type, LocalDateTime date) {
+		ItemQuantityLog quantityLog = ItemQuantityLog.builder()
+			.item(item)
+			.type(type)
+			.date(date)
+			.build();
+		em.persist(quantityLog);
+		return quantityLog;
+	}
 }
