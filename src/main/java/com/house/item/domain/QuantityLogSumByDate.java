@@ -9,5 +9,5 @@ import lombok.ToString;
 @ToString
 public class QuantityLogSumByDate {
 	private int date;
-	private long sum;
+	private int sum;
 }

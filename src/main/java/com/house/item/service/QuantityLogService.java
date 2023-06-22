@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ConsumeItemRQ;
-import com.house.item.domain.PageRS;
 import com.house.item.domain.PurchaseItemRQ;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
@@ -111,32 +111,15 @@ public class QuantityLogService {
 			.type(type)
 			.year(quantityLogsRQ.getYear())
 			.month(quantityLogsRQ.getMonth())
-			.orderBy(quantityLogsRQ.getOrderBy().getColumn())
+			.orderBy(quantityLogsRQ.getOrderBy())
 			.sort(sortMapping.get(quantityLogsRQ.getSort()))
 			.page(quantityLogsRQ.getPage())
 			.size(quantityLogsRQ.getSize())
 			.build();
 	}
 
-	public List<ItemQuantityLog> getItemQuantityLogs(QuantityLogSearch quantityLogSearch) {
+	public Page<ItemQuantityLog> getItemQuantityLogs(QuantityLogSearch quantityLogSearch) {
 		return quantityLogRepository.findByItemNoAndTypeAndYearAndMonth(quantityLogSearch);
-	}
-
-	public PageRS getItemQuantityLogsPage(QuantityLogSearch quantityLogSearch) {
-		int rowCount = Math.toIntExact(quantityLogRepository.getLogsByItemNoRowCount(quantityLogSearch));
-
-		int size = quantityLogSearch.getSize();
-		int totalPage = rowCount / size;
-		if (rowCount % size > 0) {
-			totalPage++;
-		}
-
-		return PageRS.builder()
-			.totalDataCnt(rowCount)
-			.totalPages(totalPage)
-			.requestPage(quantityLogSearch.getPage())
-			.requestSize(size)
-			.build();
 	}
 
 	public QuantityLogSumSearch getQuantityLogSumSearch(QuantityLogSumsRQ quantityLogSumsRQ) {
