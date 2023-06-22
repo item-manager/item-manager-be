@@ -191,7 +191,7 @@ public class ItemController {
 		PageRS consumableItemsPageRS = PageRS.builder()
 			.totalDataCnt((int)consumableItemDTOs.getTotalElements())
 			.totalPages(consumableItemDTOs.getTotalPages())
-			.requestPage(consumableItemDTOs.getPageable().getPageNumber())
+			.requestPage(consumableItemDTOs.getPageable().getPageNumber() + 1)
 			.requestSize(consumableItemDTOs.getPageable().getPageSize())
 			.build();
 
@@ -232,7 +232,7 @@ public class ItemController {
 		PageRS equipmentItemsPageRS = PageRS.builder()
 			.totalDataCnt((int)items.getTotalElements())
 			.totalPages(items.getTotalPages())
-			.requestPage(items.getPageable().getPageNumber())
+			.requestPage(items.getPageable().getPageNumber() + 1)
 			.requestSize(items.getPageable().getPageSize())
 			.build();
 
