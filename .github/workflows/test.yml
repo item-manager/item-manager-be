@@ -9,7 +9,7 @@ on:
       - main
       - 'feature/**'
     paths: 
-      - 'java/**'
+      - '**/java/**'
 
 permissions:
   contents: read
