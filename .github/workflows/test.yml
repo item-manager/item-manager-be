@@ -7,8 +7,7 @@ on:
   pull_request:
     branches: 
       - main
-      - 'v**'
-      - 'feature/**'
+      - feature/service-session
 #     paths: 
 #       - '**/java/**'
 
