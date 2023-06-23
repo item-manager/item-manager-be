@@ -37,7 +37,7 @@ import com.house.item.exception.NotLocationTypePlaceException;
 import com.house.item.exception.ServiceException;
 import com.house.item.exception.UndefinedLocationTypeException;
 import com.house.item.repository.ItemRepository;
-import com.house.item.util.FileUtil;
+import com.house.item.util.FileUtils;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
 
@@ -249,7 +249,7 @@ public class ItemService {
 
 		String photoDir = props.getDir().getFile();
 		if (StringUtils.hasText(item.getPhotoName()) && !item.getPhotoName().equals(updateItemRQ.getPhotoName())) {
-			FileUtil.deleteFile(photoDir, item.getPhotoName());
+			FileUtils.deleteFile(photoDir, item.getPhotoName());
 		}
 
 		item.updateItem(
@@ -284,7 +284,7 @@ public class ItemService {
 
 		String photoDir = props.getDir().getFile();
 		if (StringUtils.hasText(item.getPhotoName())) {
-			FileUtil.deleteFile(photoDir, item.getPhotoName());
+			FileUtils.deleteFile(photoDir, item.getPhotoName());
 		}
 
 		itemRepository.delete(item);

@@ -30,7 +30,7 @@ import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
 import com.house.item.repository.LocationRepository;
 import com.house.item.repository.UserRepository;
-import com.house.item.util.FileUtil;
+import com.house.item.util.FileUtils;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
 
@@ -78,7 +78,7 @@ class ItemServiceTest {
 		Item findItem = em.find(Item.class, itemNo);
 		Assertions.assertThat(findItem.getQuantity()).isZero();
 
-		FileUtil.deleteFile(props.getDir().getFile(), findItem.getPhotoName());
+        FileUtils.deleteFile(props.getDir().getFile(), findItem.getPhotoName());
 	}
 
 	@Test
