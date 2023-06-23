@@ -39,6 +39,7 @@ jobs:
     
     - name: Build with Gradle
       uses: gradle/gradle-build-action@main
+      id: gradle
       with:
         arguments: build
         cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/feature/**' }}
@@ -69,3 +70,4 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           status: ${{ job.status }}
+          description: ${{ steps.gradle.outputs }}
