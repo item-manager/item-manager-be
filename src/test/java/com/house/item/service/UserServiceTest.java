@@ -1,5 +1,15 @@
 package com.house.item.service;
 
+import static org.assertj.core.api.Assertions.*;
+
+import javax.persistence.EntityManager;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.house.item.domain.ChangePasswordRQ;
 import com.house.item.domain.CreateUserRQ;
 import com.house.item.domain.UpdateUserInfoRQ;
@@ -8,18 +18,8 @@ import com.house.item.exception.NonUniqueUserIdException;
 import com.house.item.exception.NonUniqueUsernameException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.EncryptUtils;
+
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Slf4j
 @Transactional
@@ -97,8 +97,8 @@ class UserServiceTest {
 
         //then
         User findUser = userRepository.findOne(createdId).get();
-        Assertions.assertThat(findUser.getUsername()).isEqualTo(updateUserInfoRQ.getUsername());
-        Assertions.assertThat(findUser.getPhotoName()).isEqualTo(updateUserInfoRQ.getPhotoName());
+        assertThat(findUser.getUsername()).isEqualTo(updateUserInfoRQ.getUsername());
+        assertThat(findUser.getPhotoName()).isEqualTo(updateUserInfoRQ.getPhotoName());
     }
 
     @Test
@@ -121,6 +121,7 @@ class UserServiceTest {
 
         //then
         User findUser = userRepository.findOne(createdId).get();
-        Assertions.assertThat(findUser.getPassword()).isEqualTo(EncryptUtils.getEncrypt(changePasswordRQ.getNewPassword(), findUser.getSalt()));
+        assertThat(findUser.getPassword()).isEqualTo(
+            EncryptUtils.getEncrypt(changePasswordRQ.getNewPassword(), findUser.getSalt()));
     }
 }
