@@ -78,7 +78,7 @@ class ItemServiceTest {
 		Item findItem = em.find(Item.class, itemNo);
 		Assertions.assertThat(findItem.getQuantity()).isZero();
 
-        FileUtils.deleteFile(props.getDir().getFile(), findItem.getPhotoName());
+		FileUtils.deleteFile(props.getDir().getFile(), findItem.getPhotoName());
 	}
 
 	@Test
