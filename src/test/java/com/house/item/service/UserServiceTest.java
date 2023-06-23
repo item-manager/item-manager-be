@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import javax.persistence.EntityManager;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,7 +44,6 @@ class UserServiceTest {
 
         //then
         User findUser = userRepository.findOne(createdId).get();
-        assertThat(findUser).isNull();
         assertThat(findUser.getId()).isEqualTo(createUserRQ.getId());
         assertThat(findUser.getPassword())
                 .isEqualTo(EncryptUtils.getEncrypt(createUserRQ.getPassword(), findUser.getSalt()));
@@ -99,8 +97,8 @@ class UserServiceTest {
 
         //then
         User findUser = userRepository.findOne(createdId).get();
-        Assertions.assertThat(findUser.getUsername()).isEqualTo(updateUserInfoRQ.getUsername());
-        Assertions.assertThat(findUser.getPhotoName()).isEqualTo(updateUserInfoRQ.getPhotoName());
+        assertThat(findUser.getUsername()).isEqualTo(updateUserInfoRQ.getUsername());
+        assertThat(findUser.getPhotoName()).isEqualTo(updateUserInfoRQ.getPhotoName());
     }
 
     @Test
@@ -123,6 +121,7 @@ class UserServiceTest {
 
         //then
         User findUser = userRepository.findOne(createdId).get();
-        Assertions.assertThat(findUser.getPassword()).isEqualTo(EncryptUtils.getEncrypt(changePasswordRQ.getNewPassword(), findUser.getSalt()));
+        assertThat(findUser.getPassword()).isEqualTo(
+            EncryptUtils.getEncrypt(changePasswordRQ.getNewPassword(), findUser.getSalt()));
     }
 }
