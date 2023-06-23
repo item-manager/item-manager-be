@@ -71,4 +71,4 @@ jobs:
         uses: sarisia/actions-status-discord@v1.12.0
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          description: ${{ jobs.build-test.result }}
+          status: ${{ needs.build-test.result }}
