@@ -62,6 +62,7 @@ jobs:
     
   ## discord
   action-discord:
+    if: ${{ always() }}
     needs: build
     runs-on: ubuntu-latest
     steps:
