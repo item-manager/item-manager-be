@@ -20,7 +20,7 @@ import com.house.item.exception.NonUniqueUserIdException;
 import com.house.item.exception.NonUniqueUsernameException;
 import com.house.item.repository.UserRepository;
 import com.house.item.util.EncryptUtils;
-import com.house.item.util.FileUtil;
+import com.house.item.util.FileUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,7 +83,7 @@ public class UserService {
     public void updateUserInfo(User loginUser, UpdateUserInfoRQ updateUserInfoRQ) {
         String photoDir = props.getDir().getFile();
         if (StringUtils.hasText(loginUser.getPhotoName()) && !loginUser.getPhotoName().equals(updateUserInfoRQ.getPhotoName())) {
-            FileUtil.deleteFile(photoDir, loginUser.getPhotoName());
+            FileUtils.deleteFile(photoDir, loginUser.getPhotoName());
         }
 
         loginUser.updateUserInfo(updateUserInfoRQ.getUsername(), updateUserInfoRQ.getPhotoName());
