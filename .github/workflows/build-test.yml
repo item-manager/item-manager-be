@@ -6,8 +6,8 @@ on:
       - main
       - 'v**'
       - 'feature/**'
-    paths: 
-      - '**/java/**'
+#     paths: 
+#       - '**/java/**'
 
 permissions:
   contents: read
