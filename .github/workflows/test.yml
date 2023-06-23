@@ -37,28 +37,28 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
     
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@main
-      id: gradle
-      with:
-        arguments: build
-        cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/feature/**' }}
-#     - name: Test with Gradle
+#     - name: Build with Gradle
 #       uses: gradle/gradle-build-action@main
+#       id: gradle
 #       with:
-#         arguments: test
-
+#         arguments: build
+#         cache-read-only: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/feature/**' }}
+    - name: Test with Gradle
+      uses: gradle/gradle-build-action@main
+      with:
+        arguments: test
+        
     - name: 테스트 결과를 PR에 코멘트로 등록합니다
-      uses: EnricoMi/publish-unit-test-result-action@v1
+      uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
         files: '**/build/test-results/test/TEST-*.xml'
 
-    - name: 테스트 실패 시, 실패한 코드 라인에 Check 코멘트를 등록합니다
-      uses: mikepenz/action-junit-report@v3
-      if: always()
-      with:
-        report_paths: '**/build/test-results/test/TEST-*.xml'
+#     - name: 테스트 실패 시, 실패한 코드 라인에 Check 코멘트를 등록합니다
+#       uses: mikepenz/action-junit-report@v3
+#       if: always()
+#       with:
+#         report_paths: '**/build/test-results/test/TEST-*.xml'
     
   ## discord
   action-discord:
