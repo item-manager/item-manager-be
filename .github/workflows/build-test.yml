@@ -10,7 +10,7 @@ on:
       - 'v**'
       - 'feature/**'
     paths:
-      - 'java/**'
+      - '**/java/**'
 
 permissions:
   contents: read
