@@ -1,4 +1,4 @@
-name: Java TEST with Gradle
+name: Build Test
 
 on:
   pull_request:
@@ -36,11 +36,10 @@ jobs:
           ${{ runner.os }}-gradle-
     
     - name: Build with Gradle
-#       uses: gradle/gradle-build-action@v2.4.2
-#       id: gradle
-#       with:
-#         arguments: build
-      run: ./gradlew build
+      uses: gradle/gradle-build-action@v2.4.2
+      id: gradle
+      with:
+        arguments: build
     
   report-result:
     needs: build-test
