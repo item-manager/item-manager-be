@@ -5,12 +5,12 @@ on:
 #     branches:
 #       - 'feature/**'
   pull_request:
-    branches: 
-      - main
-      - 'v**'
-      - 'feature/**'
-    paths: 
-      - '**/java/**'
+#     branches: 
+#       - main
+#       - 'v**'
+#       - 'feature/**'
+#     paths: 
+#       - '**/java/**'
 
 permissions:
   contents: read
