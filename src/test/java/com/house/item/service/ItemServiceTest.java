@@ -1,14 +1,10 @@
 package com.house.item.service;
 
-import com.house.item.common.Props;
-import com.house.item.domain.*;
-import com.house.item.entity.*;
-import com.house.item.repository.LocationRepository;
-import com.house.item.repository.UserRepository;
-import com.house.item.util.FileUtil;
-import com.house.item.util.SessionUtils;
-import com.house.item.web.SessionConst;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +12,28 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.List;
+import com.house.item.common.Props;
+import com.house.item.domain.ConsumableItemDTO;
+import com.house.item.domain.ConsumableItemsOrderByType;
+import com.house.item.domain.ConsumableItemsRQ;
+import com.house.item.domain.ConsumableSearch;
+import com.house.item.domain.CreateItemRQ;
+import com.house.item.domain.SessionUser;
+import com.house.item.domain.UpdateItemRQ;
+import com.house.item.entity.Item;
+import com.house.item.entity.ItemLabel;
+import com.house.item.entity.ItemType;
+import com.house.item.entity.Label;
+import com.house.item.entity.Location;
+import com.house.item.entity.LocationType;
+import com.house.item.entity.User;
+import com.house.item.repository.LocationRepository;
+import com.house.item.repository.UserRepository;
+import com.house.item.util.FileUtils;
+import com.house.item.util.SessionUtils;
+import com.house.item.web.SessionConst;
+
+import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
 @Transactional
@@ -62,7 +77,7 @@ class ItemServiceTest {
         Item findItem = em.find(Item.class, itemNo);
         Assertions.assertThat(findItem.getQuantity()).isZero();
 
-        FileUtil.deleteFile(props.getDir().getFile(), findItem.getPhotoName());
+        FileUtils.deleteFile(props.getDir().getFile(), findItem.getPhotoName());
     }
 
     @Test

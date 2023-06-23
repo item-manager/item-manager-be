@@ -1,13 +1,5 @@
 package com.house.item.util;
 
-import com.house.item.exception.ServiceException;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -16,9 +8,19 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.UUID;
 
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.house.item.exception.ServiceException;
+
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class FileUtil {
+public class FileUtils {
 
     public static String getFullPath(String dir, String fileName) {
         return dir + fileName;

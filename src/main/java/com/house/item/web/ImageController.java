@@ -1,19 +1,26 @@
 package com.house.item.web;
 
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.common.Props;
 import com.house.item.domain.Result;
 import com.house.item.domain.SaveImageRS;
 import com.house.item.exception.NotContentTypeImageException;
 import com.house.item.exception.ServiceException;
-import com.house.item.util.FileUtil;
+import com.house.item.util.FileUtils;
+
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @Slf4j
@@ -30,7 +37,7 @@ public class ImageController {
             throw new NotContentTypeImageException(ExceptionCodeMessage.NOT_CONTENT_TYPE_IMAGE_EXCEPTION.message());
         }
         String dir = props.getDir().getFile();
-        String filename = FileUtil.storeFile(file, dir);
+        String filename = FileUtils.storeFile(file, dir);
 
         SaveImageRS imageRS = SaveImageRS.builder()
                 .filename(filename)
@@ -44,6 +51,6 @@ public class ImageController {
     @GetMapping("/{filename}")
     public Resource loadImage(@PathVariable String filename) throws ServiceException {
         String dir = props.getDir().getFile();
-        return FileUtil.getResource(dir, filename);
+        return FileUtils.getResource(dir, filename);
     }
 }

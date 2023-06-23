@@ -1,24 +1,48 @@
 package com.house.item.service;
 
-import com.house.item.common.ExceptionCodeMessage;
-import com.house.item.common.Props;
-import com.house.item.domain.*;
-import com.house.item.entity.*;
-import com.house.item.exception.*;
-import com.house.item.repository.ItemRepository;
-import com.house.item.util.FileUtil;
-import com.house.item.util.SessionUtils;
-import com.house.item.web.SessionConst;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import com.house.item.common.ExceptionCodeMessage;
+import com.house.item.common.Props;
+import com.house.item.domain.ConsumableItemDTO;
+import com.house.item.domain.ConsumableItemsRQ;
+import com.house.item.domain.ConsumableSearch;
+import com.house.item.domain.CreateItemRQ;
+import com.house.item.domain.EquipmentItemsRQ;
+import com.house.item.domain.EquipmentSearch;
+import com.house.item.domain.ItemRS;
+import com.house.item.domain.ItemTypeRS;
+import com.house.item.domain.LabelRS;
+import com.house.item.domain.Page;
+import com.house.item.domain.SessionUser;
+import com.house.item.domain.UpdateItemRQ;
+import com.house.item.entity.Item;
+import com.house.item.entity.ItemLabel;
+import com.house.item.entity.Label;
+import com.house.item.entity.Location;
+import com.house.item.entity.LocationType;
+import com.house.item.entity.User;
+import com.house.item.exception.NonExistentItemException;
+import com.house.item.exception.NonExistentLocationException;
+import com.house.item.exception.NonExistentPlaceException;
+import com.house.item.exception.NonExistentSessionUserException;
+import com.house.item.exception.NotLocationTypePlaceException;
+import com.house.item.exception.ServiceException;
+import com.house.item.exception.UndefinedLocationTypeException;
+import com.house.item.repository.ItemRepository;
+import com.house.item.util.FileUtils;
+import com.house.item.util.SessionUtils;
+import com.house.item.web.SessionConst;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -265,7 +289,7 @@ public class ItemService {
 
         String photoDir = props.getDir().getFile();
         if (StringUtils.hasText(item.getPhotoName()) && !item.getPhotoName().equals(updateItemRQ.getPhotoName())) {
-            FileUtil.deleteFile(photoDir, item.getPhotoName());
+            FileUtils.deleteFile(photoDir, item.getPhotoName());
         }
 
         item.updateItem(
@@ -300,7 +324,7 @@ public class ItemService {
 
         String photoDir = props.getDir().getFile();
         if (StringUtils.hasText(item.getPhotoName())) {
-            FileUtil.deleteFile(photoDir, item.getPhotoName());
+            FileUtils.deleteFile(photoDir, item.getPhotoName());
         }
 
         itemRepository.delete(item);
