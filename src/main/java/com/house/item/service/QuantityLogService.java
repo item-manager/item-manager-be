@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ConsumeItemRQ;
-import com.house.item.domain.Page;
 import com.house.item.domain.PurchaseItemRQ;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
@@ -43,9 +43,15 @@ public class QuantityLogService {
 
 	public ItemQuantityLog getQuantityLog(Long quantityLogNo) throws NonExistentItemQuantityLogException {
 		SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-		return quantityLogRepository.findByItemQuantityLogNoAndUserNo(quantityLogNo, sessionUser.getUserNo())
+		ItemQuantityLog log = quantityLogRepository.findById(quantityLogNo)
 			.orElseThrow(() -> new NonExistentItemQuantityLogException(
 				ExceptionCodeMessage.NON_EXISTENT_ITEM_QUANTITY_LOG.message()));
+
+		if (log.getItem().getUser().getUserNo().equals(sessionUser.getUserNo())) {
+			return log;
+		}
+		throw new NonExistentItemQuantityLogException(
+			ExceptionCodeMessage.NON_EXISTENT_ITEM_QUANTITY_LOG.message());
 	}
 
 	@Transactional
@@ -105,32 +111,15 @@ public class QuantityLogService {
 			.type(type)
 			.year(quantityLogsRQ.getYear())
 			.month(quantityLogsRQ.getMonth())
-			.orderBy(quantityLogsRQ.getOrderBy().getColumn())
+			.orderBy(quantityLogsRQ.getOrderBy())
 			.sort(sortMapping.get(quantityLogsRQ.getSort()))
 			.page(quantityLogsRQ.getPage())
 			.size(quantityLogsRQ.getSize())
 			.build();
 	}
 
-	public List<ItemQuantityLog> getItemQuantityLogs(QuantityLogSearch quantityLogSearch) {
+	public Page<ItemQuantityLog> getItemQuantityLogs(QuantityLogSearch quantityLogSearch) {
 		return quantityLogRepository.findByItemNoAndTypeAndYearAndMonth(quantityLogSearch);
-	}
-
-	public Page getItemQuantityLogsPage(QuantityLogSearch quantityLogSearch) {
-		int rowCount = Math.toIntExact(quantityLogRepository.getLogsByItemNoRowCount(quantityLogSearch));
-
-		int size = quantityLogSearch.getSize();
-		int totalPage = rowCount / size;
-		if (rowCount % size > 0) {
-			totalPage++;
-		}
-
-		return Page.builder()
-			.totalDataCnt(rowCount)
-			.totalPages(totalPage)
-			.requestPage(quantityLogSearch.getPage())
-			.requestSize(size)
-			.build();
 	}
 
 	public QuantityLogSumSearch getQuantityLogSumSearch(QuantityLogSumsRQ quantityLogSumsRQ) {

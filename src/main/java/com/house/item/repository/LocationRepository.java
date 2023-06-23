@@ -1,22 +1,16 @@
 package com.house.item.repository;
 
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
+import com.house.item.entity.User;
 
-import java.util.List;
-import java.util.Optional;
+public interface LocationRepository extends JpaRepository<Location, Long> {
 
-public interface LocationRepository {
+    List<Location> findByTypeAndUser(LocationType type, User user);
 
-    void save(Location location);
-
-    Optional<Location> findOne(Long locationNo);
-
-    Optional<Location> findByLocationNoAndUserNo(Long locationNo, Long userNo);
-
-    List<Location> findByTypeAndUserNo(LocationType type, Long userNo);
-
-    List<Location> findByRoom(Long roomNo);
-
-    void delete(Location location);
+    List<Location> findByRoom(Location room);
 }

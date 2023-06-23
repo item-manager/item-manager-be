@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ErrorResult;
-import com.house.item.domain.Page;
+import com.house.item.domain.PageRS;
 import com.house.item.domain.QuantityLogRS;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
@@ -58,7 +59,7 @@ public class QuantityLogController {
     @GetMapping
     public ResultList<QuantityLogRS> getQuantityLogs(@Validated @ModelAttribute QuantityLogsRQ quantityLogsRQ) {
         QuantityLogSearch quantityLogSearch = quantityLogService.getQuantityLogSearch(quantityLogsRQ);
-        List<ItemQuantityLog> logs = quantityLogService.getItemQuantityLogs(quantityLogSearch);
+        Page<ItemQuantityLog> logs = quantityLogService.getItemQuantityLogs(quantityLogSearch);
 
         List<QuantityLogRS> quantityLogRSList = new ArrayList<>();
         for (ItemQuantityLog log : logs) {
@@ -67,17 +68,22 @@ public class QuantityLogController {
                     .quantityLogNo(log.getItemQuantityLogNo())
                     .type(QuantityTypeRS.fromType(log.getType()))
                     .date(log.getDate())
-                            .count(log.getCount())
-                            .price(log.getPrice())
-                            .mall(log.getMall())
-                            .build()
+                    .count(log.getCount())
+                    .price(log.getPrice())
+                    .mall(log.getMall())
+                    .build()
             );
         }
 
-        Page quantityLogsPage = quantityLogService.getItemQuantityLogsPage(quantityLogSearch);
+        PageRS quantityLogsPageRS = PageRS.builder()
+            .totalDataCnt((int)logs.getTotalElements())
+            .totalPages(logs.getTotalPages())
+            .requestPage(logs.getPageable().getPageNumber() + 1)
+            .requestSize(logs.getPageable().getPageSize())
+            .build();
 
         return ResultList.<QuantityLogRS>builder()
-            .page(quantityLogsPage)
+            .page(quantityLogsPageRS)
             .data(quantityLogRSList)
             .build();
     }

@@ -1,308 +1,292 @@
 package com.house.item.service;
 
-import com.house.item.common.ExceptionCodeMessage;
-import com.house.item.common.Props;
-import com.house.item.domain.*;
-import com.house.item.entity.*;
-import com.house.item.exception.*;
-import com.house.item.repository.ItemRepository;
-import com.house.item.util.FileUtil;
-import com.house.item.util.SessionUtils;
-import com.house.item.web.SessionConst;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.data.domain.Page;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import com.house.item.common.ExceptionCodeMessage;
+import com.house.item.common.Props;
+import com.house.item.domain.ConsumableItemDTO;
+import com.house.item.domain.ConsumableItemsRQ;
+import com.house.item.domain.ConsumableSearch;
+import com.house.item.domain.CreateItemRQ;
+import com.house.item.domain.EquipmentItemsRQ;
+import com.house.item.domain.EquipmentSearch;
+import com.house.item.domain.ItemRS;
+import com.house.item.domain.ItemTypeRS;
+import com.house.item.domain.LabelRS;
+import com.house.item.domain.SessionUser;
+import com.house.item.domain.UpdateItemRQ;
+import com.house.item.entity.Item;
+import com.house.item.entity.ItemLabel;
+import com.house.item.entity.Label;
+import com.house.item.entity.Location;
+import com.house.item.entity.LocationType;
+import com.house.item.entity.User;
+import com.house.item.exception.NonExistentItemException;
+import com.house.item.exception.NonExistentLocationException;
+import com.house.item.exception.NonExistentPlaceException;
+import com.house.item.exception.NonExistentSessionUserException;
+import com.house.item.exception.NotLocationTypePlaceException;
+import com.house.item.exception.ServiceException;
+import com.house.item.exception.UndefinedLocationTypeException;
+import com.house.item.repository.ItemRepository;
+import com.house.item.util.FileUtil;
+import com.house.item.util.SessionUtils;
+import com.house.item.web.SessionConst;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ItemService {
-    private final Props props;
-    private final ItemRepository itemRepository;
-    private final AuthService authService;
-    private final LocationService locationService;
-    private final LabelService labelService;
+	private final Props props;
+	private final ItemRepository itemRepository;
+	private final AuthService authService;
+	private final LocationService locationService;
+	private final LabelService labelService;
 
-    @Transactional
-    public Long createItem(CreateItemRQ createItemRQ) throws NonExistentSessionUserException, NonExistentPlaceException, ServiceException {
-        User loginUser = authService.getLoginUser();
-        Location location;
-        try {
-            location = locationService.getLocation(createItemRQ.getLocationNo());
-            locationService.checkLocationType(location, LocationType.PLACE);
-        } catch (NonExistentLocationException | NotLocationTypePlaceException e) {
-            throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
-        }
+	@Transactional
+	public Long createItem(CreateItemRQ createItemRQ) throws
+		NonExistentSessionUserException,
+		NonExistentPlaceException,
+		ServiceException {
+		User loginUser = authService.getLoginUser();
+		Location location;
+		try {
+			location = locationService.getLocation(createItemRQ.getLocationNo());
+			locationService.checkLocationType(location, LocationType.PLACE);
+		} catch (NonExistentLocationException | NotLocationTypePlaceException e) {
+			throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
+		}
 
-        Item item = Item.builder()
-                .user(loginUser)
-                .name(createItemRQ.getName())
-                .type(createItemRQ.getType())
-                .location(location)
-                .locationMemo(createItemRQ.getLocationMemo())
-                .photoName(createItemRQ.getPhotoName())
-                .quantity(0)
-                .priority(createItemRQ.getPriority())
-                .build();
+		Item item = Item.builder()
+			.user(loginUser)
+			.name(createItemRQ.getName())
+			.type(createItemRQ.getType())
+			.location(location)
+			.locationMemo(createItemRQ.getLocationMemo())
+			.photoName(createItemRQ.getPhotoName())
+			.quantity(0)
+			.priority(createItemRQ.getPriority())
+			.build();
 
-        List<Long> labels = createItemRQ.getLabels();
-        for (Long labelNo : labels) {
-            Label label = labelService.getLabel(labelNo);
+		List<Long> labels = createItemRQ.getLabels();
+		for (Long labelNo : labels) {
+			Label label = labelService.getLabel(labelNo);
 
-            ItemLabel itemLabel = ItemLabel.builder()
-                    .item(item)
-                    .label(label)
-                    .build();
+			ItemLabel itemLabel = ItemLabel.builder()
+				.item(item)
+				.label(label)
+				.build();
 
-            item.getItemLabels().add(itemLabel);
-        }
+			item.getItemLabels().add(itemLabel);
+		}
 
-        itemRepository.save(item);
-        return item.getItemNo();
-    }
+		itemRepository.save(item);
+		return item.getItemNo();
+	}
 
-    public Item getItem(Long itemNo) throws NonExistentItemException {
-        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        return itemRepository.findByItemNoAndUserNo(itemNo, sessionUser.getUserNo())
-                .orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
-    }
+	public Item getItem(Long itemNo) throws NonExistentItemException {
+		SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+		Item item = itemRepository.findById(itemNo)
+			.orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
 
-    public ItemRS itemToItemRS(Item item) {
-        List<LabelRS> labels = new ArrayList<>();
-        for (ItemLabel itemLabel : item.getItemLabels()) {
-            Label label = itemLabel.getLabel();
-            labels.add(
-                    LabelRS.builder()
-                            .labelNo(label.getLabelNo())
-                            .name(label.getName())
-                            .build()
-            );
-        }
+		if (item.getUser().getUserNo().equals(sessionUser.getUserNo())) {
+			return item;
+		}
+		throw new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message());
+	}
 
-        ItemRS.ItemRSBuilder itemRSBuilder = ItemRS.builder()
-                .itemNo(item.getItemNo())
-                .name(item.getName())
-                .type(ItemTypeRS.fromType(item.getType()).getName())
-                .locationNo(item.getLocation().getLocationNo())
-                .room(item.getLocation().getRoom().getName())
-                .place(item.getLocation().getName())
-                .locationMemo(item.getLocationMemo())
-                .quantity(item.getQuantity())
-                .priority(item.getPriority())
-                .labels(labels);
+	public ItemRS itemToItemRS(Item item) {
+		List<LabelRS> labels = new ArrayList<>();
+		for (ItemLabel itemLabel : item.getItemLabels()) {
+			Label label = itemLabel.getLabel();
+			labels.add(
+				LabelRS.builder()
+					.labelNo(label.getLabelNo())
+					.name(label.getName())
+					.build()
+			);
+		}
 
-        if (StringUtils.hasText(item.getPhotoName())) {
-            itemRSBuilder.photoUrl("/images/" + item.getPhotoName());
-        }
+		ItemRS.ItemRSBuilder itemRSBuilder = ItemRS.builder()
+			.itemNo(item.getItemNo())
+			.name(item.getName())
+			.type(ItemTypeRS.fromType(item.getType()).getName())
+			.locationNo(item.getLocation().getLocationNo())
+			.room(item.getLocation().getRoom().getName())
+			.place(item.getLocation().getName())
+			.locationMemo(item.getLocationMemo())
+			.quantity(item.getQuantity())
+			.priority(item.getPriority())
+			.labels(labels);
 
-        return itemRSBuilder.build();
-    }
+		if (StringUtils.hasText(item.getPhotoName())) {
+			itemRSBuilder.photoUrl("/images/" + item.getPhotoName());
+		}
 
-    public List<Item> getItems() {
-        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        return itemRepository.findAll(sessionUser.getUserNo());
-    }
+		return itemRSBuilder.build();
+	}
 
-    public List<ItemRS> itemsToItemRSList(List<Item> items) {
-        List<ItemRS> itemRSList = new ArrayList<>();
-        for (Item item : items) {
-            itemRSList.add(itemToItemRS(item));
-        }
-        return itemRSList;
-    }
+	public List<Item> getItems() {
+		SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+		return itemRepository.findByUser(sessionUser.toUser());
+	}
 
-    public List<ConsumableItemDTO> getConsumableItems(ConsumableSearch consumableSearch) {
-        List<ConsumableItemDTO> consumableItemDTOS = itemRepository.findConsumableByNameAndLabel(consumableSearch);
+	public List<ItemRS> itemsToItemRSList(List<Item> items) {
+		List<ItemRS> itemRSList = new ArrayList<>();
+		for (Item item : items) {
+			itemRSList.add(itemToItemRS(item));
+		}
+		return itemRSList;
+	}
 
-        for (ConsumableItemDTO consumableItemDTO : consumableItemDTOS) {
-            List<ItemLabel> itemLabels = consumableItemDTO.getItem().getItemLabels();
-            for (ItemLabel itemLabel : itemLabels) {
-                itemLabel.getLabel();
-            }
-        }
+	public Page<ConsumableItemDTO> getConsumableItems(ConsumableSearch consumableSearch) {
+		Page<ConsumableItemDTO> consumableItemDTOS = itemRepository.findConsumableByNameAndLabel(consumableSearch);
 
-        return consumableItemDTOS;
-    }
+		for (ConsumableItemDTO consumableItemDTO : consumableItemDTOS) {
+			List<ItemLabel> itemLabels = consumableItemDTO.getItem().getItemLabels();
+			for (ItemLabel itemLabel : itemLabels) {
+				itemLabel.getLabel();
+			}
+		}
 
-    public ConsumableSearch getConsumableSearch(ConsumableItemsRQ consumableItemsRQ) {
-        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+		return consumableItemDTOS;
+	}
 
-        Map<String, String> sortMapping = new HashMap<>();
-        sortMapping.put("+", "ASC");
-        sortMapping.put("-", "DESC");
+	public ConsumableSearch getConsumableSearch(ConsumableItemsRQ consumableItemsRQ) {
+		SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
 
-        ConsumableSearch.ConsumableSearchBuilder consumableSearchBuilder = ConsumableSearch.builder()
-                .userNo(sessionUser.getUserNo())
-                .sort(sortMapping.get(consumableItemsRQ.getSort()))
-                .page(consumableItemsRQ.getPage())
-                .size(consumableItemsRQ.getSize());
+		Map<String, String> sortMapping = new HashMap<>();
+		sortMapping.put("+", "ASC");
+		sortMapping.put("-", "DESC");
 
-        if (consumableItemsRQ.getOrderBy() != null) {
-            consumableSearchBuilder.orderBy(consumableItemsRQ.getOrderBy().getColumn());
-        }
-        if (StringUtils.hasText(consumableItemsRQ.getName())) {
-            consumableSearchBuilder.name(consumableItemsRQ.getName());
-        }
-        if (consumableItemsRQ.getLabelNos() != null && !consumableItemsRQ.getLabelNos().isEmpty()) {
-            consumableSearchBuilder.labelNos(consumableItemsRQ.getLabelNos());
-        }
+		ConsumableSearch.ConsumableSearchBuilder consumableSearchBuilder = ConsumableSearch.builder()
+			.userNo(sessionUser.getUserNo())
+			.sort(sortMapping.get(consumableItemsRQ.getSort()))
+			.page(consumableItemsRQ.getPage())
+			.size(consumableItemsRQ.getSize());
 
-        return consumableSearchBuilder.build();
-    }
+		if (consumableItemsRQ.getOrderBy() != null) {
+			consumableSearchBuilder.orderBy(consumableItemsRQ.getOrderBy().getColumn());
+		} else {
+			consumableSearchBuilder.orderBy("itemNo");
+		}
+		if (StringUtils.hasText(consumableItemsRQ.getName())) {
+			consumableSearchBuilder.name(consumableItemsRQ.getName());
+		}
+		if (consumableItemsRQ.getLabelNos() != null && !consumableItemsRQ.getLabelNos().isEmpty()) {
+			consumableSearchBuilder.labelNos(consumableItemsRQ.getLabelNos());
+		}
 
-    public Page getConsumableItemsPage(ConsumableSearch consumableSearch) {
-        int rowCount = itemRepository.getConsumableRowCount(consumableSearch);
+		return consumableSearchBuilder.build();
+	}
 
-        int size = consumableSearch.getSize();
-        int totalPage = rowCount / size;
-        if (rowCount % size > 0) {
-            totalPage++;
-        }
+	public Page<Item> getEquipmentItems(EquipmentSearch equipmentSearch) {
+		return itemRepository.findEquipmentByNameAndLabelAndPlace(equipmentSearch);
+	}
 
-        return Page.builder()
-                .totalDataCnt(rowCount)
-                .totalPages(totalPage)
-                .requestPage(consumableSearch.getPage())
-                .requestSize(size)
-                .build();
-    }
+	public EquipmentSearch getEquipmentSearch(EquipmentItemsRQ equipmentItemsRQ) {
+		SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
 
-    public List<Item> getEquipmentItems(EquipmentSearch equipmentSearch) {
-        List<Item> items = itemRepository.findEquipmentByNameAndLabelAndPlace(equipmentSearch);
+		EquipmentSearch.EquipmentSearchBuilder equipmentSearchBuilder = EquipmentSearch.builder()
+			.userNo(sessionUser.getUserNo())
+			.page(equipmentItemsRQ.getPage())
+			.size(equipmentItemsRQ.getSize());
 
-        for (Item item : items) {
-            List<ItemLabel> itemLabels = item.getItemLabels();
-            for (ItemLabel itemLabel : itemLabels) {
-                itemLabel.getLabel();
-            }
-        }
-        return items;
-    }
+		if (StringUtils.hasText(equipmentItemsRQ.getName())) {
+			equipmentSearchBuilder.name(equipmentItemsRQ.getName());
+		}
+		if (equipmentItemsRQ.getLabelNos() != null && !equipmentItemsRQ.getLabelNos().isEmpty()) {
+			equipmentSearchBuilder.labelNos(equipmentItemsRQ.getLabelNos());
+		}
+		if (equipmentItemsRQ.getLocationNo() != null) {
+			List<Long> placeNos = new ArrayList<>();
 
-    public EquipmentSearch getEquipmentSearch(EquipmentItemsRQ equipmentItemsRQ) {
-        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+			Location location = locationService.getLocation(equipmentItemsRQ.getLocationNo());
+			if (location.getType() == LocationType.PLACE) {
+				placeNos.add(location.getLocationNo());
+			}
+			if (location.getType() == LocationType.ROOM) {
+				List<Location> places = locationService.getPlacesByRoomNo(location.getLocationNo());
+				for (Location place : places) {
+					placeNos.add(place.getLocationNo());
+				}
+			}
+			equipmentSearchBuilder.placeNos(placeNos);
+		}
 
-        EquipmentSearch.EquipmentSearchBuilder equipmentSearchBuilder = EquipmentSearch.builder()
-                .userNo(sessionUser.getUserNo())
-                .page(equipmentItemsRQ.getPage())
-                .size(equipmentItemsRQ.getSize());
+		return equipmentSearchBuilder.build();
+	}
 
-        if (StringUtils.hasText(equipmentItemsRQ.getName())) {
-            equipmentSearchBuilder.name(equipmentItemsRQ.getName());
-        }
-        if (equipmentItemsRQ.getLabelNos() != null && !equipmentItemsRQ.getLabelNos().isEmpty()) {
-            List<Label> labels = new ArrayList<>();
+	@Transactional
+	public void updateItem(Long itemNo, UpdateItemRQ updateItemRQ) {
+		Item item = getItem(itemNo);
 
-            List<Long> labelNos = equipmentItemsRQ.getLabelNos();
-            Label label;
-            for (Long labelNo : labelNos) {
-                label = labelService.getLabel(labelNo);
-                labels.add(label);
-            }
-            equipmentSearchBuilder.labels(labels);
-        }
-        if (equipmentItemsRQ.getLocationNo() != null) {
-            List<Long> placeNos = new ArrayList<>();
+		Location location;
+		try {
+			location = locationService.getLocation(updateItemRQ.getLocationNo());
+			locationService.checkLocationType(location, LocationType.PLACE);
+		} catch (NonExistentLocationException e) {
+			throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
+		}
 
-            Location location = locationService.getLocation(equipmentItemsRQ.getLocationNo());
-            if (location.getType() == LocationType.PLACE) {
-                placeNos.add(location.getLocationNo());
-            }
-            if (location.getType() == LocationType.ROOM) {
-                List<Location> places = locationService.getPlacesByRoomNo(location.getLocationNo());
-                for (Location place : places) {
-                    placeNos.add(place.getLocationNo());
-                }
-            }
-            equipmentSearchBuilder.placeNos(placeNos);
-        }
+		//유효한 label인지 확인
+		List<Long> labelNos = updateItemRQ.getLabels();
+		for (Long labelNo : labelNos) {
+			labelService.getLabel(labelNo);
+		}
 
-        return equipmentSearchBuilder.build();
-    }
+		String photoDir = props.getDir().getFile();
+		if (StringUtils.hasText(item.getPhotoName()) && !item.getPhotoName().equals(updateItemRQ.getPhotoName())) {
+			FileUtil.deleteFile(photoDir, item.getPhotoName());
+		}
 
-    public Page getEquipmentItemsPage(EquipmentSearch equipmentSearch) {
-        int rowCount = itemRepository.getEquipmentRowCount(equipmentSearch);
+		item.updateItem(
+			updateItemRQ.getName(),
+			updateItemRQ.getType(),
+			location,
+			updateItemRQ.getLocationMemo(),
+			updateItemRQ.getPhotoName(),
+			updateItemRQ.getPriority(),
+			updateItemRQ.getLabels()
+		);
+	}
 
-        int size = equipmentSearch.getSize();
-        int totalPage = rowCount / size;
-        if (rowCount % size > 0) {
-            totalPage++;
-        }
+	public List<Item> getItemsInLocation(Long locationNo) {
+		Location location = locationService.getLocation(locationNo);
 
-        return Page.builder()
-                .totalDataCnt(rowCount)
-                .totalPages(totalPage)
-                .requestPage(equipmentSearch.getPage())
-                .requestSize(size)
-                .build();
-    }
+		List<Item> items = null;
+		if (location.getType() == LocationType.PLACE) {
+			items = itemRepository.findByLocation(location);
+		} else if (location.getType() == LocationType.ROOM) {
+			items = itemRepository.findByRoom(location);
+		} else {
+			throw new UndefinedLocationTypeException(ExceptionCodeMessage.UNDEFINED_LOCATION_TYPE.message());
+		}
 
-    @Transactional
-    public void updateItem(Long itemNo, UpdateItemRQ updateItemRQ) {
-        Item item = getItem(itemNo);
+		return items;
+	}
 
-        Location location;
-        try {
-            location = locationService.getLocation(updateItemRQ.getLocationNo());
-            locationService.checkLocationType(location, LocationType.PLACE);
-        } catch (NonExistentLocationException e) {
-            throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
-        }
+	@Transactional
+	public void deleteItem(Long itemNo) {
+		Item item = getItem(itemNo);
 
-        //유효한 label인지 확인
-        List<Long> labelNos = updateItemRQ.getLabels();
-        for (Long labelNo : labelNos) {
-            labelService.getLabel(labelNo);
-        }
+		String photoDir = props.getDir().getFile();
+		if (StringUtils.hasText(item.getPhotoName())) {
+			FileUtil.deleteFile(photoDir, item.getPhotoName());
+		}
 
-        String photoDir = props.getDir().getFile();
-        if (StringUtils.hasText(item.getPhotoName()) && !item.getPhotoName().equals(updateItemRQ.getPhotoName())) {
-            FileUtil.deleteFile(photoDir, item.getPhotoName());
-        }
-
-        item.updateItem(
-                updateItemRQ.getName(),
-                updateItemRQ.getType(),
-                location,
-                updateItemRQ.getLocationMemo(),
-                updateItemRQ.getPhotoName(),
-                updateItemRQ.getPriority(),
-                updateItemRQ.getLabels()
-        );
-    }
-
-    public List<Item> getItemsInLocation(Long locationNo) {
-        Location location = locationService.getLocation(locationNo);
-
-        List<Item> items = null;
-        if (location.getType() == LocationType.PLACE) {
-            items = itemRepository.findByPlaceNo(locationNo);
-        } else if (location.getType() == LocationType.ROOM) {
-            items = itemRepository.findByRoomNo(locationNo);
-        } else {
-            throw new UndefinedLocationTypeException(ExceptionCodeMessage.UNDEFINED_LOCATION_TYPE.message());
-        }
-
-        return items;
-    }
-
-    @Transactional
-    public void deleteItem(Long itemNo) {
-        Item item = getItem(itemNo);
-
-        String photoDir = props.getDir().getFile();
-        if (StringUtils.hasText(item.getPhotoName())) {
-            FileUtil.deleteFile(photoDir, item.getPhotoName());
-        }
-
-        itemRepository.delete(item);
-    }
+		itemRepository.delete(item);
+	}
 }

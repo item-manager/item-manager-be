@@ -1,5 +1,11 @@
 package com.house.item.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.CreateLabel;
 import com.house.item.domain.LabelRS;
@@ -12,13 +18,9 @@ import com.house.item.exception.NonUniqueLabelNameException;
 import com.house.item.repository.LabelRepository;
 import com.house.item.util.SessionUtils;
 import com.house.item.web.SessionConst;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Slf4j
@@ -44,22 +46,27 @@ public class LabelService {
     }
 
     private void validateDuplicationLabelName(String name) throws NonUniqueLabelNameException {
-        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        labelRepository.findByNameAndUserNo(name, sessionUser.getUserNo())
-                .ifPresent(l -> {
-                    throw new NonUniqueLabelNameException(ExceptionCodeMessage.NON_UNIQUE_LABEL_NAME.message());
-                });
+        SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        List<Label> labels = labelRepository.findByNameAndUser(name, sessionUser.toUser());
+        if (!labels.isEmpty()) {
+            throw new NonUniqueLabelNameException(ExceptionCodeMessage.NON_UNIQUE_LABEL_NAME.message());
+        }
     }
 
     public Label getLabel(Long labelNo) throws NonExistentLabelException {
-        SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        return labelRepository.findByLabelNoAndUserNo(labelNo, sessionUser.getUserNo())
-                .orElseThrow(() -> new NonExistentLabelException(ExceptionCodeMessage.NON_EXISTENT_LABEL.message()));
+        SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+        Label label = labelRepository.findById(labelNo)
+            .orElseThrow(() -> new NonExistentLabelException(ExceptionCodeMessage.NON_EXISTENT_LABEL.message()));
+
+        if (label.getUser().getUserNo().equals(sessionUser.getUserNo())) {
+            return label;
+        }
+        throw new NonExistentLabelException(ExceptionCodeMessage.NON_EXISTENT_LABEL.message());
     }
 
     public List<Label> getLabels() {
         SessionUser sessionUser = (SessionUser) SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-        return labelRepository.findByUserNo(sessionUser.getUserNo());
+        return labelRepository.findByUser(sessionUser.toUser());
     }
 
     public List<LabelRS> labelToLabelRS(List<Label> labels) {
@@ -75,8 +82,8 @@ public class LabelService {
 
     @Transactional
     public void deleteLabel(Long labelNo) throws NonExistentLabelException {
-        getLabel(labelNo);
-        labelRepository.deleteByLabelNo(labelNo);
+        Label label = getLabel(labelNo);
+        labelRepository.delete(label);
     }
 
     @Transactional
