@@ -1,9 +1,6 @@
 name: Java TEST with Gradle
 
 on:
-#   push:
-#     branches:
-#       - 'feature/**'
   pull_request:
     branches:
       - main
@@ -56,9 +53,14 @@ jobs:
       if: always()
       with:
         report_paths: '**/build/test-results/test/TEST-*.xml'
-    
-    - name: Discord notification
-      uses: sarisia/actions-status-discord@v1.12.0
-      if: always()
-      with:
-        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+
+  discord-message:
+    if: ${{ always() }}
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discord notification
+        uses: sarisia/actions-status-discord@v1.12.0
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ steps.gradle.outcome }}
