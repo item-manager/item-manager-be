@@ -71,4 +71,5 @@ jobs:
         uses: sarisia/actions-status-discord@v1.12.0
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          status: ${{ jobs.build-test.steps.gradle.outcome }}
+          status: ${{ jobs.build-test.result }}
+
