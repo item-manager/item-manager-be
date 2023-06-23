@@ -40,7 +40,7 @@ jobs:
           ${{ runner.os }}-gradle-
     
     - name: Build with Gradle
-      uses: gradle/gradle-build-action@v2
+      uses: gradle/gradle-build-action@v2.4.2
       id: gradle
       with:
         arguments: build
@@ -57,8 +57,18 @@ jobs:
       with:
         report_paths: '**/build/test-results/test/TEST-*.xml'
     
-    - name: Discord notification
-      uses: sarisia/actions-status-discord@v1.12.0
-      if: always()
-      with:
-        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+#     - name: Discord notification
+#       uses: sarisia/actions-status-discord@v1.12.0
+#       if: always()
+#       with:
+#         webhook: ${{ secrets.DISCORD_WEBHOOK }}
+  discord-message:
+    if: ${{ always() }}
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discord notification
+        uses: sarisia/actions-status-discord@v1.12.0
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ jobs.build-test.steps.gradle.outcome }}
