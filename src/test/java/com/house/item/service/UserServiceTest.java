@@ -42,8 +42,10 @@ class UserServiceTest {
         //when
         Long createdId = userService.signUp(createUserRQ);
 
+
         //then
         User findUser = userRepository.findOne(createdId).get();
+        assertThat(findUser).isNull();
         assertThat(findUser.getId()).isEqualTo(createUserRQ.getId());
         assertThat(findUser.getPassword())
                 .isEqualTo(EncryptUtils.getEncrypt(createUserRQ.getPassword(), findUser.getSalt()));
