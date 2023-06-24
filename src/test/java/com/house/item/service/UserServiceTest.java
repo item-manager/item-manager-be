@@ -45,7 +45,6 @@ class UserServiceTest {
 
         //then
         User findUser = userRepository.findOne(createdId).get();
-        // assertThat(findUser).isEqualTo(0);
         assertThat(findUser.getId()).isEqualTo(createUserRQ.getId());
         assertThat(findUser.getPassword())
                 .isEqualTo(EncryptUtils.getEncrypt(createUserRQ.getPassword(), findUser.getSalt()));
