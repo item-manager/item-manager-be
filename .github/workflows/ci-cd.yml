@@ -25,12 +25,16 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         
-    ## create application-prod.yml
-    - name: make application-prod.yml
+    ## create application.yml
+    - name: make application.yml
       run: |
           cd ./src/main/resources
           touch ./application-prod.yml
           echo "${{ secrets.YAML_PROD }}" > ./application-prod.yml
+          cd ../../..
+          cd ./src/test/resources
+          touch ./application.yml
+          echo "${{ secrets.YAML_TEST }}" > ./application.yml
 
     ## gradle build        
     - name: Build with Gradle
@@ -40,22 +44,23 @@ jobs:
 #       run: ./gradlew build
         
     # docker build & push to production
-#     - name: Set up Docker Buildx
-#       uses: docker/setup-buildx-action@v2
-#     - name: Login to Docker Hub
-#       uses: docker/login-action@v2
-#       with:
-#         username: ${{ secrets.DOCKER_USERNAME }}
-#         password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Build and push
-      run: |
-            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-            docker build --platform linux/arm64/v8 -t ${{ secrets.DOCKER_REPO }} .
-            docker push ${{ secrets.DOCKER_REPO }}
-#       uses: docker/build-push-action@v3
-#       with:
-#         push: true
-#         tags: ${{ secrets.DOCKER_REPO }}:latest
+#       run: |
+#             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+#             docker build --platform linux/arm64/v8 -t ${{ secrets.DOCKER_REPO }} .
+#             docker push ${{ secrets.DOCKER_REPO }}
+      uses: docker/build-push-action@v3
+      with:
+        push: true
+        tags: ${{ secrets.DOCKER_REPO }}:latest
+        platforms: linux/arm64/v8
         
     ## deploy to production
     - name: Deploy to prod
@@ -68,8 +73,8 @@ jobs:
         script: |
             sudo docker stop item-manager-be
             sudo docker rm item-manager-be
-            sudo docker pull ${{ secrets.DOCKER_REPO }}
-            sudo docker run -d -t \
+            sudo docker run -d \
+            --pull=always \
             --add-host=host.docker.internal:host-gateway \
             -v /home/${{ secrets.SERVER_USERNAME }}/app/item/log:/var/log \
             -v /home/${{ secrets.SERVER_USERNAME }}/app/item/image:/image \
@@ -78,14 +83,13 @@ jobs:
             ${{ secrets.DOCKER_REPO }}
             
   ## discord
-  action-discord:
+  report-result:
     needs: CI-CD
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Discord notification
         uses: sarisia/actions-status-discord@v1.12.0
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          status: ${{ job.status }}
-        if: always()
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ needs.CI-CD.result }}
