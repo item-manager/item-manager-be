@@ -45,6 +45,7 @@ class UserServiceTest {
 
         //then
         User findUser = userRepository.findOne(createdId).get();
+        assertThat(findUser).isNull();
         assertThat(findUser.getId()).isEqualTo(createUserRQ.getId());
         assertThat(findUser.getPassword())
                 .isEqualTo(EncryptUtils.getEncrypt(createUserRQ.getPassword(), findUser.getSalt()));
@@ -58,7 +59,6 @@ class UserServiceTest {
 
         CreateUserRQ createUserRQ2 = new CreateUserRQ("testUser", "testUser3@", "user2");
 
-        Long createdId = userService.signUp(createUserRQ1);
         //when
         assertThatThrownBy(() -> userService.signUp(createUserRQ2))
                 .isInstanceOf(NonUniqueUserIdException.class);
