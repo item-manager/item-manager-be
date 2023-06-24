@@ -34,6 +34,13 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
+      
+      ## create application.yml
+      - name: make application.yml
+        run: |
+            cd ./src/test/resources
+            touch ./application.yml
+            echo "${{ secrets.YAML_TEST }}" > ./application.yml
 
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v2.4.2
