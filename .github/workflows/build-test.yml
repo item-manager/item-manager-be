@@ -43,6 +43,7 @@ jobs:
     
   report-result:
     needs: build-test
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: 테스트 결과를 PR에 코멘트로 등록합니다
