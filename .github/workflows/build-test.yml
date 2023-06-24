@@ -38,6 +38,8 @@ jobs:
       ## create application-prod.yml
       - name: make application-prod.yml
         run: |
+          cd ./src/main/resources
+          cd ../../..
           cd ./src/test/resources
           touch ./application.yml
           echo "${{ secrets.YAML_TEST }}" > ./application.yml
