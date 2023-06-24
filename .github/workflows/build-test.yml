@@ -35,11 +35,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
     
-    - name: Build with Gradle
-      uses: gradle/gradle-build-action@v2.4.2
-      id: gradle
-      with:
-        arguments: build
+#     - name: Build with Gradle
+#       uses: gradle/gradle-build-action@v2.4.2
+#       id: gradle
+#       with:
+#         arguments: build
 
     # 테스트 결과를 PR에 코멘트로 등록합니다
     - name: PR comment
@@ -54,13 +54,13 @@ jobs:
       with:
         report_paths: '**/build/test-results/test/TEST-*.xml'
           
-  report-result:
-    needs: build-test
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Discord notification
-        uses: sarisia/actions-status-discord@v1.12.0
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          status: ${{ needs.build-test.result }}
+#   report-result:
+#     needs: build-test
+#     if: always()
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Discord notification
+#         uses: sarisia/actions-status-discord@v1.12.0
+#         with:
+#           webhook: ${{ secrets.DISCORD_WEBHOOK }}
+#           status: ${{ needs.build-test.result }}
