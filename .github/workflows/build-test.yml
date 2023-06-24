@@ -40,6 +40,7 @@ jobs:
         run: |
           cd ./src/main/resources
           cd ../../..
+          pwd
           cd ./src/test/resources
           touch ./application.yml
           echo "${{ secrets.YAML_TEST }}" > ./application.yml
