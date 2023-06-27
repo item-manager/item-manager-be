@@ -18,13 +18,11 @@ import com.house.item.domain.CreateLabelRS;
 import com.house.item.domain.ErrorResult;
 import com.house.item.domain.LabelRS;
 import com.house.item.domain.Result;
-import com.house.item.domain.SessionUser;
 import com.house.item.domain.UpdateLabelRQ;
 import com.house.item.entity.Label;
 import com.house.item.entity.User;
 import com.house.item.exception.NonUniqueLabelNameException;
 import com.house.item.service.LabelService;
-import com.house.item.service.UserService;
 import com.house.item.util.SessionUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,7 +39,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/labels")
 public class LabelController {
     private final LabelService labelService;
-    private final UserService userService;
 
     @ApiResponse(
             responseCode = "400",
@@ -55,8 +52,7 @@ public class LabelController {
     @Operation(summary = "라벨 생성")
     @PostMapping
     public Result<CreateLabelRS> createLabel(@RequestBody CreateLabelRQ createLabelRQ) throws NonUniqueLabelNameException {
-        SessionUser sessionUser = SessionUtils.getSessionUser();
-        User user = userService.getUser(sessionUser.getUserNo());
+        User user = SessionUtils.getSessionUser().toUser();
 
         CreateLabel createLabel = CreateLabel.builder()
             .name(createLabelRQ.getName())
@@ -74,8 +70,7 @@ public class LabelController {
     @Operation(summary = "라벨 목록 조회")
     @GetMapping
     public Result<List<LabelRS>> getLabels() {
-        SessionUser sessionUser = SessionUtils.getSessionUser();
-        User user = userService.getUser(sessionUser.getUserNo());
+        User user = SessionUtils.getSessionUser().toUser();
 
         List<Label> labels = labelService.getLabels(user);
 
@@ -98,8 +93,7 @@ public class LabelController {
     @Operation(summary = "라벨 수정")
     @PatchMapping("/{labelNo}")
     public Result<Void> patchLabel(@PathVariable Long labelNo, @RequestBody UpdateLabelRQ updateLabelRQ) {
-        SessionUser sessionUser = SessionUtils.getSessionUser();
-        User user = userService.getUser(sessionUser.getUserNo());
+        User user = SessionUtils.getSessionUser().toUser();
 
         labelService.updateLabel(labelNo, updateLabelRQ, user);
 
@@ -121,8 +115,7 @@ public class LabelController {
     @Operation(summary = "라벨 제거")
     @DeleteMapping("/{labelNo}")
     public Result<Void> deleteLabel(@PathVariable Long labelNo) {
-        SessionUser sessionUser = SessionUtils.getSessionUser();
-        User user = userService.getUser(sessionUser.getUserNo());
+        User user = SessionUtils.getSessionUser().toUser();
 
         labelService.deleteLabel(labelNo, user);
 

@@ -23,7 +23,6 @@ import com.house.item.domain.UserRS;
 import com.house.item.entity.User;
 import com.house.item.exception.NonExistentUserException;
 import com.house.item.exception.NonUniqueUserIdException;
-import com.house.item.service.AuthService;
 import com.house.item.service.UserService;
 import com.house.item.util.SessionUtils;
 
@@ -42,7 +41,6 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 
     private final UserService userService;
-    private final AuthService authService;
 
     @ApiResponse(
             responseCode = "400",
@@ -79,8 +77,7 @@ public class UserController {
     @Operation(summary = "로그인한 회원 정보")
     @GetMapping("/session")
     public Result<UserRS> getUser() {
-        SessionUser sessionUser = SessionUtils.getSessionUser();
-        User user = userService.getUser(sessionUser.getUserNo());
+        User user = SessionUtils.getSessionUser().toUser();
 
         UserRS userRS = userService.userToUserRS(user);
 
@@ -101,8 +98,7 @@ public class UserController {
     @Operation(summary = "회원 정보 수정")
     @PatchMapping
     public Result<Void> updateUserInfo(@RequestBody UpdateUserInfoRQ updateUserInfoRQ) {
-        SessionUser sessionUser = SessionUtils.getSessionUser();
-        User user = userService.getUser(sessionUser.getUserNo());
+        User user = SessionUtils.getSessionUser().toUser();
 
         userService.updateUserInfo(user, updateUserInfoRQ);
 
@@ -125,8 +121,7 @@ public class UserController {
     @Operation(summary = "회원 비밀번호 수정")
     @PatchMapping("/newPassword")
     public Result<Void> changePassword(@Validated @RequestBody ChangePasswordRQ changePasswordRQ) {
-        SessionUser sessionUser = SessionUtils.getSessionUser();
-        User user = userService.getUser(sessionUser.getUserNo());
+        User user = SessionUtils.getSessionUser().toUser();
 
         userService.changePassword(user, changePasswordRQ);
 
