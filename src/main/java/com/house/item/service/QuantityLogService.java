@@ -24,6 +24,7 @@ import com.house.item.domain.SessionUser;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemQuantityLog;
 import com.house.item.entity.QuantityType;
+import com.house.item.entity.User;
 import com.house.item.exception.NonExistentItemQuantityLogException;
 import com.house.item.exception.SubtractCountExceedItemQuantityException;
 import com.house.item.repository.ItemQuantityLogRepository;
@@ -56,7 +57,9 @@ public class QuantityLogService {
 
 	@Transactional
 	public int purchaseItem(Long itemNo, PurchaseItemRQ purchaseItemRQ) {
-		Item item = itemService.getItem(itemNo);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		Item item = itemService.getItem(itemNo, user);
 
 		ItemQuantityLog quantityLog = ItemQuantityLog.builder()
 			.item(item)
@@ -75,7 +78,9 @@ public class QuantityLogService {
 
 	@Transactional
 	public int consumeItem(Long itemNo, ConsumeItemRQ consumeItemRQ) {
-		Item item = itemService.getItem(itemNo);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		Item item = itemService.getItem(itemNo, user);
 		if (item.getQuantity() < consumeItemRQ.getCount()) {
 			throw new SubtractCountExceedItemQuantityException(
 				ExceptionCodeMessage.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION.message());
@@ -95,7 +100,9 @@ public class QuantityLogService {
 	}
 
 	public QuantityLogSearch getQuantityLogSearch(QuantityLogsRQ quantityLogsRQ) {
-		Item item = itemService.getItem(quantityLogsRQ.getItemNo());
+		User user = SessionUtils.getSessionUser().toUser();
+
+		Item item = itemService.getItem(quantityLogsRQ.getItemNo(), user);
 
 		Map<String, String> sortMapping = new HashMap<>();
 		sortMapping.put("+", "ASC");
@@ -123,7 +130,9 @@ public class QuantityLogService {
 	}
 
 	public QuantityLogSumSearch getQuantityLogSumSearch(QuantityLogSumsRQ quantityLogSumsRQ) {
-		Item item = itemService.getItem(quantityLogSumsRQ.getItemNo());
+		User user = SessionUtils.getSessionUser().toUser();
+
+		Item item = itemService.getItem(quantityLogSumsRQ.getItemNo(), user);
 
 		QuantityType type = null;
 		if (quantityLogSumsRQ.getType() != null) {

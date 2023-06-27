@@ -21,7 +21,6 @@ import com.house.item.domain.EquipmentSearch;
 import com.house.item.domain.ItemRS;
 import com.house.item.domain.ItemTypeRS;
 import com.house.item.domain.LabelRS;
-import com.house.item.domain.SessionUser;
 import com.house.item.domain.UpdateItemRQ;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemLabel;
@@ -38,8 +37,6 @@ import com.house.item.exception.ServiceException;
 import com.house.item.exception.UndefinedLocationTypeException;
 import com.house.item.repository.ItemRepository;
 import com.house.item.util.FileUtils;
-import com.house.item.util.SessionUtils;
-import com.house.item.web.SessionConst;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,23 +53,21 @@ public class ItemService {
 	private final LabelService labelService;
 
 	@Transactional
-	public Long createItem(CreateItemRQ createItemRQ) throws
+	public Long createItem(CreateItemRQ createItemRQ, User user) throws
 		NonExistentSessionUserException,
 		NonExistentPlaceException,
 		ServiceException {
 
-		User loginUser = authService.getLoginUser();
-
 		Location location;
 		try {
-			location = locationService.getLocation(createItemRQ.getLocationNo(), loginUser);
+			location = locationService.getLocation(createItemRQ.getLocationNo(), user);
 			locationService.checkLocationType(location, LocationType.PLACE);
 		} catch (NonExistentLocationException | NotLocationTypePlaceException e) {
 			throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
 		}
 
 		Item item = Item.builder()
-			.user(loginUser)
+			.user(user)
 			.name(createItemRQ.getName())
 			.type(createItemRQ.getType())
 			.location(location)
@@ -84,7 +79,7 @@ public class ItemService {
 
 		List<Long> labels = createItemRQ.getLabels();
 		for (Long labelNo : labels) {
-			Label label = labelService.getLabel(labelNo, loginUser);
+			Label label = labelService.getLabel(labelNo, user);
 
 			ItemLabel itemLabel = ItemLabel.builder()
 				.item(item)
@@ -98,12 +93,11 @@ public class ItemService {
 		return item.getItemNo();
 	}
 
-	public Item getItem(Long itemNo) throws NonExistentItemException {
-		SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+	public Item getItem(Long itemNo, User user) throws NonExistentItemException {
 		Item item = itemRepository.findById(itemNo)
 			.orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
 
-		if (item.getUser().getUserNo().equals(sessionUser.getUserNo())) {
+		if (item.getUser().getUserNo().equals(user.getUserNo())) {
 			return item;
 		}
 		throw new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message());
@@ -140,9 +134,8 @@ public class ItemService {
 		return itemRSBuilder.build();
 	}
 
-	public List<Item> getItems() {
-		SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-		return itemRepository.findByUser(sessionUser.toUser());
+	public List<Item> getItems(User user) {
+		return itemRepository.findByUser(user);
 	}
 
 	public List<ItemRS> itemsToItemRSList(List<Item> items) {
@@ -166,15 +159,13 @@ public class ItemService {
 		return consumableItemDTOS;
 	}
 
-	public ConsumableSearch getConsumableSearch(ConsumableItemsRQ consumableItemsRQ) {
-		SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-
+	public ConsumableSearch getConsumableSearch(ConsumableItemsRQ consumableItemsRQ, User user) {
 		Map<String, String> sortMapping = new HashMap<>();
 		sortMapping.put("+", "ASC");
 		sortMapping.put("-", "DESC");
 
 		ConsumableSearch.ConsumableSearchBuilder consumableSearchBuilder = ConsumableSearch.builder()
-			.userNo(sessionUser.getUserNo())
+			.userNo(user.getUserNo())
 			.sort(sortMapping.get(consumableItemsRQ.getSort()))
 			.page(consumableItemsRQ.getPage())
 			.size(consumableItemsRQ.getSize());
@@ -198,11 +189,9 @@ public class ItemService {
 		return itemRepository.findEquipmentByNameAndLabelAndPlace(equipmentSearch);
 	}
 
-	public EquipmentSearch getEquipmentSearch(EquipmentItemsRQ equipmentItemsRQ) {
-		SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
-
+	public EquipmentSearch getEquipmentSearch(EquipmentItemsRQ equipmentItemsRQ, User user) {
 		EquipmentSearch.EquipmentSearchBuilder equipmentSearchBuilder = EquipmentSearch.builder()
-			.userNo(sessionUser.getUserNo())
+			.userNo(user.getUserNo())
 			.page(equipmentItemsRQ.getPage())
 			.size(equipmentItemsRQ.getSize());
 
@@ -215,13 +204,13 @@ public class ItemService {
 		if (equipmentItemsRQ.getLocationNo() != null) {
 			List<Long> placeNos = new ArrayList<>();
 
-			Location location = locationService.getLocation(equipmentItemsRQ.getLocationNo(), sessionUser.toUser());
+			Location location = locationService.getLocation(equipmentItemsRQ.getLocationNo(), user);
 			if (location.getType() == LocationType.PLACE) {
 				placeNos.add(location.getLocationNo());
 			}
 			if (location.getType() == LocationType.ROOM) {
 				List<Location> places = locationService.getPlacesByRoomNo(location.getLocationNo(),
-					sessionUser.toUser());
+					user);
 				for (Location place : places) {
 					placeNos.add(place.getLocationNo());
 				}
@@ -233,10 +222,8 @@ public class ItemService {
 	}
 
 	@Transactional
-	public void updateItem(Long itemNo, UpdateItemRQ updateItemRQ) {
-		User user = SessionUtils.getSessionUser().toUser();
-
-		Item item = getItem(itemNo);
+	public void updateItem(Long itemNo, UpdateItemRQ updateItemRQ, User user) {
+		Item item = getItem(itemNo, user);
 
 		Location location;
 		try {
@@ -268,9 +255,7 @@ public class ItemService {
 		);
 	}
 
-	public List<Item> getItemsInLocation(Long locationNo) {
-		User user = SessionUtils.getSessionUser().toUser();
-
+	public List<Item> getItemsInLocation(Long locationNo, User user) {
 		Location location = locationService.getLocation(locationNo, user);
 
 		List<Item> items = null;
@@ -286,8 +271,8 @@ public class ItemService {
 	}
 
 	@Transactional
-	public void deleteItem(Long itemNo) {
-		Item item = getItem(itemNo);
+	public void deleteItem(Long itemNo, User user) {
+		Item item = getItem(itemNo, user);
 
 		String photoDir = props.getDir().getFile();
 		if (StringUtils.hasText(item.getPhotoName())) {

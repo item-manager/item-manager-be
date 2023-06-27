@@ -19,7 +19,6 @@ import com.house.item.domain.ConsumableItemsOrderByType;
 import com.house.item.domain.ConsumableItemsRQ;
 import com.house.item.domain.ConsumableSearch;
 import com.house.item.domain.CreateItemRQ;
-import com.house.item.domain.SessionUser;
 import com.house.item.domain.UpdateItemRQ;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemLabel;
@@ -29,10 +28,7 @@ import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
 import com.house.item.repository.LocationRepository;
-import com.house.item.repository.UserRepository;
 import com.house.item.util.FileUtils;
-import com.house.item.util.SessionUtils;
-import com.house.item.web.SessionConst;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,8 +42,6 @@ class ItemServiceTest {
 	@Autowired
 	EntityManager em;
 	@Autowired
-	UserRepository userRepository;
-	@Autowired
 	LocationRepository locationRepository;
 	@Autowired
 	Props props;
@@ -55,7 +49,9 @@ class ItemServiceTest {
 	@Test
 	void 물품생성() throws Exception {
 		//given
-		User user = createSessionUser();
+		User user = createUser("id");
+		em.persist(user);
+
 		Location room = createRoom(user, "room");
 		Location location = createPlace(user, room, "place");
 		Label label1 = createLabel(user, "label1");
@@ -72,7 +68,7 @@ class ItemServiceTest {
 		ReflectionTestUtils.setField(createItemRQ, "labels", new ArrayList<>(List.of(label1No, label2No)));
 
 		//when
-		Long itemNo = itemService.createItem(createItemRQ);
+		Long itemNo = itemService.createItem(createItemRQ, user);
 
 		//then
 		Item findItem = em.find(Item.class, itemNo);
@@ -84,14 +80,16 @@ class ItemServiceTest {
 	@Test
 	void 물품_pk로_조회() throws Exception {
 		//given
-		User user = createSessionUser();
+		User user = createUser("id");
+		em.persist(user);
+
 		Location room = createRoom(user, "room");
 		Location location = createPlace(user, room, "place");
 		Item item = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
 		em.persist(item);
 
 		//when
-		Item findItem = itemService.getItem(item.getItemNo());
+		Item findItem = itemService.getItem(item.getItemNo(), user);
 
 		//then
 		Assertions.assertThat(findItem).isSameAs(item);
@@ -100,7 +98,9 @@ class ItemServiceTest {
 	@Test
 	void user_pk로_item_목록조회() throws Exception {
 		//given
-		User user = createSessionUser();
+		User user = createUser("id");
+		em.persist(user);
+
 		Location room = createRoom(user, "room");
 		Location location = createPlace(user, room, "place");
 		Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
@@ -111,7 +111,7 @@ class ItemServiceTest {
 		em.persist(item3);
 
 		//when
-		List<Item> items = itemService.getItems();
+		List<Item> items = itemService.getItems(user);
 
 		//then
 		Assertions.assertThat(items).hasSize(3)
@@ -121,7 +121,9 @@ class ItemServiceTest {
 	@Test
 	void place_pk로_item_목록조회() throws Exception {
 		//given
-		User user = createSessionUser();
+		User user = createUser("id");
+		em.persist(user);
+
 		Location room = createRoom(user, "room");
 		Location place1 = createPlace(user, room, "place1");
 		Location place2 = createPlace(user, room, "place2");
@@ -133,7 +135,7 @@ class ItemServiceTest {
 		em.persist(item3);
 
 		//when
-		List<Item> items = itemService.getItemsInLocation(place1.getLocationNo());
+		List<Item> items = itemService.getItemsInLocation(place1.getLocationNo(), user);
 
 		//then
 		Assertions.assertThat(items)
@@ -144,7 +146,9 @@ class ItemServiceTest {
 	@Test
 	void room_pk로_item_목록조회() throws Exception {
 		//given
-		User user = createSessionUser();
+		User user = createUser("id");
+		em.persist(user);
+
 		Location room1 = createRoom(user, "room1");
 		Location room2 = createRoom(user, "room2");
 		Location place1 = createPlace(user, room1, "place1");
@@ -157,7 +161,7 @@ class ItemServiceTest {
 		em.persist(item3);
 
 		//when
-		List<Item> items = itemService.getItemsInLocation(room1.getLocationNo());
+		List<Item> items = itemService.getItemsInLocation(room1.getLocationNo(), user);
 
 		//then
 		Assertions.assertThat(items)
@@ -168,7 +172,9 @@ class ItemServiceTest {
 	@Test
 	void 소모품_검색() throws Exception {
 		//given
-		User user = createSessionUser();
+		User user = createUser("id");
+		em.persist(user);
+
 		Location room = createRoom(user, "room");
 		Location location = createPlace(user, room, "place");
 		Label label1 = createLabel(user, "label1");
@@ -211,7 +217,7 @@ class ItemServiceTest {
 		//        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item", List.of(label1.getLabelNo(), label2.getLabelNo()), ConsumableItemsOrderByType.PRIORITY, "-", 1, 2);
 		ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item",
 			List.of(label1.getLabelNo(), label2.getLabelNo()), null, null, null, 2);
-		ConsumableSearch consumableSearch = itemService.getConsumableSearch(consumableItemsRQ);
+		ConsumableSearch consumableSearch = itemService.getConsumableSearch(consumableItemsRQ, user);
 
 		//when
 		Page<ConsumableItemDTO> consumableItems = itemService.getConsumableItems(consumableSearch);
@@ -223,14 +229,14 @@ class ItemServiceTest {
 	@Test
 	void 소모품검색조건_생성() throws Exception {
 		//given
-		User user = createSessionUser();
+		User user = createUser("id");
+		em.persist(user);
 
 		ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("name", List.of(1L, 2L),
 			ConsumableItemsOrderByType.LATEST_CONSUME_DATE, "-", null, 5);
 
 		//when
-		ConsumableSearch search = (ConsumableSearch)ReflectionTestUtils.invokeMethod(itemService, "getConsumableSearch",
-			consumableItemsRQ);
+		ConsumableSearch search = itemService.getConsumableSearch(consumableItemsRQ, user);
 
 		//then
 		Assertions.assertThat(search.getUserNo()).isEqualTo(user.getUserNo());
@@ -245,7 +251,9 @@ class ItemServiceTest {
 	@Test
 	void 물품정보수정() throws Exception {
 		//given
-		User user = createSessionUser();
+		User user = createUser("id");
+		em.persist(user);
+
 		Location room = createRoom(user, "room");
 		Location location = createPlace(user, room, "place");
 		Location location2 = createPlace(user, room, "place2");
@@ -278,7 +286,7 @@ class ItemServiceTest {
 		ReflectionTestUtils.setField(updateItemRQ, "labels", List.of(label2.getLabelNo()));
 
 		//when
-		itemService.updateItem(itemNo, updateItemRQ);
+		itemService.updateItem(itemNo, updateItemRQ, user);
 		em.flush();
 		em.clear();
 
@@ -294,26 +302,13 @@ class ItemServiceTest {
 		}
 	}
 
-	User createSessionUser() {
-		User user = User.builder()
-			.id("id")
+	User createUser(String id) {
+		return User.builder()
+			.id(id)
 			.password("pw")
 			.salt("salt")
 			.username("name")
 			.build();
-		userRepository.save(user);
-
-		SessionUser sessionUser = SessionUser.builder()
-			.userNo(user.getUserNo())
-			.username(user.getUsername())
-			.build();
-
-		//        SessionUser sessionUser = SessionUser.builder()
-		//                .userNo(1L)
-		//                .username(user.getUsername())
-		//                .build();
-		SessionUtils.setAttribute(SessionConst.LOGIN_USER, sessionUser);
-		return user;
 	}
 
 	Location createRoom(User user, String name) {
