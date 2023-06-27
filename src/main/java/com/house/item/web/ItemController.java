@@ -292,7 +292,9 @@ public class ItemController {
 	@PostMapping("/{itemNo}/purchase")
 	public Result<PurchaseItemRS> purchaseItem(@PathVariable Long itemNo,
 		@Validated @RequestBody PurchaseItemRQ purchaseItemRQ) {
-		int quantity = quantityLogService.purchaseItem(itemNo, purchaseItemRQ);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		int quantity = quantityLogService.purchaseItem(itemNo, purchaseItemRQ, user);
 
 		PurchaseItemRS purchaseItemRS = PurchaseItemRS.builder()
 			.quantity(quantity)
@@ -316,7 +318,9 @@ public class ItemController {
 	@PostMapping("/{itemNo}/consume")
 	public Result<ConsumeItemRS> consumeItem(@PathVariable Long itemNo,
 		@Validated @RequestBody ConsumeItemRQ consumeItemRQ) {
-		int quantity = quantityLogService.consumeItem(itemNo, consumeItemRQ);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		int quantity = quantityLogService.consumeItem(itemNo, consumeItemRQ, user);
 
 		ConsumeItemRS consumeItemRS = ConsumeItemRS.builder()
 			.quantity(quantity)
