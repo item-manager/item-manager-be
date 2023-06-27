@@ -97,6 +97,8 @@ class LabelServiceTest {
     void sessionUser_라벨목록_조회() throws Exception {
         //given
         User user = createUser("user1");
+        em.persist(user);
+
         Label label1 = getLabel(user, "label1");
         em.persist(label1);
         Label label2 = getLabel(user, "label2");
@@ -113,6 +115,8 @@ class LabelServiceTest {
     void 라벨제거() throws Exception {
         //given
         User user = createUser("user1");
+        em.persist(user);
+
         Label label = getLabel(user, "label");
         em.persist(label);
         Long labelNo = label.getLabelNo();
@@ -129,6 +133,8 @@ class LabelServiceTest {
     void 라벨정보수정() throws Exception {
         //given
         User user = createUser("user1");
+        em.persist(user);
+
         Label label = getLabel(user, "label");
         em.persist(label);
         Long labelNo = label.getLabelNo();

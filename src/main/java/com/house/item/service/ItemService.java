@@ -60,10 +60,12 @@ public class ItemService {
 		NonExistentSessionUserException,
 		NonExistentPlaceException,
 		ServiceException {
+
 		User loginUser = authService.getLoginUser();
+
 		Location location;
 		try {
-			location = locationService.getLocation(createItemRQ.getLocationNo());
+			location = locationService.getLocation(createItemRQ.getLocationNo(), loginUser);
 			locationService.checkLocationType(location, LocationType.PLACE);
 		} catch (NonExistentLocationException | NotLocationTypePlaceException e) {
 			throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
@@ -82,7 +84,7 @@ public class ItemService {
 
 		List<Long> labels = createItemRQ.getLabels();
 		for (Long labelNo : labels) {
-			Label label = labelService.getLabel(labelNo);
+			Label label = labelService.getLabel(labelNo, loginUser);
 
 			ItemLabel itemLabel = ItemLabel.builder()
 				.item(item)
@@ -213,12 +215,13 @@ public class ItemService {
 		if (equipmentItemsRQ.getLocationNo() != null) {
 			List<Long> placeNos = new ArrayList<>();
 
-			Location location = locationService.getLocation(equipmentItemsRQ.getLocationNo());
+			Location location = locationService.getLocation(equipmentItemsRQ.getLocationNo(), sessionUser.toUser());
 			if (location.getType() == LocationType.PLACE) {
 				placeNos.add(location.getLocationNo());
 			}
 			if (location.getType() == LocationType.ROOM) {
-				List<Location> places = locationService.getPlacesByRoomNo(location.getLocationNo());
+				List<Location> places = locationService.getPlacesByRoomNo(location.getLocationNo(),
+					sessionUser.toUser());
 				for (Location place : places) {
 					placeNos.add(place.getLocationNo());
 				}
@@ -231,11 +234,13 @@ public class ItemService {
 
 	@Transactional
 	public void updateItem(Long itemNo, UpdateItemRQ updateItemRQ) {
+		User user = SessionUtils.getSessionUser().toUser();
+
 		Item item = getItem(itemNo);
 
 		Location location;
 		try {
-			location = locationService.getLocation(updateItemRQ.getLocationNo());
+			location = locationService.getLocation(updateItemRQ.getLocationNo(), user);
 			locationService.checkLocationType(location, LocationType.PLACE);
 		} catch (NonExistentLocationException e) {
 			throw new NonExistentPlaceException(ExceptionCodeMessage.NON_EXISTENT_PLACE.message());
@@ -244,7 +249,7 @@ public class ItemService {
 		//유효한 label인지 확인
 		List<Long> labelNos = updateItemRQ.getLabels();
 		for (Long labelNo : labelNos) {
-			labelService.getLabel(labelNo);
+			labelService.getLabel(labelNo, user);
 		}
 
 		String photoDir = props.getDir().getFile();
@@ -264,7 +269,9 @@ public class ItemService {
 	}
 
 	public List<Item> getItemsInLocation(Long locationNo) {
-		Location location = locationService.getLocation(locationNo);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		Location location = locationService.getLocation(locationNo, user);
 
 		List<Item> items = null;
 		if (location.getType() == LocationType.PLACE) {
