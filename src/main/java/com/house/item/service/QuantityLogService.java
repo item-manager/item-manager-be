@@ -20,15 +20,13 @@ import com.house.item.domain.QuantityLogSumDto;
 import com.house.item.domain.QuantityLogSumSearch;
 import com.house.item.domain.QuantityLogSumsRQ;
 import com.house.item.domain.QuantityLogsRQ;
-import com.house.item.domain.SessionUser;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemQuantityLog;
 import com.house.item.entity.QuantityType;
+import com.house.item.entity.User;
 import com.house.item.exception.NonExistentItemQuantityLogException;
 import com.house.item.exception.SubtractCountExceedItemQuantityException;
 import com.house.item.repository.ItemQuantityLogRepository;
-import com.house.item.util.SessionUtils;
-import com.house.item.web.SessionConst;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,13 +39,12 @@ public class QuantityLogService {
 	private final ItemQuantityLogRepository quantityLogRepository;
 	private final ItemService itemService;
 
-	public ItemQuantityLog getQuantityLog(Long quantityLogNo) throws NonExistentItemQuantityLogException {
-		SessionUser sessionUser = (SessionUser)SessionUtils.getAttribute(SessionConst.LOGIN_USER);
+	public ItemQuantityLog getQuantityLog(Long quantityLogNo, User user) throws NonExistentItemQuantityLogException {
 		ItemQuantityLog log = quantityLogRepository.findById(quantityLogNo)
 			.orElseThrow(() -> new NonExistentItemQuantityLogException(
 				ExceptionCodeMessage.NON_EXISTENT_ITEM_QUANTITY_LOG.message()));
 
-		if (log.getItem().getUser().getUserNo().equals(sessionUser.getUserNo())) {
+		if (log.getItem().getUser().getUserNo().equals(user.getUserNo())) {
 			return log;
 		}
 		throw new NonExistentItemQuantityLogException(
@@ -55,8 +52,8 @@ public class QuantityLogService {
 	}
 
 	@Transactional
-	public int purchaseItem(Long itemNo, PurchaseItemRQ purchaseItemRQ) {
-		Item item = itemService.getItem(itemNo);
+	public int purchaseItem(Long itemNo, PurchaseItemRQ purchaseItemRQ, User user) {
+		Item item = itemService.getItem(itemNo, user);
 
 		ItemQuantityLog quantityLog = ItemQuantityLog.builder()
 			.item(item)
@@ -74,8 +71,8 @@ public class QuantityLogService {
 	}
 
 	@Transactional
-	public int consumeItem(Long itemNo, ConsumeItemRQ consumeItemRQ) {
-		Item item = itemService.getItem(itemNo);
+	public int consumeItem(Long itemNo, ConsumeItemRQ consumeItemRQ, User user) {
+		Item item = itemService.getItem(itemNo, user);
 		if (item.getQuantity() < consumeItemRQ.getCount()) {
 			throw new SubtractCountExceedItemQuantityException(
 				ExceptionCodeMessage.SUBTRACT_COUNT_EXCEEDED_ITEM_QUANTITY_EXCEPTION.message());
@@ -94,8 +91,8 @@ public class QuantityLogService {
 		return item.getQuantity();
 	}
 
-	public QuantityLogSearch getQuantityLogSearch(QuantityLogsRQ quantityLogsRQ) {
-		Item item = itemService.getItem(quantityLogsRQ.getItemNo());
+	public QuantityLogSearch getQuantityLogSearch(QuantityLogsRQ quantityLogsRQ, User user) {
+		Item item = itemService.getItem(quantityLogsRQ.getItemNo(), user);
 
 		Map<String, String> sortMapping = new HashMap<>();
 		sortMapping.put("+", "ASC");
@@ -122,8 +119,8 @@ public class QuantityLogService {
 		return quantityLogRepository.findByItemNoAndTypeAndYearAndMonth(quantityLogSearch);
 	}
 
-	public QuantityLogSumSearch getQuantityLogSumSearch(QuantityLogSumsRQ quantityLogSumsRQ) {
-		Item item = itemService.getItem(quantityLogSumsRQ.getItemNo());
+	public QuantityLogSumSearch getQuantityLogSumSearch(QuantityLogSumsRQ quantityLogSumsRQ, User user) {
+		Item item = itemService.getItem(quantityLogSumsRQ.getItemNo(), user);
 
 		QuantityType type = null;
 		if (quantityLogSumsRQ.getType() != null) {
@@ -229,10 +226,10 @@ public class QuantityLogService {
 	}
 
 	@Transactional
-	public void deleteQuantityLog(Long quantityLogNo) throws
+	public void deleteQuantityLog(Long quantityLogNo, User user) throws
 		NonExistentItemQuantityLogException,
 		SubtractCountExceedItemQuantityException {
-		ItemQuantityLog quantityLog = getQuantityLog(quantityLogNo);
+		ItemQuantityLog quantityLog = getQuantityLog(quantityLogNo, user);
 
 		Item item = quantityLog.getItem();
 		if (quantityLog.getType() == QuantityType.PURCHASE) {

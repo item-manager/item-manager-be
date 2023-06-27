@@ -41,6 +41,7 @@ import com.house.item.domain.UpdateItemRQ;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemLabel;
 import com.house.item.entity.Label;
+import com.house.item.entity.User;
 import com.house.item.exception.NonExistentItemException;
 import com.house.item.exception.NonExistentLocationException;
 import com.house.item.exception.NonExistentPlaceException;
@@ -50,6 +51,7 @@ import com.house.item.exception.UndefinedLocationTypeException;
 import com.house.item.service.ItemService;
 import com.house.item.service.LabelService;
 import com.house.item.service.QuantityLogService;
+import com.house.item.util.SessionUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -72,7 +74,9 @@ public class ItemController {
 	@Operation(summary = "물품 목록 조회")
 	@GetMapping
 	public Result<List<ItemRS>> getItems() {
-		List<Item> items = itemService.getItems();
+		User user = SessionUtils.getSessionUser().toUser();
+
+		List<Item> items = itemService.getItems(user);
 		List<ItemRS> itemRSList = itemService.itemsToItemRSList(items);
 
 		return Result.<List<ItemRS>>builder()
@@ -95,7 +99,9 @@ public class ItemController {
 		NonExistentSessionUserException,
 		NonExistentPlaceException,
 		ServiceException {
-		Long itemNo = itemService.createItem(createItemRQ);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		Long itemNo = itemService.createItem(createItemRQ, user);
 
 		CreateItemRS createItemRS = CreateItemRS.builder()
 			.itemNo(itemNo)
@@ -117,7 +123,9 @@ public class ItemController {
 	@Operation(summary = "물품 pk로 조회")
 	@GetMapping("/{itemNo}")
 	public Result<ItemRS> getItem(@PathVariable Long itemNo) throws NonExistentItemException {
-		Item item = itemService.getItem(itemNo);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		Item item = itemService.getItem(itemNo, user);
 		ItemRS itemRS = itemService.itemToItemRS(item);
 
 		return Result.<ItemRS>builder()
@@ -141,7 +149,9 @@ public class ItemController {
 		@Validated @ModelAttribute ItemsInLocationRQ itemsInLocationRQ) throws
 		NonExistentLocationException,
 		UndefinedLocationTypeException {
-		List<Item> items = itemService.getItemsInLocation(itemsInLocationRQ.getLocationNo());
+		User user = SessionUtils.getSessionUser().toUser();
+
+		List<Item> items = itemService.getItemsInLocation(itemsInLocationRQ.getLocationNo(), user);
 
 		List<ItemNameRS> itemNameRSList = new ArrayList<>();
 		for (Item item : items) {
@@ -161,7 +171,9 @@ public class ItemController {
 	@GetMapping("/consumables")
 	public ResultList<ConsumableItemRS> getConsumableItems(
 		@Validated @ModelAttribute ConsumableItemsRQ consumableItemsRQ) {
-		ConsumableSearch consumableSearch = itemService.getConsumableSearch(consumableItemsRQ);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		ConsumableSearch consumableSearch = itemService.getConsumableSearch(consumableItemsRQ, user);
 		Page<ConsumableItemDTO> consumableItemDTOs = itemService.getConsumableItems(consumableSearch);
 
 		List<ConsumableItemRS> consumableItemRSList = new ArrayList<>();
@@ -204,7 +216,9 @@ public class ItemController {
 	@Operation(summary = "비품 목록 조회")
 	@GetMapping("/equipments")
 	public ResultList<EquipmentItemRS> getEquipmentItems(@Validated @ModelAttribute EquipmentItemsRQ equipmentItemsRQ) {
-		EquipmentSearch equipmentSearch = itemService.getEquipmentSearch(equipmentItemsRQ);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		EquipmentSearch equipmentSearch = itemService.getEquipmentSearch(equipmentItemsRQ, user);
 		Page<Item> items = itemService.getEquipmentItems(equipmentSearch);
 
 		List<EquipmentItemRS> equipmentItemRSList = new ArrayList<>();
@@ -255,7 +269,9 @@ public class ItemController {
 	@Operation(summary = "물품 정보 수정")
 	@PatchMapping(value = "/{itemNo}")
 	public Result<Void> updateItem(@PathVariable Long itemNo, @Validated @RequestBody UpdateItemRQ updateItemRQ) {
-		itemService.updateItem(itemNo, updateItemRQ);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		itemService.updateItem(itemNo, updateItemRQ, user);
 
 		return Result.<Void>builder()
 			.code(200)
@@ -276,7 +292,9 @@ public class ItemController {
 	@PostMapping("/{itemNo}/purchase")
 	public Result<PurchaseItemRS> purchaseItem(@PathVariable Long itemNo,
 		@Validated @RequestBody PurchaseItemRQ purchaseItemRQ) {
-		int quantity = quantityLogService.purchaseItem(itemNo, purchaseItemRQ);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		int quantity = quantityLogService.purchaseItem(itemNo, purchaseItemRQ, user);
 
 		PurchaseItemRS purchaseItemRS = PurchaseItemRS.builder()
 			.quantity(quantity)
@@ -300,7 +318,9 @@ public class ItemController {
 	@PostMapping("/{itemNo}/consume")
 	public Result<ConsumeItemRS> consumeItem(@PathVariable Long itemNo,
 		@Validated @RequestBody ConsumeItemRQ consumeItemRQ) {
-		int quantity = quantityLogService.consumeItem(itemNo, consumeItemRQ);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		int quantity = quantityLogService.consumeItem(itemNo, consumeItemRQ, user);
 
 		ConsumeItemRS consumeItemRS = ConsumeItemRS.builder()
 			.quantity(quantity)
@@ -322,7 +342,9 @@ public class ItemController {
 	@Operation(summary = "물품 제거")
 	@DeleteMapping("/{itemNo}")
 	public Result<Void> deleteItem(@PathVariable Long itemNo) {
-		itemService.deleteItem(itemNo);
+		User user = SessionUtils.getSessionUser().toUser();
+
+		itemService.deleteItem(itemNo, user);
 
 		return Result.<Void>builder()
 			.code(200)

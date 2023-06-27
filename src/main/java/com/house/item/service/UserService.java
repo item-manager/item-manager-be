@@ -67,10 +67,15 @@ public class UserService {
         });
     }
 
+    public User getUser(Long userNo) {
+        return userRepository.findById(userNo)
+            .orElseThrow(() -> new NonExistentUserException(ExceptionCodeMessage.NON_EXISTENT_USER.message()));
+    }
+
     public UserRS userToUserRS(User user) {
         UserRS.UserRSBuilder userRSBuilder = UserRS.builder()
-                .userNo(user.getUserNo())
-                .username(user.getUsername());
+            .userNo(user.getUserNo())
+            .username(user.getUsername());
 
         if (StringUtils.hasText(user.getPhotoName())) {
             userRSBuilder.photoUrl("/images/" + user.getPhotoName());

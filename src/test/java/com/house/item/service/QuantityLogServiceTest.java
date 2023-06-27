@@ -1,12 +1,9 @@
 package com.house.item.service;
 
-import com.house.item.domain.ConsumeItemRQ;
-import com.house.item.domain.PurchaseItemRQ;
-import com.house.item.domain.SessionUser;
-import com.house.item.entity.*;
-import com.house.item.exception.SubtractCountExceedItemQuantityException;
-import com.house.item.util.SessionUtils;
-import com.house.item.web.SessionConst;
+import java.time.LocalDateTime;
+
+import javax.persistence.EntityManager;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +11,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import java.time.LocalDateTime;
+import com.house.item.domain.ConsumeItemRQ;
+import com.house.item.domain.PurchaseItemRQ;
+import com.house.item.entity.Item;
+import com.house.item.entity.ItemQuantityLog;
+import com.house.item.entity.ItemType;
+import com.house.item.entity.Location;
+import com.house.item.entity.QuantityType;
+import com.house.item.entity.User;
+import com.house.item.exception.SubtractCountExceedItemQuantityException;
 
 @SpringBootTest
 @Transactional
@@ -28,7 +32,9 @@ class QuantityLogServiceTest {
     @Test
     void 물품_구매() throws Exception {
         //given
-        User user = createSessionUser();
+        User user = createUser("id");
+        em.persist(user);
+
         Item item = createItem(user, 0);
         Long itemNo = item.getItemNo();
 
@@ -39,7 +45,7 @@ class QuantityLogServiceTest {
         ReflectionTestUtils.setField(purchaseItemRQ, "count", 10);
 
         //when
-        int resultQuantity = quantityLogService.purchaseItem(itemNo, purchaseItemRQ);
+        int resultQuantity = quantityLogService.purchaseItem(itemNo, purchaseItemRQ, user);
 
         //then
         Item findItem = em.find(Item.class, itemNo);
@@ -49,7 +55,9 @@ class QuantityLogServiceTest {
     @Test
     void 물품_사용() throws Exception {
         //given
-        User user = createSessionUser();
+        User user = createUser("id");
+        em.persist(user);
+
         Item item = createItem(user, 10);
         Long itemNo = item.getItemNo();
 
@@ -58,7 +66,7 @@ class QuantityLogServiceTest {
         ReflectionTestUtils.setField(consumeItemRQ, "count", 10);
 
         //when
-        int resultQuantity = quantityLogService.consumeItem(itemNo, consumeItemRQ);
+        int resultQuantity = quantityLogService.consumeItem(itemNo, consumeItemRQ, user);
 
         //then
         Item findItem = em.find(Item.class, itemNo);
@@ -68,7 +76,9 @@ class QuantityLogServiceTest {
     @Test
     void 사용_수량이_물품_수량을_초과() throws Exception {
         //given
-        User user = createSessionUser();
+        User user = createUser("id");
+        em.persist(user);
+
         Item item = createItem(user, 1);
         Long itemNo = item.getItemNo();
 
@@ -77,34 +87,25 @@ class QuantityLogServiceTest {
         ReflectionTestUtils.setField(consumeItemRQ, "count", 10);
 
         //when
-        Assertions.assertThatThrownBy(() -> quantityLogService.consumeItem(itemNo, consumeItemRQ))
-                .isInstanceOf(SubtractCountExceedItemQuantityException.class);
+        Assertions.assertThatThrownBy(() -> quantityLogService.consumeItem(itemNo, consumeItemRQ, user))
+            .isInstanceOf(SubtractCountExceedItemQuantityException.class);
 
         //then
     }
 
-    User createSessionUser() {
-        User user = User.builder()
-                .id("id")
-                .password("pw")
-                .salt("salt")
-                .username("name")
-                .build();
-        em.persist(user);
-
-        SessionUser sessionUser = SessionUser.builder()
-                .userNo(user.getUserNo())
-                .username(user.getUsername())
-                .build();
-
-        SessionUtils.setAttribute(SessionConst.LOGIN_USER, sessionUser);
-        return user;
+    User createUser(String id) {
+        return User.builder()
+            .id(id)
+            .password("pw")
+            .salt("salt")
+            .username("name")
+            .build();
     }
 
     Location createLocation(User user) {
         Location room = Location.builder()
-                .user(user)
-                .name("room")
+            .user(user)
+            .name("room")
                 .build();
         em.persist(room);
 
