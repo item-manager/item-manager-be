@@ -4,8 +4,9 @@ on:
   push:
     branches: 
       - main
-    paths:
-      - '!.github/**'
+    paths-ignore:
+      - '.git**'
+      - '**.md'
 
 permissions:
   contents: read
