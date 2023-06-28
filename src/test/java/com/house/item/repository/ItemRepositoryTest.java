@@ -433,6 +433,9 @@ class ItemRepositoryTest {
 			em.persist(quantityLog14);
 			em.persist(quantityLog15);
 
+			em.flush();
+			em.clear();
+
 			ConsumableSearch search = ConsumableSearch.builder()
 				.userNo(user.getUserNo())
 				.name("no")
@@ -534,6 +537,9 @@ class ItemRepositoryTest {
 			em.persist(quantityLog13);
 			em.persist(quantityLog14);
 			em.persist(quantityLog15);
+
+			em.flush();
+			em.clear();
 
 			ConsumableSearch search = ConsumableSearch.builder()
 				.userNo(user.getUserNo())
