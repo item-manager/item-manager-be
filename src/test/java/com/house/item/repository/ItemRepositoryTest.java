@@ -446,11 +446,15 @@ class ItemRepositoryTest {
 			Page<ConsumableItemDTO> consumables = itemRepository.findConsumableByNameAndLabel(search);
 
 			//then
+			ItemQuantityLog findLog5 = em.find(ItemQuantityLog.class, quantityLog5.getItemQuantityLogNo());
+			ItemQuantityLog findLog7 = em.find(ItemQuantityLog.class, quantityLog7.getItemQuantityLogNo());
+			ItemQuantityLog findLog12 = em.find(ItemQuantityLog.class, quantityLog12.getItemQuantityLogNo());
+			ItemQuantityLog findLog13 = em.find(ItemQuantityLog.class, quantityLog13.getItemQuantityLogNo());
 			assertThat(consumables).hasSize(2)
 				.extracting("item.name", "latestPurchase", "latestConsume")
 				.containsExactly(
-					Tuple.tuple("item_no4", quantityLog7.getDate(), quantityLog13.getDate()),
-					Tuple.tuple("item_no3", quantityLog5.getDate(), quantityLog12.getDate())
+					Tuple.tuple("item_no4", findLog7.getDate(), findLog13.getDate()),
+					Tuple.tuple("item_no3", findLog5.getDate(), findLog12.getDate())
 				);
 		}
 
@@ -544,11 +548,15 @@ class ItemRepositoryTest {
 			Page<ConsumableItemDTO> consumables = itemRepository.findConsumableByNameAndLabel(search);
 
 			//then
+			ItemQuantityLog findLog4 = em.find(ItemQuantityLog.class, quantityLog4.getItemQuantityLogNo());
+			ItemQuantityLog findLog7 = em.find(ItemQuantityLog.class, quantityLog7.getItemQuantityLogNo());
+			ItemQuantityLog findLog10 = em.find(ItemQuantityLog.class, quantityLog10.getItemQuantityLogNo());
+			ItemQuantityLog findLog13 = em.find(ItemQuantityLog.class, quantityLog13.getItemQuantityLogNo());
 			assertThat(consumables).hasSize(2)
 				.extracting("item.name", "latestPurchase", "latestConsume")
 				.containsExactly(
-					Tuple.tuple("item_no4", quantityLog7.getDate(), quantityLog13.getDate()),
-					Tuple.tuple("item2", quantityLog4.getDate(), quantityLog10.getDate())
+					Tuple.tuple("item_no4", findLog7.getDate(), findLog13.getDate()),
+					Tuple.tuple("item2", findLog4.getDate(), findLog10.getDate())
 				);
 		}
 	}
