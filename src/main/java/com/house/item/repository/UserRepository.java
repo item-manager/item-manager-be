@@ -1,17 +1,14 @@
 package com.house.item.repository;
 
-import com.house.item.entity.User;
-
 import java.util.Optional;
 
-public interface UserRepository {
-    void save(User user);
+import org.springframework.data.jpa.repository.JpaRepository;
 
-    Optional<User> findOne(Long userNo);
+import com.house.item.entity.User;
+
+public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findById(String id);
 
     Optional<User> findByUsername(String username);
-
-    void delete(User user);
 }

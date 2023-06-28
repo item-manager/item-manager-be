@@ -1,344 +1,358 @@
 package com.house.item.service;
 
-import com.house.item.common.Props;
-import com.house.item.domain.*;
-import com.house.item.entity.*;
-import com.house.item.repository.LocationRepository;
-import com.house.item.repository.UserRepository;
-import com.house.item.util.FileUtil;
-import com.house.item.util.SessionUtils;
-import com.house.item.web.SessionConst;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import java.util.ArrayList;
-import java.util.List;
+import com.house.item.common.Props;
+import com.house.item.domain.ConsumableItemDTO;
+import com.house.item.domain.ConsumableItemsOrderByType;
+import com.house.item.domain.ConsumableItemsRQ;
+import com.house.item.domain.ConsumableSearch;
+import com.house.item.domain.CreateItemRQ;
+import com.house.item.domain.UpdateItemRQ;
+import com.house.item.entity.Item;
+import com.house.item.entity.ItemLabel;
+import com.house.item.entity.ItemType;
+import com.house.item.entity.Label;
+import com.house.item.entity.Location;
+import com.house.item.entity.LocationType;
+import com.house.item.entity.User;
+import com.house.item.repository.LocationRepository;
+import com.house.item.util.FileUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
 @Transactional
 @Slf4j
 class ItemServiceTest {
 
-    @Autowired
-    ItemService itemService;
-    @Autowired
-    EntityManager em;
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    LocationRepository locationRepository;
-    @Autowired
-    Props props;
+	@Autowired
+	ItemService itemService;
+	@Autowired
+	EntityManager em;
+	@Autowired
+	LocationRepository locationRepository;
+	@Autowired
+	Props props;
 
-    @Test
-    void 물품생성() throws Exception {
-        //given
-        User user = createSessionUser();
-        Location room = createRoom(user, "room");
-        Location location = createPlace(user, room, "place");
-        Label label1 = createLabel(user, "label1");
-        Long label1No = label1.getLabelNo();
-        Label label2 = createLabel(user, "label2");
-        Long label2No = label2.getLabelNo();
+	@Test
+	void 물품생성() throws Exception {
+		//given
+		User user = createUser("id");
+		em.persist(user);
 
-        CreateItemRQ createItemRQ = new CreateItemRQ();
-        ReflectionTestUtils.setField(createItemRQ, "name", "item1");
-        ReflectionTestUtils.setField(createItemRQ, "type", ItemType.CONSUMABLE);
-        ReflectionTestUtils.setField(createItemRQ, "locationNo", location.getLocationNo());
-        ReflectionTestUtils.setField(createItemRQ, "locationMemo", "location memo");
-        ReflectionTestUtils.setField(createItemRQ, "priority", 1);
-        ReflectionTestUtils.setField(createItemRQ, "labels", new ArrayList<>(List.of(label1No, label2No)));
+		Location room = createRoom(user, "room");
+		Location location = createPlace(user, room, "place");
+		Label label1 = createLabel(user, "label1");
+		Long label1No = label1.getLabelNo();
+		Label label2 = createLabel(user, "label2");
+		Long label2No = label2.getLabelNo();
 
-        //when
-        Long itemNo = itemService.createItem(createItemRQ);
+		CreateItemRQ createItemRQ = new CreateItemRQ();
+		ReflectionTestUtils.setField(createItemRQ, "name", "item1");
+		ReflectionTestUtils.setField(createItemRQ, "type", ItemType.CONSUMABLE);
+		ReflectionTestUtils.setField(createItemRQ, "locationNo", location.getLocationNo());
+		ReflectionTestUtils.setField(createItemRQ, "locationMemo", "location memo");
+		ReflectionTestUtils.setField(createItemRQ, "priority", 1);
+		ReflectionTestUtils.setField(createItemRQ, "labels", new ArrayList<>(List.of(label1No, label2No)));
 
-        //then
-        Item findItem = em.find(Item.class, itemNo);
-        Assertions.assertThat(findItem.getQuantity()).isZero();
+		//when
+		Long itemNo = itemService.createItem(createItemRQ, user);
 
-        FileUtil.deleteFile(props.getDir().getFile(), findItem.getPhotoName());
-    }
+		//then
+		Item findItem = em.find(Item.class, itemNo);
+		Assertions.assertThat(findItem.getQuantity()).isZero();
 
-    @Test
-    void 물품_pk로_조회() throws Exception {
-        //given
-        User user = createSessionUser();
-        Location room = createRoom(user, "room");
-        Location location = createPlace(user, room, "place");
-        Item item = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
-        em.persist(item);
+		FileUtils.deleteFile(props.getDir().getFile(), findItem.getPhotoName());
+	}
 
-        //when
-        Item findItem = itemService.getItem(item.getItemNo());
+	@Test
+	void 물품_pk로_조회() throws Exception {
+		//given
+		User user = createUser("id");
+		em.persist(user);
 
-        //then
-        Assertions.assertThat(findItem).isSameAs(item);
-    }
+		Location room = createRoom(user, "room");
+		Location location = createPlace(user, room, "place");
+		Item item = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
+		em.persist(item);
 
-    @Test
-    void user_pk로_item_목록조회() throws Exception {
-        //given
-        User user = createSessionUser();
-        Location room = createRoom(user, "room");
-        Location location = createPlace(user, room, "place");
-        Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
-        Item item2 = getItem(user, location, ItemType.CONSUMABLE, "item2", 2, 1);
-        Item item3 = getItem(user, location, ItemType.CONSUMABLE, "item3", 2, 1);
-        em.persist(item1);
-        em.persist(item2);
-        em.persist(item3);
+		//when
+		Item findItem = itemService.getItem(item.getItemNo(), user);
 
-        //when
-        List<Item> items = itemService.getItems();
+		//then
+		Assertions.assertThat(findItem).isSameAs(item);
+	}
 
-        //then
-        Assertions.assertThat(items).hasSize(3)
-                .containsExactly(item1, item2, item3);
-    }
+	@Test
+	void user_pk로_item_목록조회() throws Exception {
+		//given
+		User user = createUser("id");
+		em.persist(user);
 
-    @Test
-    void place_pk로_item_목록조회() throws Exception {
-        //given
-        User user = createSessionUser();
-        Location room = createRoom(user, "room");
-        Location place1 = createPlace(user, room, "place1");
-        Location place2 = createPlace(user, room, "place2");
-        Item item1 = getItem(user, place1, ItemType.CONSUMABLE, "item1", 2, 1);
-        Item item2 = getItem(user, place1, ItemType.CONSUMABLE, "item2", 2, 1);
-        Item item3 = getItem(user, place2, ItemType.CONSUMABLE, "item3", 2, 1);
-        em.persist(item1);
-        em.persist(item2);
-        em.persist(item3);
+		Location room = createRoom(user, "room");
+		Location location = createPlace(user, room, "place");
+		Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
+		Item item2 = getItem(user, location, ItemType.CONSUMABLE, "item2", 2, 1);
+		Item item3 = getItem(user, location, ItemType.CONSUMABLE, "item3", 2, 1);
+		em.persist(item1);
+		em.persist(item2);
+		em.persist(item3);
 
-        //when
-        List<Item> items = itemService.getItemsInLocation(place1.getLocationNo());
+		//when
+		List<Item> items = itemService.getItems(user);
 
-        //then
-        Assertions.assertThat(items)
-                .containsExactly(item1, item2)
-                .doesNotContain(item3);
-    }
+		//then
+		Assertions.assertThat(items).hasSize(3)
+			.containsExactly(item1, item2, item3);
+	}
 
-    @Test
-    void room_pk로_item_목록조회() throws Exception {
-        //given
-        User user = createSessionUser();
-        Location room1 = createRoom(user, "room1");
-        Location room2 = createRoom(user, "room2");
-        Location place1 = createPlace(user, room1, "place1");
-        Location place2 = createPlace(user, room2, "place2");
-        Item item1 = getItem(user, place1, ItemType.CONSUMABLE, "item1", 2, 1);
-        Item item2 = getItem(user, place1, ItemType.CONSUMABLE, "item2", 2, 1);
-        Item item3 = getItem(user, place2, ItemType.CONSUMABLE, "item3", 2, 1);
-        em.persist(item1);
-        em.persist(item2);
-        em.persist(item3);
+	@Test
+	void place_pk로_item_목록조회() throws Exception {
+		//given
+		User user = createUser("id");
+		em.persist(user);
 
-        //when
-        List<Item> items = itemService.getItemsInLocation(room1.getLocationNo());
+		Location room = createRoom(user, "room");
+		Location place1 = createPlace(user, room, "place1");
+		Location place2 = createPlace(user, room, "place2");
+		Item item1 = getItem(user, place1, ItemType.CONSUMABLE, "item1", 2, 1);
+		Item item2 = getItem(user, place1, ItemType.CONSUMABLE, "item2", 2, 1);
+		Item item3 = getItem(user, place2, ItemType.CONSUMABLE, "item3", 2, 1);
+		em.persist(item1);
+		em.persist(item2);
+		em.persist(item3);
 
-        //then
-        Assertions.assertThat(items)
-                .containsExactly(item1, item2)
-                .doesNotContain(item3);
-    }
+		//when
+		List<Item> items = itemService.getItemsInLocation(place1.getLocationNo(), user);
 
-    @Test
-    void 소모품_검색() throws Exception {
-        //given
-        User user = createSessionUser();
-        Location room = createRoom(user, "room");
-        Location location = createPlace(user, room, "place");
-        Label label1 = createLabel(user, "label1");
-        Label label2 = createLabel(user, "label2");
+		//then
+		Assertions.assertThat(items)
+			.containsExactly(item1, item2)
+			.doesNotContain(item3);
+	}
 
-        Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 1, 3);
-        Item item2 = getItem(user, location, ItemType.CONSUMABLE, "item2", 2, 2);
-        Item item3 = getItem(user, location, ItemType.CONSUMABLE, "item3", 3, 1);
-        item1.getItemLabels().add(ItemLabel.builder()
-                .item(item1)
-                .label(Label.builder()
-                        .labelNo(label1.getLabelNo())
-                        .build())
-                .build());
-        item1.getItemLabels().add(ItemLabel.builder()
-                .item(item1)
-                .label(Label.builder()
-                        .labelNo(label2.getLabelNo())
-                        .build())
-                .build());
-        item3.getItemLabels().add(ItemLabel.builder()
-                .item(item3)
-                .label(Label.builder()
-                        .labelNo(label1.getLabelNo())
-                        .build())
-                .build());
-        item3.getItemLabels().add(ItemLabel.builder()
-                .item(item3)
-                .label(Label.builder()
-                        .labelNo(label2.getLabelNo())
-                        .build())
-                .build());
-        em.persist(item1);
-        em.persist(item2);
-        em.persist(item3);
+	@Test
+	void room_pk로_item_목록조회() throws Exception {
+		//given
+		User user = createUser("id");
+		em.persist(user);
 
-        em.flush();
-        em.clear();
+		Location room1 = createRoom(user, "room1");
+		Location room2 = createRoom(user, "room2");
+		Location place1 = createPlace(user, room1, "place1");
+		Location place2 = createPlace(user, room2, "place2");
+		Item item1 = getItem(user, place1, ItemType.CONSUMABLE, "item1", 2, 1);
+		Item item2 = getItem(user, place1, ItemType.CONSUMABLE, "item2", 2, 1);
+		Item item3 = getItem(user, place2, ItemType.CONSUMABLE, "item3", 2, 1);
+		em.persist(item1);
+		em.persist(item2);
+		em.persist(item3);
 
-//        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item", List.of(label1.getLabelNo(), label2.getLabelNo()), ConsumableItemsOrderByType.PRIORITY, "-", 1, 2);
-        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item", List.of(label1.getLabelNo(), label2.getLabelNo()), null, null, null, 2);
-        ConsumableSearch consumableSearch = itemService.getConsumableSearch(consumableItemsRQ);
+		//when
+		List<Item> items = itemService.getItemsInLocation(room1.getLocationNo(), user);
 
-        //when
-        List<ConsumableItemDTO> consumableItems = itemService.getConsumableItems(consumableSearch);
+		//then
+		Assertions.assertThat(items)
+			.containsExactly(item1, item2)
+			.doesNotContain(item3);
+	}
 
-        //then
-        Assertions.assertThat(consumableItems).hasSize(2);
-    }
+	@Test
+	void 소모품_검색() throws Exception {
+		//given
+		User user = createUser("id");
+		em.persist(user);
 
-    @Test
-    void 소모품검색조건_생성() throws Exception {
-        //given
-        User user = createSessionUser();
+		Location room = createRoom(user, "room");
+		Location location = createPlace(user, room, "place");
+		Label label1 = createLabel(user, "label1");
+		Label label2 = createLabel(user, "label2");
 
-        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("name", List.of(1L, 2L), ConsumableItemsOrderByType.LATEST_CONSUME_DATE, "-", null, 5);
+		Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 1, 3);
+		Item item2 = getItem(user, location, ItemType.CONSUMABLE, "item2", 2, 2);
+		Item item3 = getItem(user, location, ItemType.CONSUMABLE, "item3", 3, 1);
+		item1.getItemLabels().add(ItemLabel.builder()
+			.item(item1)
+			.label(Label.builder()
+				.labelNo(label1.getLabelNo())
+				.build())
+			.build());
+		item1.getItemLabels().add(ItemLabel.builder()
+			.item(item1)
+			.label(Label.builder()
+				.labelNo(label2.getLabelNo())
+				.build())
+			.build());
+		item3.getItemLabels().add(ItemLabel.builder()
+			.item(item3)
+			.label(Label.builder()
+				.labelNo(label1.getLabelNo())
+				.build())
+			.build());
+		item3.getItemLabels().add(ItemLabel.builder()
+			.item(item3)
+			.label(Label.builder()
+				.labelNo(label2.getLabelNo())
+				.build())
+			.build());
+		em.persist(item1);
+		em.persist(item2);
+		em.persist(item3);
 
-        //when
-        ConsumableSearch search = (ConsumableSearch) ReflectionTestUtils.invokeMethod(itemService, "getConsumableSearch", consumableItemsRQ);
+		em.flush();
+		em.clear();
 
-        //then
-        Assertions.assertThat(search.getUserNo()).isEqualTo(user.getUserNo());
-        Assertions.assertThat(search.getName()).isEqualTo("name");
-        Assertions.assertThat(search.getLabelNos()).hasSize(2);
-        Assertions.assertThat(search.getOrderBy()).isEqualTo("latestConsume");
-        Assertions.assertThat(search.getSort()).isEqualTo("DESC");
-        Assertions.assertThat(search.getPage()).isEqualTo(1);
-        Assertions.assertThat(search.getSize()).isEqualTo(5);
-    }
+		//        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item", List.of(label1.getLabelNo(), label2.getLabelNo()), ConsumableItemsOrderByType.PRIORITY, "-", 1, 2);
+		ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item",
+			List.of(label1.getLabelNo(), label2.getLabelNo()), null, null, null, 2);
+		ConsumableSearch consumableSearch = itemService.getConsumableSearch(consumableItemsRQ, user);
 
-    @Test
-    void 물품정보수정() throws Exception {
-        //given
-        User user = createSessionUser();
-        Location room = createRoom(user, "room");
-        Location location = createPlace(user, room, "place");
-        Location location2 = createPlace(user, room, "place2");
-        Label label1 = createLabel(user, "label1");
-        Label label2 = createLabel(user, "label2");
-        Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
-        item1.getItemLabels().add(
-                ItemLabel.builder()
-                        .item(item1)
-                        .label(
-                                Label.builder()
-                                        .labelNo(label1.getLabelNo())
-                                        .build()
-                        )
-                        .build()
-        );
-        em.persist(item1);
-        Long itemNo = item1.getItemNo();
+		//when
+		Page<ConsumableItemDTO> consumableItems = itemService.getConsumableItems(consumableSearch);
 
-        em.flush();
-        em.clear();
+		//then
+		Assertions.assertThat(consumableItems).hasSize(2);
+	}
 
-        UpdateItemRQ updateItemRQ = new UpdateItemRQ();
-        ReflectionTestUtils.setField(updateItemRQ, "name", "new item");
-        ReflectionTestUtils.setField(updateItemRQ, "type", ItemType.EQUIPMENT);
-        ReflectionTestUtils.setField(updateItemRQ, "locationNo", location2.getLocationNo());
-        ReflectionTestUtils.setField(updateItemRQ, "locationMemo", "locationMemo");
-        ReflectionTestUtils.setField(updateItemRQ, "photoName", null);
-        ReflectionTestUtils.setField(updateItemRQ, "priority", 3);
-        ReflectionTestUtils.setField(updateItemRQ, "labels", List.of(label2.getLabelNo()));
+	@Test
+	void 소모품검색조건_생성() throws Exception {
+		//given
+		User user = createUser("id");
+		em.persist(user);
 
-        //when
-        itemService.updateItem(itemNo, updateItemRQ);
-        em.flush();
-        em.clear();
+		ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("name", List.of(1L, 2L),
+			ConsumableItemsOrderByType.LATEST_CONSUME_DATE, "-", null, 5);
 
-        //then
-        Item findItem = em.find(Item.class, itemNo);
-        Assertions.assertThat(findItem.getName()).isEqualTo("new item");
-        Assertions.assertThat(findItem.getType()).isEqualTo(ItemType.EQUIPMENT);
-        Assertions.assertThat(findItem.getLocation().getName()).isEqualTo("place2");
-        Assertions.assertThat(findItem.getLocationMemo()).isEqualTo("locationMemo");
-        Assertions.assertThat(findItem.getPriority()).isEqualTo(3);
-        for (ItemLabel itemLabel : findItem.getItemLabels()) {
-            Assertions.assertThat(itemLabel.getLabel().getLabelNo()).isEqualTo(label2.getLabelNo());
-        }
-    }
+		//when
+		ConsumableSearch search = itemService.getConsumableSearch(consumableItemsRQ, user);
 
-    User createSessionUser() {
-        User user = User.builder()
-                .id("id")
-                .password("pw")
-                .salt("salt")
-                .username("name")
-                .build();
-        userRepository.save(user);
+		//then
+		Assertions.assertThat(search.getUserNo()).isEqualTo(user.getUserNo());
+		Assertions.assertThat(search.getName()).isEqualTo("name");
+		Assertions.assertThat(search.getLabelNos()).hasSize(2);
+		Assertions.assertThat(search.getOrderBy()).isEqualTo("latestConsume");
+		Assertions.assertThat(search.getSort()).isEqualTo("DESC");
+		Assertions.assertThat(search.getPage()).isEqualTo(1);
+		Assertions.assertThat(search.getSize()).isEqualTo(5);
+	}
 
-        SessionUser sessionUser = SessionUser.builder()
-                .userNo(user.getUserNo())
-                .username(user.getUsername())
-                .build();
+	@Test
+	void 물품정보수정() throws Exception {
+		//given
+		User user = createUser("id");
+		em.persist(user);
 
-//        SessionUser sessionUser = SessionUser.builder()
-//                .userNo(1L)
-//                .username(user.getUsername())
-//                .build();
-        SessionUtils.setAttribute(SessionConst.LOGIN_USER, sessionUser);
-        return user;
-    }
+		Location room = createRoom(user, "room");
+		Location location = createPlace(user, room, "place");
+		Location location2 = createPlace(user, room, "place2");
+		Label label1 = createLabel(user, "label1");
+		Label label2 = createLabel(user, "label2");
+		Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
+		item1.getItemLabels().add(
+			ItemLabel.builder()
+				.item(item1)
+				.label(
+					Label.builder()
+						.labelNo(label1.getLabelNo())
+						.build()
+				)
+				.build()
+		);
+		em.persist(item1);
+		Long itemNo = item1.getItemNo();
 
-    Location createRoom(User user, String name) {
-        Location room = Location.builder()
-                .user(user)
-                .type(LocationType.ROOM)
-                .name(name)
-                .build();
-        locationRepository.save(room);
+		em.flush();
+		em.clear();
 
-        return room;
-    }
+		UpdateItemRQ updateItemRQ = new UpdateItemRQ();
+		ReflectionTestUtils.setField(updateItemRQ, "name", "new item");
+		ReflectionTestUtils.setField(updateItemRQ, "type", ItemType.EQUIPMENT);
+		ReflectionTestUtils.setField(updateItemRQ, "locationNo", location2.getLocationNo());
+		ReflectionTestUtils.setField(updateItemRQ, "locationMemo", "locationMemo");
+		ReflectionTestUtils.setField(updateItemRQ, "photoName", null);
+		ReflectionTestUtils.setField(updateItemRQ, "priority", 3);
+		ReflectionTestUtils.setField(updateItemRQ, "labels", List.of(label2.getLabelNo()));
 
-    Location createPlace(User user, Location room, String name) {
-        Location place = Location.builder()
-                .user(user)
-                .type(LocationType.PLACE)
-                .room(room)
-                .name(name)
-                .build();
-        locationRepository.save(place);
+		//when
+		itemService.updateItem(itemNo, updateItemRQ, user);
+		em.flush();
+		em.clear();
 
-        return place;
-    }
+		//then
+		Item findItem = em.find(Item.class, itemNo);
+		Assertions.assertThat(findItem.getName()).isEqualTo("new item");
+		Assertions.assertThat(findItem.getType()).isEqualTo(ItemType.EQUIPMENT);
+		Assertions.assertThat(findItem.getLocation().getName()).isEqualTo("place2");
+		Assertions.assertThat(findItem.getLocationMemo()).isEqualTo("locationMemo");
+		Assertions.assertThat(findItem.getPriority()).isEqualTo(3);
+		for (ItemLabel itemLabel : findItem.getItemLabels()) {
+			Assertions.assertThat(itemLabel.getLabel().getLabelNo()).isEqualTo(label2.getLabelNo());
+		}
+	}
 
-    private Label createLabel(User user, String name) {
-        Label label = Label.builder()
-                .user(user)
-                .name(name)
-                .build();
-        em.persist(label);
-        return label;
-    }
+	User createUser(String id) {
+		return User.builder()
+			.id(id)
+			.password("pw")
+			.salt("salt")
+			.username("name")
+			.build();
+	}
 
-    Item getItem(User user, Location location, ItemType type, String name, int quantity, int priority) {
-        return Item.builder()
-                .user(user)
-                .type(type)
-                .name(name)
-                .location(location)
-                .locationMemo("location memo")
-                .quantity(quantity)
-                .priority(priority)
-                .build();
-    }
+	Location createRoom(User user, String name) {
+		Location room = Location.builder()
+			.user(user)
+			.type(LocationType.ROOM)
+			.name(name)
+			.build();
+		locationRepository.save(room);
+
+		return room;
+	}
+
+	Location createPlace(User user, Location room, String name) {
+		Location place = Location.builder()
+			.user(user)
+			.type(LocationType.PLACE)
+			.room(room)
+			.name(name)
+			.build();
+		locationRepository.save(place);
+
+		return place;
+	}
+
+	private Label createLabel(User user, String name) {
+		Label label = Label.builder()
+			.user(user)
+			.name(name)
+			.build();
+		em.persist(label);
+		return label;
+	}
+
+	Item getItem(User user, Location location, ItemType type, String name, int quantity, int priority) {
+		return Item.builder()
+			.user(user)
+			.type(type)
+			.name(name)
+			.location(location)
+			.locationMemo("location memo")
+			.quantity(quantity)
+			.priority(priority)
+			.build();
+	}
 
 }

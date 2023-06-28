@@ -1,10 +1,10 @@
 package com.house.item.domain;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 @Getter
 public class QuantityLogsRQ {
@@ -15,7 +15,7 @@ public class QuantityLogsRQ {
     private Integer year;
     private Integer month;
     @Schema(description = "date(일자), count(수량), price(단위금액), null(일자)")
-    private QuantityLogsOrderByType orderBy;
+    private String orderBy;
     @Schema(description = "+(오름차순), -(내림차순)", defaultValue = "+")
     @Pattern(regexp = "^[+-]?$")
     private String sort;
@@ -24,13 +24,14 @@ public class QuantityLogsRQ {
     @Schema(defaultValue = "10")
     private Integer size;
 
-    public QuantityLogsRQ(Long itemNo, QuantityTypeRQ type, Integer year, Integer month, QuantityLogsOrderByType orderBy, String sort, Integer page, Integer size) {
+    public QuantityLogsRQ(Long itemNo, QuantityTypeRQ type, Integer year, Integer month, String orderBy, String sort,
+        Integer page, Integer size) {
         this.itemNo = itemNo;
         this.type = type;
         this.year = year;
         this.month = month;
         if (orderBy == null) {
-            this.orderBy = QuantityLogsOrderByType.DATE;
+            this.orderBy = "date";
         } else {
             this.orderBy = orderBy;
         }

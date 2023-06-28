@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ErrorResult;
-import com.house.item.domain.Page;
+import com.house.item.domain.PageRS;
 import com.house.item.domain.QuantityLogRS;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
@@ -27,7 +28,9 @@ import com.house.item.domain.Result;
 import com.house.item.domain.ResultList;
 import com.house.item.entity.ItemQuantityLog;
 import com.house.item.entity.QuantityType;
+import com.house.item.entity.User;
 import com.house.item.service.QuantityLogService;
+import com.house.item.util.SessionUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -57,8 +60,10 @@ public class QuantityLogController {
     @Operation(summary = "구매, 사용 기록 목록 조회")
     @GetMapping
     public ResultList<QuantityLogRS> getQuantityLogs(@Validated @ModelAttribute QuantityLogsRQ quantityLogsRQ) {
-        QuantityLogSearch quantityLogSearch = quantityLogService.getQuantityLogSearch(quantityLogsRQ);
-        List<ItemQuantityLog> logs = quantityLogService.getItemQuantityLogs(quantityLogSearch);
+        User user = SessionUtils.getSessionUser().toUser();
+
+        QuantityLogSearch quantityLogSearch = quantityLogService.getQuantityLogSearch(quantityLogsRQ, user);
+        Page<ItemQuantityLog> logs = quantityLogService.getItemQuantityLogs(quantityLogSearch);
 
         List<QuantityLogRS> quantityLogRSList = new ArrayList<>();
         for (ItemQuantityLog log : logs) {
@@ -67,17 +72,22 @@ public class QuantityLogController {
                     .quantityLogNo(log.getItemQuantityLogNo())
                     .type(QuantityTypeRS.fromType(log.getType()))
                     .date(log.getDate())
-                            .count(log.getCount())
-                            .price(log.getPrice())
-                            .mall(log.getMall())
-                            .build()
+                    .count(log.getCount())
+                    .price(log.getPrice())
+                    .mall(log.getMall())
+                    .build()
             );
         }
 
-        Page quantityLogsPage = quantityLogService.getItemQuantityLogsPage(quantityLogSearch);
+        PageRS quantityLogsPageRS = PageRS.builder()
+            .totalDataCnt((int)logs.getTotalElements())
+            .totalPages(logs.getTotalPages())
+            .requestPage(logs.getPageable().getPageNumber() + 1)
+            .requestSize(logs.getPageable().getPageSize())
+            .build();
 
         return ResultList.<QuantityLogRS>builder()
-            .page(quantityLogsPage)
+            .page(quantityLogsPageRS)
             .data(quantityLogRSList)
             .build();
     }
@@ -95,7 +105,9 @@ public class QuantityLogController {
     @GetMapping("/sums")
     public Result<QuantityLogSumsRS> getQuantityLogSums(
         @Validated @ModelAttribute QuantityLogSumsRQ quantityLogSumsRQ) {
-        QuantityLogSumSearch quantityLogSumSearch = quantityLogService.getQuantityLogSumSearch(quantityLogSumsRQ);
+        User user = SessionUtils.getSessionUser().toUser();
+
+        QuantityLogSumSearch quantityLogSumSearch = quantityLogService.getQuantityLogSumSearch(quantityLogSumsRQ, user);
         Map<QuantityType, List<QuantityLogSumByDate>> sums = quantityLogService.getItemQuantityLogSumByDate(
             quantityLogSumSearch);
 
@@ -121,11 +133,13 @@ public class QuantityLogController {
     @Operation(summary = "구매, 사용 기록 제거")
     @DeleteMapping("/{quantityLogNo}")
     public Result<Void> deleteQuantityLog(@PathVariable Long quantityLogNo) {
-        quantityLogService.deleteQuantityLog(quantityLogNo);
+        User user = SessionUtils.getSessionUser().toUser();
+
+        quantityLogService.deleteQuantityLog(quantityLogNo, user);
 
         return Result.<Void>builder()
-                .code(200)
-                .message("ok")
-                .build();
+            .code(200)
+            .message("ok")
+            .build();
     }
 }

@@ -1,14 +1,9 @@
 package com.house.item.service;
 
-import com.house.item.domain.CreateLabel;
-import com.house.item.domain.SessionUser;
-import com.house.item.domain.UpdateLabelRQ;
-import com.house.item.entity.*;
-import com.house.item.exception.NonExistentLabelException;
-import com.house.item.exception.NonUniqueLabelNameException;
-import com.house.item.util.SessionUtils;
-import com.house.item.web.SessionConst;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +11,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import java.util.List;
+import com.house.item.domain.CreateLabel;
+import com.house.item.domain.UpdateLabelRQ;
+import com.house.item.entity.Item;
+import com.house.item.entity.ItemType;
+import com.house.item.entity.Label;
+import com.house.item.entity.Location;
+import com.house.item.entity.User;
+import com.house.item.exception.NonExistentLabelException;
+import com.house.item.exception.NonUniqueLabelNameException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @SpringBootTest
 @Transactional
@@ -32,13 +36,14 @@ class LabelServiceTest {
     @Test
     void 라벨생성() throws Exception {
         //given
-        User user = createSessionUser();
+        User user = createUser("user1");
+        em.persist(user);
         CreateLabel createLabel = CreateLabel.builder()
-                .name("label")
-                .build();
+            .name("label")
+            .build();
 
         //when
-        Long labelNo = labelService.createLabel(createLabel);
+        Long labelNo = labelService.createLabel(createLabel, user);
 
         //then
         Label findLabel = em.find(Label.class, labelNo);
@@ -49,27 +54,29 @@ class LabelServiceTest {
     @Test
     void 이미_존재하는_라벨이름으로_생성() throws Exception {
         //given
-        User user = createSessionUser();
+        User user = createUser("user1");
+        em.persist(user);
         Label label = getLabel(user, "label");
         em.persist(label);
         CreateLabel createLabel = CreateLabel.builder()
-                .name("label")
-                .build();
+            .name("label")
+            .build();
 
         //when
-        Assertions.assertThatThrownBy(() -> labelService.createLabel(createLabel))
-                .isInstanceOf(NonUniqueLabelNameException.class);
+        Assertions.assertThatThrownBy(() -> labelService.createLabel(createLabel, user))
+            .isInstanceOf(NonUniqueLabelNameException.class);
     }
 
     @Test
     void 라벨_pk로_조회() throws Exception {
         //given
-        User user = createSessionUser();
+        User user = createUser("user1");
+        em.persist(user);
         Label label = getLabel(user, "label");
         em.persist(label);
 
         //when
-        Label findLabel = labelService.getLabel(label.getLabelNo());
+        Label findLabel = labelService.getLabel(label.getLabelNo(), user);
 
         //then
         Assertions.assertThat(findLabel).isSameAs(label);
@@ -78,45 +85,27 @@ class LabelServiceTest {
     @Test
     void 존재하지_않는_라벨조회() throws Exception {
         //given
-        User user = createSessionUser();
-
-        //when
-        Assertions.assertThatThrownBy(() -> labelService.getLabel(0L))
-                .isInstanceOf(NonExistentLabelException.class);
-    }
-
-    @Test
-    void 다른_user_라벨조회() throws Exception {
-        //given
-        User user = User.builder()
-                .id("id1")
-                .password("pw")
-                .salt("salt")
-                .username("name1")
-                .build();
+        User user = createUser("user1");
         em.persist(user);
-        Label label = getLabel(user, "label");
-        em.persist(label);
-        Long labelNo = label.getLabelNo();
-
-        User anotherUser = createSessionUser();
 
         //when
-        Assertions.assertThatThrownBy(() -> labelService.getLabel(labelNo))
-                .isInstanceOf(NonExistentLabelException.class);
+        Assertions.assertThatThrownBy(() -> labelService.getLabel(0L, user))
+            .isInstanceOf(NonExistentLabelException.class);
     }
 
     @Test
     void sessionUser_라벨목록_조회() throws Exception {
         //given
-        User user = createSessionUser();
+        User user = createUser("user1");
+        em.persist(user);
+
         Label label1 = getLabel(user, "label1");
         em.persist(label1);
         Label label2 = getLabel(user, "label2");
         em.persist(label2);
 
         //when
-        List<Label> labels = labelService.getLabels();
+        List<Label> labels = labelService.getLabels(user);
 
         //then
         Assertions.assertThat(labels).containsExactly(label1, label2);
@@ -125,13 +114,15 @@ class LabelServiceTest {
     @Test
     void 라벨제거() throws Exception {
         //given
-        User user = createSessionUser();
+        User user = createUser("user1");
+        em.persist(user);
+
         Label label = getLabel(user, "label");
         em.persist(label);
         Long labelNo = label.getLabelNo();
 
         //when
-        labelService.deleteLabel(labelNo);
+        labelService.deleteLabel(labelNo, user);
 
         //then
         Label findLabel = em.find(Label.class, labelNo);
@@ -141,7 +132,9 @@ class LabelServiceTest {
     @Test
     void 라벨정보수정() throws Exception {
         //given
-        User user = createSessionUser();
+        User user = createUser("user1");
+        em.persist(user);
+
         Label label = getLabel(user, "label");
         em.persist(label);
         Long labelNo = label.getLabelNo();
@@ -150,7 +143,7 @@ class LabelServiceTest {
         ReflectionTestUtils.setField(updateLabelRQ, "name", "new name");
 
         //when
-        labelService.updateLabel(labelNo, updateLabelRQ);
+        labelService.updateLabel(labelNo, updateLabelRQ, user);
         em.flush();
         em.clear();
 
@@ -159,28 +152,19 @@ class LabelServiceTest {
         Assertions.assertThat(findLabel.getName()).isEqualTo("new name");
     }
 
-    User createSessionUser() {
-        User user = User.builder()
-                .id("id")
-                .password("pw")
-                .salt("salt")
-                .username("name")
-                .build();
-        em.persist(user);
-
-        SessionUser sessionUser = SessionUser.builder()
-                .userNo(user.getUserNo())
-                .username(user.getUsername())
-                .build();
-
-        SessionUtils.setAttribute(SessionConst.LOGIN_USER, sessionUser);
-        return user;
+    User createUser(String id) {
+        return User.builder()
+            .id(id)
+            .password("pw")
+            .salt("salt")
+            .username("name")
+            .build();
     }
 
     Location createLocation(User user) {
         Location room = Location.builder()
-                .user(user)
-                .name("room")
+            .user(user)
+            .name("room")
                 .build();
         em.persist(room);
 
