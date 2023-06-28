@@ -38,7 +38,7 @@ out/
 
 ### dev ###
 **/src/main/**/dev/
-schema_v.sql
+*.sql
 
 ## application.yml ##
 **/src/main/resources/application-*
