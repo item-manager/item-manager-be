@@ -77,7 +77,8 @@ public class UserController {
     @Operation(summary = "로그인한 회원 정보")
     @GetMapping("/session")
     public Result<UserRS> getUser() {
-        User user = SessionUtils.getSessionUser().toUser();
+        SessionUser sessionUser = SessionUtils.getSessionUser();
+        User user = userService.getUser(sessionUser.getUserNo());
 
         UserRS userRS = userService.userToUserRS(user);
 
@@ -98,7 +99,8 @@ public class UserController {
     @Operation(summary = "회원 정보 수정")
     @PatchMapping
     public Result<Void> updateUserInfo(@RequestBody UpdateUserInfoRQ updateUserInfoRQ) {
-        User user = SessionUtils.getSessionUser().toUser();
+        SessionUser sessionUser = SessionUtils.getSessionUser();
+        User user = userService.getUser(sessionUser.getUserNo());
 
         userService.updateUserInfo(user, updateUserInfoRQ);
 
@@ -121,7 +123,8 @@ public class UserController {
     @Operation(summary = "회원 비밀번호 수정")
     @PatchMapping("/newPassword")
     public Result<Void> changePassword(@Validated @RequestBody ChangePasswordRQ changePasswordRQ) {
-        User user = SessionUtils.getSessionUser().toUser();
+        SessionUser sessionUser = SessionUtils.getSessionUser();
+        User user = userService.getUser(sessionUser.getUserNo());
 
         userService.changePassword(user, changePasswordRQ);
 
