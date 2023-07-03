@@ -13,4 +13,6 @@ public interface ItemRepository extends JpaRepository<Item, Long>, ItemRepositor
     List<Item> findByUser(User user);
 
     List<Item> findByLocation(Location location);
+
+    List<Item> findByLocationIn(List<Location> locations);
 }

@@ -106,6 +106,35 @@ class ItemRepositoryTest {
 			);
 	}
 
+	@DisplayName("Location List로 Item 목록 조회")
+	@Test
+	void findByLocationIn() throws Exception {
+		//given
+		Location location1 = createRoom("location1");
+		Location location2 = createPlace(null, "location2");
+		Location location3 = createPlace(null, "location3");
+		em.persist(location1);
+		em.persist(location2);
+		em.persist(location3);
+
+		Item item1 = getItem(null, location1, "item1", CONSUMABLE, 1, 1);
+		Item item2 = getItem(null, location2, "item2", EQUIPMENT, 1, 1);
+		Item item3 = getItem(null, location2, "item3", EQUIPMENT, 1, 1);
+		Item item4 = getItem(null, location3, "item4", EQUIPMENT, 1, 1);
+		List<Item> items = List.of(item1, item2, item3, item4);
+		itemRepository.saveAll(items);
+
+		List<Location> searchLocations = List.of(location1, location3);
+
+		//when
+		List<Item> findItems = itemRepository.findByLocationIn(searchLocations);
+
+		//then
+		assertThat(findItems).hasSize(2)
+			.extracting("name")
+			.containsExactlyInAnyOrder("item1", "item4");
+	}
+
 	@DisplayName("(Location)Item.location.room으로 Item 목록 조회")
 	@Test
 	void findByRoom() throws Exception {

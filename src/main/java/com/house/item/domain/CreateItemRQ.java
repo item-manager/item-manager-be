@@ -1,13 +1,16 @@
 package com.house.item.domain;
 
-import com.house.item.entity.ItemType;
-import lombok.Getter;
-import org.hibernate.validator.constraints.Range;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
+
+import org.hibernate.validator.constraints.Range;
+
+import com.house.item.entity.ItemType;
+
+import lombok.Getter;
 
 @Getter
 public class CreateItemRQ {
@@ -21,6 +24,5 @@ public class CreateItemRQ {
     private String photoName;
     @Range(min = 0, max = 6)
     private Integer priority = 0;
-    private String memo;
     private List<Long> labels = new ArrayList<>();
 }

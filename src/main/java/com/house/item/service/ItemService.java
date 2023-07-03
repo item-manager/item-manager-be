@@ -16,12 +16,14 @@ import com.house.item.domain.ConsumableItemDTO;
 import com.house.item.domain.ConsumableItemsRQ;
 import com.house.item.domain.ConsumableSearch;
 import com.house.item.domain.CreateItemRQ;
+import com.house.item.domain.CreateItemRQ2;
 import com.house.item.domain.EquipmentItemsRQ;
 import com.house.item.domain.EquipmentSearch;
 import com.house.item.domain.ItemRS;
 import com.house.item.domain.ItemTypeRS;
 import com.house.item.domain.LabelRS;
 import com.house.item.domain.UpdateItemRQ;
+import com.house.item.domain.UpdateItemRQ2;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemLabel;
 import com.house.item.entity.Label;
@@ -72,6 +74,40 @@ public class ItemService {
 			.type(createItemRQ.getType())
 			.location(location)
 			.locationMemo(createItemRQ.getLocationMemo())
+			.photoName(createItemRQ.getPhotoName())
+			.quantity(0)
+			.priority(createItemRQ.getPriority())
+			.build();
+
+		List<Long> labels = createItemRQ.getLabels();
+		for (Long labelNo : labels) {
+			Label label = labelService.getLabel(labelNo, user);
+
+			ItemLabel itemLabel = ItemLabel.builder()
+				.item(item)
+				.label(label)
+				.build();
+
+			item.getItemLabels().add(itemLabel);
+		}
+
+		itemRepository.save(item);
+		return item.getItemNo();
+	}
+
+	@Transactional
+	public Long createItem2(CreateItemRQ2 createItemRQ, User user) throws
+		NonExistentSessionUserException,
+		NonExistentLocationException,
+		ServiceException {
+
+		Location location = locationService.getLocation(createItemRQ.getLocationNo(), user);
+
+		Item item = Item.builder()
+			.user(user)
+			.name(createItemRQ.getName())
+			.type(createItemRQ.getType())
+			.location(location)
 			.photoName(createItemRQ.getPhotoName())
 			.quantity(0)
 			.priority(createItemRQ.getPriority())
@@ -136,6 +172,47 @@ public class ItemService {
 		return itemRSBuilder.build();
 	}
 
+	public ItemRS itemToItemRS2(Item item) {
+		List<LabelRS> labels = new ArrayList<>();
+		for (ItemLabel itemLabel : item.getItemLabels()) {
+			Label label = itemLabel.getLabel();
+			labels.add(
+				LabelRS.builder()
+					.labelNo(label.getLabelNo())
+					.name(label.getName())
+					.build()
+			);
+		}
+
+		String roomName;
+		String placeName = null;
+		if (item.getLocation().getType() == LocationType.PLACE) {
+			roomName = item.getLocation().getRoom().getName();
+			placeName = item.getLocation().getName();
+		} else {
+			roomName = item.getLocation().getName();
+		}
+
+		ItemRS.ItemRSBuilder itemRSBuilder = ItemRS.builder()
+			.itemNo(item.getItemNo())
+			.name(item.getName())
+			.type(ItemTypeRS.fromType(item.getType()).getName())
+			.locationNo(item.getLocation().getLocationNo())
+			.room(roomName)
+			.place(placeName)
+			.locationMemo(item.getLocationMemo())
+			.quantity(item.getQuantity())
+			.priority(item.getPriority())
+			.memo(item.getMemo())
+			.labels(labels);
+
+		if (StringUtils.hasText(item.getPhotoName())) {
+			itemRSBuilder.photoUrl("/images/" + item.getPhotoName());
+		}
+
+		return itemRSBuilder.build();
+	}
+
 	public List<Item> getItems(User user) {
 		return itemRepository.findByUser(user);
 	}
@@ -144,6 +221,14 @@ public class ItemService {
 		List<ItemRS> itemRSList = new ArrayList<>();
 		for (Item item : items) {
 			itemRSList.add(itemToItemRS(item));
+		}
+		return itemRSList;
+	}
+
+	public List<ItemRS> itemsToItemRSList2(List<Item> items) {
+		List<ItemRS> itemRSList = new ArrayList<>();
+		for (Item item : items) {
+			itemRSList.add(itemToItemRS2(item));
 		}
 		return itemRSList;
 	}
@@ -251,6 +336,33 @@ public class ItemService {
 			updateItemRQ.getType(),
 			location,
 			updateItemRQ.getLocationMemo(),
+			updateItemRQ.getPhotoName(),
+			updateItemRQ.getPriority(),
+			updateItemRQ.getLabels()
+		);
+	}
+
+	@Transactional
+	public void updateItem2(Long itemNo, UpdateItemRQ2 updateItemRQ, User user) {
+		Item item = getItem(itemNo, user);
+
+		Location location = locationService.getLocation(updateItemRQ.getLocationNo(), user);
+
+		//유효한 label인지 확인
+		List<Long> labelNos = updateItemRQ.getLabels();
+		for (Long labelNo : labelNos) {
+			labelService.getLabel(labelNo, user);
+		}
+
+		String photoDir = props.getDir().getFile();
+		if (StringUtils.hasText(item.getPhotoName()) && !item.getPhotoName().equals(updateItemRQ.getPhotoName())) {
+			FileUtils.deleteFile(photoDir, item.getPhotoName());
+		}
+
+		item.updateItem2(
+			updateItemRQ.getName(),
+			updateItemRQ.getType(),
+			location,
 			updateItemRQ.getPhotoName(),
 			updateItemRQ.getPriority(),
 			updateItemRQ.getMemo(),

@@ -79,11 +79,43 @@ public class Item {
     }
 
     public void updateItem(String name, ItemType type, Location location, String locationMemo, String photoName,
-        int priority, String memo, List<Long> labelNos) {
+        int priority, List<Long> labelNos) {
         this.name = name;
         this.type = type;
         this.location = location;
         this.locationMemo = locationMemo;
+        this.photoName = photoName;
+        this.priority = priority;
+
+        Iterator<ItemLabel> iterator = this.itemLabels.iterator();
+        while (iterator.hasNext()) {
+            Long labelNo = iterator.next().getLabel().getLabelNo();
+            if (labelNos.contains(labelNo)) {
+                labelNos.remove(labelNo);
+            } else {
+                iterator.remove();
+            }
+        }
+
+        for (Long labelNo : labelNos) {
+            this.itemLabels.add(
+                ItemLabel.builder()
+                    .item(this)
+                    .label(
+                        Label.builder()
+                            .labelNo(labelNo)
+                            .build()
+                    )
+                    .build()
+            );
+        }
+    }
+
+    public void updateItem2(String name, ItemType type, Location location, String photoName,
+        int priority, String memo, List<Long> labelNos) {
+        this.name = name;
+        this.type = type;
+        this.location = location;
         this.photoName = photoName;
         this.priority = priority;
         this.memo = memo;

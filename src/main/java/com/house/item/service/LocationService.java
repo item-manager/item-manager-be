@@ -137,7 +137,30 @@ public class LocationService {
         }
 
         if (!items.isEmpty()) {
-            throw new UnableToDeleteLocationInUseException(ExceptionCodeMessage.UNABLE_TO_DELETE_LOCATION_IN_USE_EXCEPTION.message());
+            throw new UnableToDeleteLocationInUseException(
+                ExceptionCodeMessage.UNABLE_TO_DELETE_LOCATION_IN_USE_EXCEPTION.message());
+        }
+
+        locationRepository.delete(location);
+    }
+
+    @Transactional
+    public void deleteLocation2(Long locationNo, User user) {
+        Location location = getLocation(locationNo, user);
+
+        List<Item> items = itemRepository.findByLocation(location);
+        if (location.getType() == LocationType.ROOM) {
+            List<Location> placeList = locationRepository.findByRoom(location);
+            items.addAll(itemRepository.findByLocationIn(placeList));
+        }
+
+        if (items == null) {
+            throw new UndefinedLocationTypeException(ExceptionCodeMessage.UNDEFINED_LOCATION_TYPE.message());
+        }
+
+        if (!items.isEmpty()) {
+            throw new UnableToDeleteLocationInUseException(
+                ExceptionCodeMessage.UNABLE_TO_DELETE_LOCATION_IN_USE_EXCEPTION.message());
         }
 
         locationRepository.delete(location);
