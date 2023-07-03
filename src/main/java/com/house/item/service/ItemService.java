@@ -130,7 +130,7 @@ public class ItemService {
 			.labels(labels);
 
 		if (StringUtils.hasText(item.getPhotoName())) {
-			itemRSBuilder.photoUrl("/images/" + item.getPhotoName());
+			itemRSBuilder.photoUrl(FileUtils.getImageApiUrl(item.getPhotoName()));
 		}
 
 		return itemRSBuilder.build();

@@ -78,7 +78,7 @@ public class UserService {
             .username(user.getUsername());
 
         if (StringUtils.hasText(user.getPhotoName())) {
-            userRSBuilder.photoUrl("/images/" + user.getPhotoName());
+            userRSBuilder.photoUrl(FileUtils.getImageApiUrl(user.getPhotoName()));
         }
 
         return userRSBuilder.build();

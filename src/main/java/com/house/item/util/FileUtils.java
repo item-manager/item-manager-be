@@ -70,6 +70,10 @@ public class FileUtils {
         }
     }
 
+    public static String getImageApiUrl(String filename) {
+        return "/images/" + filename;
+    }
+
     //서버 내부에서 관리하는 별도의 파일명(실제 저장될 파일명)
     private static String createStoreFileName(String originalFileName) {
         String ext = extractExt(originalFileName);
