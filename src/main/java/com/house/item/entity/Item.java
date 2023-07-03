@@ -53,6 +53,8 @@ public class Item {
 
     private int priority;
 
+    private String memo;
+
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemLabel> itemLabels = new ArrayList<>();
 
@@ -61,7 +63,7 @@ public class Item {
 
     @Builder
     private Item(Long itemNo, User user, String name, ItemType type, Location location, String locationMemo,
-        String photoName, int quantity, int priority, List<ItemLabel> itemLabels) {
+        String photoName, int quantity, int priority, String memo, List<ItemLabel> itemLabels) {
         this.itemNo = itemNo;
         this.user = user;
         this.name = name;
@@ -77,13 +79,14 @@ public class Item {
     }
 
     public void updateItem(String name, ItemType type, Location location, String locationMemo, String photoName,
-        int priority, List<Long> labelNos) {
+        int priority, String memo, List<Long> labelNos) {
         this.name = name;
         this.type = type;
         this.location = location;
         this.locationMemo = locationMemo;
         this.photoName = photoName;
         this.priority = priority;
+        this.memo = memo;
 
         Iterator<ItemLabel> iterator = this.itemLabels.iterator();
         while (iterator.hasNext()) {

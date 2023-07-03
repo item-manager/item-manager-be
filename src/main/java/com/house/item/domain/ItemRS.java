@@ -18,5 +18,6 @@ public class ItemRS {
     private String photoUrl;
     private int quantity;
     private int priority;
+    private String memo;
     List<LabelRS> labels;
 }

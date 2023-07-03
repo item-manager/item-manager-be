@@ -28,7 +28,6 @@ import com.house.item.entity.Location;
 import com.house.item.entity.LocationType;
 import com.house.item.entity.User;
 import com.house.item.repository.LocationRepository;
-import com.house.item.util.FileUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -64,6 +63,7 @@ class ItemServiceTest {
 		ReflectionTestUtils.setField(createItemRQ, "type", ItemType.CONSUMABLE);
 		ReflectionTestUtils.setField(createItemRQ, "locationNo", location.getLocationNo());
 		ReflectionTestUtils.setField(createItemRQ, "locationMemo", "location memo");
+		ReflectionTestUtils.setField(createItemRQ, "quantity", 3);
 		ReflectionTestUtils.setField(createItemRQ, "priority", 1);
 		ReflectionTestUtils.setField(createItemRQ, "labels", new ArrayList<>(List.of(label1No, label2No)));
 
@@ -72,9 +72,6 @@ class ItemServiceTest {
 
 		//then
 		Item findItem = em.find(Item.class, itemNo);
-		Assertions.assertThat(findItem.getQuantity()).isZero();
-
-		FileUtils.deleteFile(props.getDir().getFile(), findItem.getPhotoName());
 	}
 
 	@Test

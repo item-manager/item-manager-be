@@ -22,5 +22,6 @@ public class UpdateItemRQ {
     @Builder.Default
     @Range(min = 0, max = 5)
     private Integer priority = 0;
+    private String memo;
     private List<Long> labels;
 }
