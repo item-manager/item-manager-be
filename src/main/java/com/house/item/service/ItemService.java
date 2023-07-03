@@ -75,6 +75,7 @@ public class ItemService {
 			.photoName(createItemRQ.getPhotoName())
 			.quantity(0)
 			.priority(createItemRQ.getPriority())
+			.memo(createItemRQ.getMemo())
 			.build();
 
 		List<Long> labels = createItemRQ.getLabels();
@@ -125,6 +126,7 @@ public class ItemService {
 			.locationMemo(item.getLocationMemo())
 			.quantity(item.getQuantity())
 			.priority(item.getPriority())
+			.memo(item.getMemo())
 			.labels(labels);
 
 		if (StringUtils.hasText(item.getPhotoName())) {
@@ -251,6 +253,7 @@ public class ItemService {
 			updateItemRQ.getLocationMemo(),
 			updateItemRQ.getPhotoName(),
 			updateItemRQ.getPriority(),
+			updateItemRQ.getMemo(),
 			updateItemRQ.getLabels()
 		);
 	}

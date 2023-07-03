@@ -21,5 +21,6 @@ public class CreateItemRQ {
     private String photoName;
     @Range(min = 0, max = 6)
     private Integer priority = 0;
+    private String memo;
     private List<Long> labels = new ArrayList<>();
 }
