@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +26,7 @@ import com.house.item.domain.QuantityLogSumSearch;
 import com.house.item.domain.QuantityLogSumsRQ;
 import com.house.item.domain.QuantityLogSumsRS;
 import com.house.item.domain.QuantityLogsRQ;
+import com.house.item.domain.QuantityLogsServiceRQ;
 import com.house.item.domain.QuantityTypeRS;
 import com.house.item.domain.Result;
 import com.house.item.domain.ResultList;
@@ -62,7 +66,18 @@ public class QuantityLogController {
     public ResultList<QuantityLogRS> getQuantityLogs(@Validated @ModelAttribute QuantityLogsRQ quantityLogsRQ) {
         User user = SessionUtils.getSessionUser().toUser();
 
-        QuantityLogSearch quantityLogSearch = quantityLogService.getQuantityLogSearch(quantityLogsRQ, user);
+        Pageable pageable = PageRequest.of(quantityLogsRQ.getPage() - 1, quantityLogsRQ.getSize(),
+            quantityLogsRQ.getSort().equals("+") ? Sort.Direction.ASC : Sort.Direction.DESC,
+            quantityLogsRQ.getOrderBy());
+
+        QuantityLogsServiceRQ request = QuantityLogsServiceRQ.builder()
+            .itemNo(quantityLogsRQ.getItemNo())
+            .type(quantityLogsRQ.getType())
+            .year(quantityLogsRQ.getYear())
+            .month(quantityLogsRQ.getMonth())
+            .build();
+
+        QuantityLogSearch quantityLogSearch = quantityLogService.getQuantityLogSearch(request, pageable, user);
         Page<ItemQuantityLog> logs = quantityLogService.getItemQuantityLogs(quantityLogSearch);
 
         List<QuantityLogRS> quantityLogRSList = new ArrayList<>();

@@ -4,11 +4,11 @@ import static com.house.item.entity.QItem.*;
 import static com.house.item.entity.QItemLabel.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
@@ -50,8 +50,6 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 
 	@Override
 	public Page<ConsumableItemDTO> findConsumableByNameAndLabel(ConsumableSearch consumableSearch) {
-		Pageable pageable = PageRequest.of(consumableSearch.getPage() - 1, consumableSearch.getSize());
-
 		QItemQuantityLog purchase = new QItemQuantityLog("purchase");
 		QItemQuantityLog consume = new QItemQuantityLog("consume");
 
@@ -84,10 +82,10 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 				item.type.eq(ItemType.CONSUMABLE),
 				likeName(consumableSearch.getName())
 			);
-		itemJPAQuery
-			.orderBy(consumableOrderBy(consumableSearch.getOrderBy(), consumableSearch.getSort()))
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize());
+
+		itemJPAQuery.orderBy(consumableOrderBySort(consumableSearch.getPageable().getSort()))
+			.offset(consumableSearch.getPageable().getOffset())
+			.limit(consumableSearch.getPageable().getPageSize());
 		List<ConsumableItemDTO> items = itemJPAQuery.fetch();
 
 		// count
@@ -106,13 +104,11 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 				likeName(consumableSearch.getName())
 			);
 
-		return PageableExecutionUtils.getPage(items, pageable, countQuery::fetchOne);
+		return PageableExecutionUtils.getPage(items, consumableSearch.getPageable(), countQuery::fetchOne);
 	}
 
 	@Override
 	public Page<Item> findEquipmentByNameAndLabelAndPlace(EquipmentSearch equipmentSearch) {
-		Pageable pageable = PageRequest.of(equipmentSearch.getPage() - 1, equipmentSearch.getSize());
-
 		QLocation room = new QLocation("room");
 
 		// content
@@ -137,8 +133,8 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 			);
 		itemJPAQuery
 			.orderBy(item.priority.desc())
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize());
+			.offset(equipmentSearch.getPageable().getOffset())
+			.limit(equipmentSearch.getPageable().getPageSize());
 		List<Item> items = itemJPAQuery.fetch();
 
 		// count
@@ -158,7 +154,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 				inPlaceNos(equipmentSearch.getPlaceNos())
 			);
 
-		return PageableExecutionUtils.getPage(items, pageable, countQuery::fetchOne);
+		return PageableExecutionUtils.getPage(items, equipmentSearch.getPageable(), countQuery::fetchOne);
 	}
 
 	private BooleanExpression likeName(String name) {
@@ -169,17 +165,22 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 		return placeNos != null && !placeNos.isEmpty() ? item.location.locationNo.in(placeNos) : null;
 	}
 
-	private OrderSpecifier consumableOrderBy(String order, String sort) {
-		Order sortBy = sort.equals("DESC") ? Order.DESC : Order.ASC;
+	private OrderSpecifier[] consumableOrderBySort(Sort sort) {
+		List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
 
 		PathBuilder pathBuilder;
-		if (order.startsWith("latest")) {
-			pathBuilder = new PathBuilder<>(LocalDateTime.class, order);
-		} else {
-			PathBuilder itemPathBuilder = new PathBuilder<>(Item.class, "item");
-			pathBuilder = itemPathBuilder.get(order);
+		for (Sort.Order order : sort) {
+			Order sortBy = order.isAscending() ? Order.ASC : Order.DESC;
+
+			if (order.getProperty().startsWith("latest")) {
+				pathBuilder = new PathBuilder<>(LocalDateTime.class, order.getProperty());
+			} else {
+				PathBuilder itemPathBuilder = new PathBuilder<>(item.getType(), item.getMetadata());
+				pathBuilder = itemPathBuilder.get(order.getProperty());
+			}
+			orderSpecifiers.add(new OrderSpecifier(sortBy, pathBuilder));
 		}
 
-		return new OrderSpecifier(sortBy, pathBuilder);
+		return orderSpecifiers.toArray(OrderSpecifier[]::new);
 	}
 }

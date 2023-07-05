@@ -1,22 +1,25 @@
 package com.house.item.service;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.house.item.common.Props;
 import com.house.item.domain.ConsumableItemDTO;
-import com.house.item.domain.ConsumableItemsOrderByType;
-import com.house.item.domain.ConsumableItemsRQ;
+import com.house.item.domain.ConsumableItemsServiceRQ;
 import com.house.item.domain.ConsumableSearch;
 import com.house.item.domain.CreateItemRQ;
 import com.house.item.domain.UpdateItemRQ;
@@ -72,6 +75,7 @@ class ItemServiceTest {
 
 		//then
 		Item findItem = em.find(Item.class, itemNo);
+		assertThat(findItem.getItemNo()).isNotNull();
 	}
 
 	@Test
@@ -89,7 +93,7 @@ class ItemServiceTest {
 		Item findItem = itemService.getItem(item.getItemNo(), user);
 
 		//then
-		Assertions.assertThat(findItem).isSameAs(item);
+		assertThat(findItem).isSameAs(item);
 	}
 
 	@Test
@@ -111,7 +115,7 @@ class ItemServiceTest {
 		List<Item> items = itemService.getItems(user);
 
 		//then
-		Assertions.assertThat(items).hasSize(3)
+		assertThat(items).hasSize(3)
 			.containsExactly(item1, item2, item3);
 	}
 
@@ -135,7 +139,7 @@ class ItemServiceTest {
 		List<Item> items = itemService.getItemsInLocation(place1.getLocationNo(), user);
 
 		//then
-		Assertions.assertThat(items)
+		assertThat(items)
 			.containsExactly(item1, item2)
 			.doesNotContain(item3);
 	}
@@ -161,7 +165,7 @@ class ItemServiceTest {
 		List<Item> items = itemService.getItemsInLocation(room1.getLocationNo(), user);
 
 		//then
-		Assertions.assertThat(items)
+		assertThat(items)
 			.containsExactly(item1, item2)
 			.doesNotContain(item3);
 	}
@@ -212,15 +216,18 @@ class ItemServiceTest {
 		em.clear();
 
 		//        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item", List.of(label1.getLabelNo(), label2.getLabelNo()), ConsumableItemsOrderByType.PRIORITY, "-", 1, 2);
-		ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item",
-			List.of(label1.getLabelNo(), label2.getLabelNo()), null, null, null, 2);
-		ConsumableSearch consumableSearch = itemService.getConsumableSearch(consumableItemsRQ, user);
+		Pageable pageable = PageRequest.of(0, 10);
+		ConsumableItemsServiceRQ request = ConsumableItemsServiceRQ.builder()
+			.name("item")
+			.labelNos(List.of(label1.getLabelNo(), label2.getLabelNo()))
+			.build();
+		ConsumableSearch consumableSearch = itemService.getConsumableSearch(request, pageable, user);
 
 		//when
 		Page<ConsumableItemDTO> consumableItems = itemService.getConsumableItems(consumableSearch);
 
 		//then
-		Assertions.assertThat(consumableItems).hasSize(2);
+		assertThat(consumableItems).hasSize(2);
 	}
 
 	@Test
@@ -229,20 +236,23 @@ class ItemServiceTest {
 		User user = createUser("id");
 		em.persist(user);
 
-		ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("name", List.of(1L, 2L),
-			ConsumableItemsOrderByType.LATEST_CONSUME_DATE, "-", null, 5);
-
+		Pageable pageable = PageRequest.of(0, 5, Sort.Direction.DESC, "latestConsume");
+		ConsumableItemsServiceRQ request = ConsumableItemsServiceRQ.builder()
+			.name("name")
+			.labelNos(List.of(1L, 2L))
+			.build();
 		//when
-		ConsumableSearch search = itemService.getConsumableSearch(consumableItemsRQ, user);
+		ConsumableSearch search = itemService.getConsumableSearch(request, pageable, user);
 
 		//then
-		Assertions.assertThat(search.getUserNo()).isEqualTo(user.getUserNo());
-		Assertions.assertThat(search.getName()).isEqualTo("name");
-		Assertions.assertThat(search.getLabelNos()).hasSize(2);
-		Assertions.assertThat(search.getOrderBy()).isEqualTo("latestConsume");
-		Assertions.assertThat(search.getSort()).isEqualTo("DESC");
-		Assertions.assertThat(search.getPage()).isEqualTo(1);
-		Assertions.assertThat(search.getSize()).isEqualTo(5);
+		assertThat(search.getUserNo()).isEqualTo(user.getUserNo());
+		assertThat(search.getName()).isEqualTo("name");
+		assertThat(search.getLabelNos()).hasSize(2);
+		assertThat(search.getPageable().getSort().stream().findAny().get().getProperty())
+			.isEqualTo("latestConsume");
+		assertThat(search.getPageable().getSort().stream().findAny().get().isDescending()).isTrue();
+		assertThat(search.getPageable().getPageNumber()).isZero();
+		assertThat(search.getPageable().getPageSize()).isEqualTo(5);
 	}
 
 	@Test
@@ -289,13 +299,13 @@ class ItemServiceTest {
 
 		//then
 		Item findItem = em.find(Item.class, itemNo);
-		Assertions.assertThat(findItem.getName()).isEqualTo("new item");
-		Assertions.assertThat(findItem.getType()).isEqualTo(ItemType.EQUIPMENT);
-		Assertions.assertThat(findItem.getLocation().getName()).isEqualTo("place2");
-		Assertions.assertThat(findItem.getLocationMemo()).isEqualTo("locationMemo");
-		Assertions.assertThat(findItem.getPriority()).isEqualTo(3);
+		assertThat(findItem.getName()).isEqualTo("new item");
+		assertThat(findItem.getType()).isEqualTo(ItemType.EQUIPMENT);
+		assertThat(findItem.getLocation().getName()).isEqualTo("place2");
+		assertThat(findItem.getLocationMemo()).isEqualTo("locationMemo");
+		assertThat(findItem.getPriority()).isEqualTo(3);
 		for (ItemLabel itemLabel : findItem.getItemLabels()) {
-			Assertions.assertThat(itemLabel.getLabel().getLabelNo()).isEqualTo(label2.getLabelNo());
+			assertThat(itemLabel.getLabel().getLabelNo()).isEqualTo(label2.getLabelNo());
 		}
 	}
 

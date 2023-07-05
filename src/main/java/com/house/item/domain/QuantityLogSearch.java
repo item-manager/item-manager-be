@@ -1,7 +1,10 @@
 package com.house.item.domain;
 
+import org.springframework.data.domain.Pageable;
+
 import com.house.item.entity.Item;
 import com.house.item.entity.QuantityType;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,8 +15,5 @@ public class QuantityLogSearch {
     private QuantityType type;
     private Integer year;
     private Integer month;
-    private String orderBy;
-    private String sort;
-    private int page;
-    private int size;
+    private Pageable pageable;
 }

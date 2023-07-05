@@ -10,6 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.house.item.domain.QuantityLogSearch;
@@ -65,16 +68,14 @@ class ItemQuantityLogRepositoryTest {
         em.persist(quantityLog9);
         em.persist(quantityLog10);
 
+        Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, "count");
         QuantityLogSearch search = QuantityLogSearch.builder()
             .item(
                 Item.builder()
                     .itemNo(item1.getItemNo())
                     .build()
             )
-            .orderBy("count")
-            .sort("asc")
-            .page(1)
-            .size(2)
+            .pageable(pageable)
             .build();
 
         //when

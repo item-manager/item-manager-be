@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import com.house.item.domain.QQuantityLogSumDto;
@@ -32,8 +31,6 @@ public class ItemQuantityLogRepositoryImpl implements ItemQuantityLogRepositoryC
 
 	@Override
 	public Page<ItemQuantityLog> findByItemNoAndTypeAndYearAndMonth(QuantityLogSearch quantityLogSearch) {
-		Pageable pageable = PageRequest.of(quantityLogSearch.getPage() - 1, quantityLogSearch.getSize());
-
 		List<ItemQuantityLog> logs = queryFactory.selectFrom(itemQuantityLog)
 			.where(
 				itemQuantityLog.item.itemNo.eq(quantityLogSearch.getItem().getItemNo()),
@@ -41,9 +38,9 @@ public class ItemQuantityLogRepositoryImpl implements ItemQuantityLogRepositoryC
 				eqDateByYear(quantityLogSearch.getYear()),
 				eqDateByMonth(quantityLogSearch.getMonth())
 			)
-			.orderBy(logOrderBy(quantityLogSearch.getOrderBy(), quantityLogSearch.getSort()))
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
+			.orderBy(logOrderBySort(quantityLogSearch.getPageable().getSort()))
+			.offset(quantityLogSearch.getPageable().getOffset())
+			.limit(quantityLogSearch.getPageable().getPageSize())
 			.fetch();
 
 		JPAQuery<Long> countQuery = queryFactory.select(itemQuantityLog.itemQuantityLogNo.count())
@@ -55,7 +52,7 @@ public class ItemQuantityLogRepositoryImpl implements ItemQuantityLogRepositoryC
 				eqDateByMonth(quantityLogSearch.getMonth())
 			);
 
-		return PageableExecutionUtils.getPage(logs, pageable, countQuery::fetchOne);
+		return PageableExecutionUtils.getPage(logs, quantityLogSearch.getPageable(), countQuery::fetchOne);
 	}
 
 	@Override
@@ -94,14 +91,17 @@ public class ItemQuantityLogRepositoryImpl implements ItemQuantityLogRepositoryC
 		return month != null ? itemQuantityLog.date.month().eq(month) : null;
 	}
 
-	private OrderSpecifier[] logOrderBy(String order, String sort) {
-		Order sortBy = sort.equals("DESC") ? Order.DESC : Order.ASC;
-
+	private OrderSpecifier[] logOrderBySort(Sort sort) {
 		List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
-		PathBuilder pathBuilder = new PathBuilder(ItemQuantityLog.class, "itemQuantityLog");
 
-		orderSpecifiers.add(new OrderSpecifier(sortBy, pathBuilder.get(order), OrderSpecifier.NullHandling.NullsLast));
-		if (!order.equals("date")) {
+		PathBuilder pathBuilder = new PathBuilder(itemQuantityLog.getType(), itemQuantityLog.getMetadata());
+		for (Sort.Order order : sort) {
+			Order sortBy = order.isAscending() ? Order.ASC : Order.DESC;
+			orderSpecifiers.add(new OrderSpecifier(sortBy, pathBuilder.get(order.getProperty()),
+				OrderSpecifier.NullHandling.NullsLast));
+		}
+
+		if (sort.stream().noneMatch(order -> order.getProperty().equals("date"))) {
 			orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, pathBuilder.get("date")));
 		}
 
