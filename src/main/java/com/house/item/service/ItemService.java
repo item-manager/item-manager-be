@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -14,10 +12,10 @@ import org.springframework.util.StringUtils;
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.common.Props;
 import com.house.item.domain.ConsumableItemDTO;
-import com.house.item.domain.ConsumableItemsRQ;
+import com.house.item.domain.ConsumableItemsServiceRQ;
 import com.house.item.domain.ConsumableSearch;
 import com.house.item.domain.CreateItemRQ;
-import com.house.item.domain.EquipmentItemsRQ;
+import com.house.item.domain.EquipmentItemsServiceRQ;
 import com.house.item.domain.EquipmentSearch;
 import com.house.item.domain.ItemRS;
 import com.house.item.domain.ItemTypeRS;
@@ -162,21 +160,16 @@ public class ItemService {
 		return consumableItemDTOS;
 	}
 
-	public ConsumableSearch getConsumableSearch(ConsumableItemsRQ consumableItemsRQ, User user) {
-		String orderByProperty =
-			consumableItemsRQ.getOrderBy() != null ? consumableItemsRQ.getOrderBy().getColumn() : "itemNo";
-		Pageable pageable = PageRequest.of(consumableItemsRQ.getPage() - 1, consumableItemsRQ.getSize(),
-			consumableItemsRQ.getSort().equals("+") ? Sort.Direction.ASC : Sort.Direction.DESC, orderByProperty);
-
+	public ConsumableSearch getConsumableSearch(ConsumableItemsServiceRQ request, Pageable pageable, User user) {
 		ConsumableSearch.ConsumableSearchBuilder consumableSearchBuilder = ConsumableSearch.builder()
 			.userNo(user.getUserNo())
 			.pageable(pageable);
 
-		if (StringUtils.hasText(consumableItemsRQ.getName())) {
-			consumableSearchBuilder.name(consumableItemsRQ.getName());
+		if (StringUtils.hasText(request.getName())) {
+			consumableSearchBuilder.name(request.getName());
 		}
-		if (consumableItemsRQ.getLabelNos() != null && !consumableItemsRQ.getLabelNos().isEmpty()) {
-			consumableSearchBuilder.labelNos(consumableItemsRQ.getLabelNos());
+		if (request.getLabelNos() != null && !request.getLabelNos().isEmpty()) {
+			consumableSearchBuilder.labelNos(request.getLabelNos());
 		}
 
 		return consumableSearchBuilder.build();
@@ -186,22 +179,21 @@ public class ItemService {
 		return itemRepository.findEquipmentByNameAndLabelAndPlace(equipmentSearch);
 	}
 
-	public EquipmentSearch getEquipmentSearch(EquipmentItemsRQ equipmentItemsRQ, User user) {
-		Pageable pageable = PageRequest.of(equipmentItemsRQ.getPage() - 1, equipmentItemsRQ.getSize());
+	public EquipmentSearch getEquipmentSearch(EquipmentItemsServiceRQ request, Pageable pageable, User user) {
 		EquipmentSearch.EquipmentSearchBuilder equipmentSearchBuilder = EquipmentSearch.builder()
 			.userNo(user.getUserNo())
 			.pageable(pageable);
 
-		if (StringUtils.hasText(equipmentItemsRQ.getName())) {
-			equipmentSearchBuilder.name(equipmentItemsRQ.getName());
+		if (StringUtils.hasText(request.getName())) {
+			equipmentSearchBuilder.name(request.getName());
 		}
-		if (equipmentItemsRQ.getLabelNos() != null && !equipmentItemsRQ.getLabelNos().isEmpty()) {
-			equipmentSearchBuilder.labelNos(equipmentItemsRQ.getLabelNos());
+		if (request.getLabelNos() != null && !request.getLabelNos().isEmpty()) {
+			equipmentSearchBuilder.labelNos(request.getLabelNos());
 		}
-		if (equipmentItemsRQ.getLocationNo() != null) {
+		if (request.getLocationNo() != null) {
 			List<Long> placeNos = new ArrayList<>();
 
-			Location location = locationService.getLocation(equipmentItemsRQ.getLocationNo(), user);
+			Location location = locationService.getLocation(request.getLocationNo(), user);
 			if (location.getType() == LocationType.PLACE) {
 				placeNos.add(location.getLocationNo());
 			}

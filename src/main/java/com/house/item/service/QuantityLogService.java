@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +20,7 @@ import com.house.item.domain.QuantityLogSumByDate;
 import com.house.item.domain.QuantityLogSumDto;
 import com.house.item.domain.QuantityLogSumSearch;
 import com.house.item.domain.QuantityLogSumsRQ;
-import com.house.item.domain.QuantityLogsRQ;
+import com.house.item.domain.QuantityLogsServiceRQ;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemQuantityLog;
 import com.house.item.entity.QuantityType;
@@ -94,23 +92,19 @@ public class QuantityLogService {
 		return item.getQuantity();
 	}
 
-	public QuantityLogSearch getQuantityLogSearch(QuantityLogsRQ quantityLogsRQ, User user) {
-		Item item = itemService.getItem(quantityLogsRQ.getItemNo(), user);
-
-		Pageable pageable = PageRequest.of(quantityLogsRQ.getPage() - 1, quantityLogsRQ.getSize(),
-			quantityLogsRQ.getSort().equals("+") ? Sort.Direction.ASC : Sort.Direction.DESC,
-			quantityLogsRQ.getOrderBy());
+	public QuantityLogSearch getQuantityLogSearch(QuantityLogsServiceRQ request, Pageable pageable, User user) {
+		Item item = itemService.getItem(request.getItemNo(), user);
 
 		QuantityType type = null;
-		if (quantityLogsRQ.getType() != null) {
-			type = quantityLogsRQ.getType().getType();
+		if (request.getType() != null) {
+			type = request.getType().getType();
 		}
 
 		return QuantityLogSearch.builder()
 			.item(item)
 			.type(type)
-			.year(quantityLogsRQ.getYear())
-			.month(quantityLogsRQ.getMonth())
+			.year(request.getYear())
+			.month(request.getMonth())
 			.pageable(pageable)
 			.build();
 	}

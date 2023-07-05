@@ -11,13 +11,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.house.item.common.Props;
 import com.house.item.domain.ConsumableItemDTO;
-import com.house.item.domain.ConsumableItemsOrderByType;
-import com.house.item.domain.ConsumableItemsRQ;
+import com.house.item.domain.ConsumableItemsServiceRQ;
 import com.house.item.domain.ConsumableSearch;
 import com.house.item.domain.CreateItemRQ;
 import com.house.item.domain.UpdateItemRQ;
@@ -214,9 +216,12 @@ class ItemServiceTest {
 		em.clear();
 
 		//        ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item", List.of(label1.getLabelNo(), label2.getLabelNo()), ConsumableItemsOrderByType.PRIORITY, "-", 1, 2);
-		ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("item",
-			List.of(label1.getLabelNo(), label2.getLabelNo()), null, null, null, 2);
-		ConsumableSearch consumableSearch = itemService.getConsumableSearch(consumableItemsRQ, user);
+		Pageable pageable = PageRequest.of(0, 10);
+		ConsumableItemsServiceRQ request = ConsumableItemsServiceRQ.builder()
+			.name("item")
+			.labelNos(List.of(label1.getLabelNo(), label2.getLabelNo()))
+			.build();
+		ConsumableSearch consumableSearch = itemService.getConsumableSearch(request, pageable, user);
 
 		//when
 		Page<ConsumableItemDTO> consumableItems = itemService.getConsumableItems(consumableSearch);
@@ -231,11 +236,13 @@ class ItemServiceTest {
 		User user = createUser("id");
 		em.persist(user);
 
-		ConsumableItemsRQ consumableItemsRQ = new ConsumableItemsRQ("name", List.of(1L, 2L),
-			ConsumableItemsOrderByType.LATEST_CONSUME_DATE, "-", null, 5);
-
+		Pageable pageable = PageRequest.of(0, 5, Sort.Direction.DESC, "latestConsume");
+		ConsumableItemsServiceRQ request = ConsumableItemsServiceRQ.builder()
+			.name("name")
+			.labelNos(List.of(1L, 2L))
+			.build();
 		//when
-		ConsumableSearch search = itemService.getConsumableSearch(consumableItemsRQ, user);
+		ConsumableSearch search = itemService.getConsumableSearch(request, pageable, user);
 
 		//then
 		assertThat(search.getUserNo()).isEqualTo(user.getUserNo());

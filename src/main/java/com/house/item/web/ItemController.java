@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +22,7 @@ import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ConsumableItemDTO;
 import com.house.item.domain.ConsumableItemRS;
 import com.house.item.domain.ConsumableItemsRQ;
+import com.house.item.domain.ConsumableItemsServiceRQ;
 import com.house.item.domain.ConsumableSearch;
 import com.house.item.domain.ConsumeItemRQ;
 import com.house.item.domain.ConsumeItemRS;
@@ -26,6 +30,7 @@ import com.house.item.domain.CreateItemRQ;
 import com.house.item.domain.CreateItemRS;
 import com.house.item.domain.EquipmentItemRS;
 import com.house.item.domain.EquipmentItemsRQ;
+import com.house.item.domain.EquipmentItemsServiceRQ;
 import com.house.item.domain.EquipmentSearch;
 import com.house.item.domain.ErrorResult;
 import com.house.item.domain.ItemNameRS;
@@ -173,7 +178,17 @@ public class ItemController {
 		@Validated @ModelAttribute ConsumableItemsRQ consumableItemsRQ) {
 		User user = SessionUtils.getSessionUser().toUser();
 
-		ConsumableSearch consumableSearch = itemService.getConsumableSearch(consumableItemsRQ, user);
+		String orderByProperty =
+			consumableItemsRQ.getOrderBy() != null ? consumableItemsRQ.getOrderBy().getColumn() : "itemNo";
+		Pageable pageable = PageRequest.of(consumableItemsRQ.getPage() - 1, consumableItemsRQ.getSize(),
+			consumableItemsRQ.getSort().equals("+") ? Sort.Direction.ASC : Sort.Direction.DESC, orderByProperty);
+
+		ConsumableItemsServiceRQ request = ConsumableItemsServiceRQ.builder()
+			.name(consumableItemsRQ.getName())
+			.labelNos(consumableItemsRQ.getLabelNos())
+			.build();
+
+		ConsumableSearch consumableSearch = itemService.getConsumableSearch(request, pageable, user);
 		Page<ConsumableItemDTO> consumableItemDTOs = itemService.getConsumableItems(consumableSearch);
 
 		List<ConsumableItemRS> consumableItemRSList = new ArrayList<>();
@@ -218,7 +233,13 @@ public class ItemController {
 	public ResultList<EquipmentItemRS> getEquipmentItems(@Validated @ModelAttribute EquipmentItemsRQ equipmentItemsRQ) {
 		User user = SessionUtils.getSessionUser().toUser();
 
-		EquipmentSearch equipmentSearch = itemService.getEquipmentSearch(equipmentItemsRQ, user);
+		Pageable pageable = PageRequest.of(equipmentItemsRQ.getPage() - 1, equipmentItemsRQ.getSize());
+		EquipmentItemsServiceRQ request = EquipmentItemsServiceRQ.builder()
+			.locationNo(equipmentItemsRQ.getLocationNo())
+			.name(equipmentItemsRQ.getName())
+			.labelNos(equipmentItemsRQ.getLabelNos())
+			.build();
+		EquipmentSearch equipmentSearch = itemService.getEquipmentSearch(request, pageable, user);
 		Page<Item> items = itemService.getEquipmentItems(equipmentSearch);
 
 		List<EquipmentItemRS> equipmentItemRSList = new ArrayList<>();
