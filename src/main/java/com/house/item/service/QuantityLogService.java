@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -94,9 +97,9 @@ public class QuantityLogService {
 	public QuantityLogSearch getQuantityLogSearch(QuantityLogsRQ quantityLogsRQ, User user) {
 		Item item = itemService.getItem(quantityLogsRQ.getItemNo(), user);
 
-		Map<String, String> sortMapping = new HashMap<>();
-		sortMapping.put("+", "ASC");
-		sortMapping.put("-", "DESC");
+		Pageable pageable = PageRequest.of(quantityLogsRQ.getPage() - 1, quantityLogsRQ.getSize(),
+			quantityLogsRQ.getSort().equals("+") ? Sort.Direction.ASC : Sort.Direction.DESC,
+			quantityLogsRQ.getOrderBy());
 
 		QuantityType type = null;
 		if (quantityLogsRQ.getType() != null) {
@@ -108,10 +111,7 @@ public class QuantityLogService {
 			.type(type)
 			.year(quantityLogsRQ.getYear())
 			.month(quantityLogsRQ.getMonth())
-			.orderBy(quantityLogsRQ.getOrderBy())
-			.sort(sortMapping.get(quantityLogsRQ.getSort()))
-			.page(quantityLogsRQ.getPage())
-			.size(quantityLogsRQ.getSize())
+			.pageable(pageable)
 			.build();
 	}
 

@@ -1,11 +1,12 @@
 package com.house.item.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -162,21 +163,15 @@ public class ItemService {
 	}
 
 	public ConsumableSearch getConsumableSearch(ConsumableItemsRQ consumableItemsRQ, User user) {
-		Map<String, String> sortMapping = new HashMap<>();
-		sortMapping.put("+", "ASC");
-		sortMapping.put("-", "DESC");
+		String orderByProperty =
+			consumableItemsRQ.getOrderBy() != null ? consumableItemsRQ.getOrderBy().getColumn() : "itemNo";
+		Pageable pageable = PageRequest.of(consumableItemsRQ.getPage() - 1, consumableItemsRQ.getSize(),
+			consumableItemsRQ.getSort().equals("+") ? Sort.Direction.ASC : Sort.Direction.DESC, orderByProperty);
 
 		ConsumableSearch.ConsumableSearchBuilder consumableSearchBuilder = ConsumableSearch.builder()
 			.userNo(user.getUserNo())
-			.sort(sortMapping.get(consumableItemsRQ.getSort()))
-			.page(consumableItemsRQ.getPage())
-			.size(consumableItemsRQ.getSize());
+			.pageable(pageable);
 
-		if (consumableItemsRQ.getOrderBy() != null) {
-			consumableSearchBuilder.orderBy(consumableItemsRQ.getOrderBy().getColumn());
-		} else {
-			consumableSearchBuilder.orderBy("itemNo");
-		}
 		if (StringUtils.hasText(consumableItemsRQ.getName())) {
 			consumableSearchBuilder.name(consumableItemsRQ.getName());
 		}
@@ -192,10 +187,10 @@ public class ItemService {
 	}
 
 	public EquipmentSearch getEquipmentSearch(EquipmentItemsRQ equipmentItemsRQ, User user) {
+		Pageable pageable = PageRequest.of(equipmentItemsRQ.getPage() - 1, equipmentItemsRQ.getSize());
 		EquipmentSearch.EquipmentSearchBuilder equipmentSearchBuilder = EquipmentSearch.builder()
 			.userNo(user.getUserNo())
-			.page(equipmentItemsRQ.getPage())
-			.size(equipmentItemsRQ.getSize());
+			.pageable(pageable);
 
 		if (StringUtils.hasText(equipmentItemsRQ.getName())) {
 			equipmentSearchBuilder.name(equipmentItemsRQ.getName());

@@ -16,6 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.house.item.domain.ConsumableItemDTO;
@@ -261,12 +264,12 @@ class ItemRepositoryTest {
 			em.persist(itemLabel8);
 			em.persist(itemLabel9);
 
+			Pageable pageable = PageRequest.of(0, 3);
 			EquipmentSearch search = EquipmentSearch.builder()
 				.userNo(user.getUserNo())
 				.name("user")
 				.labelNos(List.of(label1.getLabelNo(), label3.getLabelNo()))
-				.page(1)
-				.size(3)
+				.pageable(pageable)
 				.build();
 
 			//when
@@ -331,12 +334,12 @@ class ItemRepositoryTest {
 			em.persist(itemLabel8);
 			em.persist(itemLabel9);
 
+			Pageable pageable = PageRequest.of(0, 3);
 			EquipmentSearch search = EquipmentSearch.builder()
 				.userNo(user.getUserNo())
 				.name("item")
 				.placeNos(List.of(location1.getLocationNo(), location3.getLocationNo()))
-				.page(1)
-				.size(3)
+				.pageable(pageable)
 				.build();
 
 			//when
@@ -436,13 +439,11 @@ class ItemRepositoryTest {
 			em.flush();
 			em.clear();
 
+			Pageable pageable = PageRequest.of(0, 2, Sort.Direction.DESC, "latestPurchase");
 			ConsumableSearch search = ConsumableSearch.builder()
 				.userNo(user.getUserNo())
 				.name("no")
-				.orderBy("latestPurchase")
-				.sort("DESC")
-				.size(2)
-				.page(1)
+				.pageable(pageable)
 				.build();
 
 			//when
@@ -541,13 +542,11 @@ class ItemRepositoryTest {
 			em.flush();
 			em.clear();
 
+			Pageable pageable = PageRequest.of(0, 2, Sort.Direction.ASC, "priority");
 			ConsumableSearch search = ConsumableSearch.builder()
 				.userNo(user.getUserNo())
 				.labelNos(List.of(label2.getLabelNo(), label3.getLabelNo()))
-				.orderBy("priority")
-				.sort("ASC")
-				.size(2)
-				.page(1)
+				.pageable(pageable)
 				.build();
 
 			//when
