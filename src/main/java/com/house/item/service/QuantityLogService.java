@@ -62,7 +62,7 @@ public class QuantityLogService {
 			.type(QuantityType.PURCHASE)
 			.mall(purchaseItemRQ.getMall())
 			.date(purchaseItemRQ.getDate())
-			.price(purchaseItemRQ.getUnitPrice())
+			.price(purchaseItemRQ.getPrice())
 			.count(purchaseItemRQ.getCount())
 			.build();
 		quantityLogRepository.save(quantityLog);

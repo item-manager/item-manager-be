@@ -1,10 +1,12 @@
 package com.house.item.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Getter;
+import java.time.LocalDateTime;
 
 import javax.validation.constraints.Min;
-import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import lombok.Getter;
 
 @Getter
 public class PurchaseItemRQ {
@@ -12,7 +14,7 @@ public class PurchaseItemRQ {
     @JsonFormat(shape = JsonFormat.Shape.STRING, timezone = "UTC")
     private LocalDateTime date;
     @Min(0)
-    private int unitPrice;
+    private int price;
     @Min(0)
     private int count;
 }
