@@ -186,7 +186,6 @@ class ItemRepositoryTest {
 			.name(name)
 			.type(type)
 			.location(location)
-			.locationMemo("under the desk")
 			.quantity(quantity)
 			.priority(priority)
 			.build();

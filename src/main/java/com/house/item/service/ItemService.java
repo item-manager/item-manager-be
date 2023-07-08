@@ -70,7 +70,6 @@ public class ItemService {
 			.name(createItemRQ.getName())
 			.type(createItemRQ.getType())
 			.location(location)
-			.locationMemo(createItemRQ.getLocationMemo())
 			.photoName(createItemRQ.getPhotoName())
 			.quantity(createItemRQ.getQuantity())
 			.priority(createItemRQ.getPriority())
@@ -122,7 +121,6 @@ public class ItemService {
 			.locationNo(item.getLocation().getLocationNo())
 			.room(item.getLocation().getRoom().getName())
 			.place(item.getLocation().getName())
-			.locationMemo(item.getLocationMemo())
 			.quantity(item.getQuantity())
 			.priority(item.getPriority())
 			.memo(item.getMemo())
@@ -237,7 +235,6 @@ public class ItemService {
 			updateItemRQ.getName(),
 			updateItemRQ.getType(),
 			location,
-			updateItemRQ.getLocationMemo(),
 			updateItemRQ.getPhotoName(),
 			updateItemRQ.getPriority(),
 			updateItemRQ.getMemo(),
