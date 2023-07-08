@@ -41,7 +41,7 @@ class QuantityLogServiceTest {
         PurchaseItemRQ purchaseItemRQ = new PurchaseItemRQ();
         ReflectionTestUtils.setField(purchaseItemRQ, "mall", "mall");
         ReflectionTestUtils.setField(purchaseItemRQ, "date", LocalDateTime.now());
-        ReflectionTestUtils.setField(purchaseItemRQ, "unitPrice", 1000);
+        ReflectionTestUtils.setField(purchaseItemRQ, "price", 1000);
         ReflectionTestUtils.setField(purchaseItemRQ, "count", 10);
 
         //when
