@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ErrorResult;
 import com.house.item.domain.PageRS;
+import com.house.item.domain.QuantityLogDTO;
 import com.house.item.domain.QuantityLogRS;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
@@ -78,18 +79,21 @@ public class QuantityLogController {
             .build();
 
         QuantityLogSearch quantityLogSearch = quantityLogService.getQuantityLogSearch(request, pageable, user);
-        Page<ItemQuantityLog> logs = quantityLogService.getItemQuantityLogs(quantityLogSearch);
+        Page<QuantityLogDTO> logs = quantityLogService.getItemQuantityLogs(quantityLogSearch);
 
         List<QuantityLogRS> quantityLogRSList = new ArrayList<>();
-        for (ItemQuantityLog log : logs) {
+        for (QuantityLogDTO log : logs) {
+            ItemQuantityLog quantityLog = log.getQuantityLog();
+
             quantityLogRSList.add(
                 QuantityLogRS.builder()
-                    .quantityLogNo(log.getItemQuantityLogNo())
-                    .type(QuantityTypeRS.fromType(log.getType()))
-                    .date(log.getDate())
-                    .count(log.getCount())
-                    .price(log.getPrice())
-                    .mall(log.getMall())
+                    .quantityLogNo(quantityLog.getItemQuantityLogNo())
+                    .type(QuantityTypeRS.fromType(quantityLog.getType()))
+                    .date(quantityLog.getDate())
+                    .count(quantityLog.getCount())
+                    .price(quantityLog.getPrice())
+                    .unitPrice(log.getUnitPrice())
+                    .mall(quantityLog.getMall())
                     .build()
             );
         }

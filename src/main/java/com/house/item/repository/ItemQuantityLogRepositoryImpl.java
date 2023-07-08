@@ -9,11 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 
+import com.house.item.domain.QQuantityLogDTO;
 import com.house.item.domain.QQuantityLogSumDto;
+import com.house.item.domain.QuantityLogDTO;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumDto;
 import com.house.item.domain.QuantityLogSumSearch;
-import com.house.item.entity.ItemQuantityLog;
 import com.house.item.entity.QuantityType;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
@@ -30,8 +31,14 @@ public class ItemQuantityLogRepositoryImpl implements ItemQuantityLogRepositoryC
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<ItemQuantityLog> findByItemNoAndTypeAndYearAndMonth(QuantityLogSearch quantityLogSearch) {
-		List<ItemQuantityLog> logs = queryFactory.selectFrom(itemQuantityLog)
+	public Page<QuantityLogDTO> findByItemNoAndTypeAndYearAndMonth(QuantityLogSearch quantityLogSearch) {
+		List<QuantityLogDTO> logs = queryFactory.select(
+				new QQuantityLogDTO(
+					itemQuantityLog,
+					itemQuantityLog.price.divide(itemQuantityLog.count).as("unitPrice")
+				)
+			)
+			.from(itemQuantityLog)
 			.where(
 				itemQuantityLog.item.itemNo.eq(quantityLogSearch.getItem().getItemNo()),
 				eqType(quantityLogSearch.getType()),
@@ -94,15 +101,21 @@ public class ItemQuantityLogRepositoryImpl implements ItemQuantityLogRepositoryC
 	private OrderSpecifier[] logOrderBySort(Sort sort) {
 		List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
 
-		PathBuilder pathBuilder = new PathBuilder(itemQuantityLog.getType(), itemQuantityLog.getMetadata());
+		PathBuilder logPathBuilder = new PathBuilder(itemQuantityLog.getType(), itemQuantityLog.getMetadata());
 		for (Sort.Order order : sort) {
 			Order sortBy = order.isAscending() ? Order.ASC : Order.DESC;
-			orderSpecifiers.add(new OrderSpecifier(sortBy, pathBuilder.get(order.getProperty()),
-				OrderSpecifier.NullHandling.NullsLast));
+
+			if (order.getProperty().equals("price")) {
+				PathBuilder<Integer> unitPrice = new PathBuilder<>(Integer.class, "unitPrice");
+				orderSpecifiers.add(new OrderSpecifier(sortBy, unitPrice, OrderSpecifier.NullHandling.NullsLast));
+			} else {
+				orderSpecifiers.add(new OrderSpecifier(sortBy, logPathBuilder.get(order.getProperty()),
+					OrderSpecifier.NullHandling.NullsLast));
+			}
 		}
 
 		if (sort.stream().noneMatch(order -> order.getProperty().equals("date"))) {
-			orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, pathBuilder.get("date")));
+			orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, logPathBuilder.get("date")));
 		}
 
 		return orderSpecifiers.toArray(OrderSpecifier[]::new);

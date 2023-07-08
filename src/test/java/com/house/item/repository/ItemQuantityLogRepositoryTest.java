@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.house.item.domain.QuantityLogDTO;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumDto;
 import com.house.item.domain.QuantityLogSumSearch;
@@ -79,10 +80,11 @@ class ItemQuantityLogRepositoryTest {
             .build();
 
         //when
-        Page<ItemQuantityLog> logs = quantityLogRepository.findByItemNoAndTypeAndYearAndMonth(search);
+        Page<QuantityLogDTO> logs = quantityLogRepository.findByItemNoAndTypeAndYearAndMonth(search);
 
         //then
-        Assertions.assertThat(logs).containsExactly(quantityLog7, quantityLog1);
+        Assertions.assertThat(logs).extracting("quantityLog")
+            .containsExactly(quantityLog7, quantityLog1);
 
         Assertions.assertThat(logs.getTotalElements()).isEqualTo(3);
     }
