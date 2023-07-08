@@ -1,9 +1,9 @@
 package com.house.item.domain;
 
+import java.util.List;
+
 import lombok.Builder;
 import lombok.Getter;
-
-import java.util.List;
 
 @Builder
 @Getter
@@ -13,6 +13,5 @@ public class EquipmentItemRS {
     private String name;
     private String roomName;
     private String placeName;
-    private String locationMemo;
     private List<LabelRS> labels;
 }

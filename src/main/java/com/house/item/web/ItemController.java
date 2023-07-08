@@ -258,7 +258,6 @@ public class ItemController {
 					.name(item.getName())
 					.roomName(item.getLocation().getRoom().getName())
 					.placeName(item.getLocation().getName())
-					.locationMemo(item.getLocationMemo())
 					.labels(labelRSList)
 					.build()
 			);

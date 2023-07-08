@@ -1,13 +1,16 @@
 package com.house.item.domain;
 
-import com.house.item.entity.ItemType;
-import lombok.Builder;
-import lombok.Getter;
-import org.hibernate.validator.constraints.Range;
+import java.util.List;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.List;
+
+import org.hibernate.validator.constraints.Range;
+
+import com.house.item.entity.ItemType;
+
+import lombok.Builder;
+import lombok.Getter;
 
 @Getter
 public class UpdateItemRQ {
@@ -17,7 +20,6 @@ public class UpdateItemRQ {
     private ItemType type;
     @NotNull
     private Long locationNo;
-    private String locationMemo;
     private String photoName;
     @Builder.Default
     @Range(min = 0, max = 5)

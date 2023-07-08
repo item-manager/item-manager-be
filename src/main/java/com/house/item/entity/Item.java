@@ -45,8 +45,6 @@ public class Item {
     @JoinColumn(name = "LOCATION_NO")
     private Location location;
 
-    private String locationMemo;
-
     private String photoName;
 
     private int quantity;
@@ -62,14 +60,13 @@ public class Item {
     private List<ItemQuantityLog> itemQuantityLogs = new ArrayList<>();
 
     @Builder
-    private Item(Long itemNo, User user, String name, ItemType type, Location location, String locationMemo,
-        String photoName, int quantity, int priority, String memo, List<ItemLabel> itemLabels) {
+    private Item(Long itemNo, User user, String name, ItemType type, Location location, String photoName, int quantity,
+        int priority, String memo, List<ItemLabel> itemLabels) {
         this.itemNo = itemNo;
         this.user = user;
         this.name = name;
         this.type = type;
         this.location = location;
-        this.locationMemo = locationMemo;
         this.photoName = photoName;
         this.quantity = quantity;
         this.priority = priority;
@@ -78,12 +75,11 @@ public class Item {
         }
     }
 
-    public void updateItem(String name, ItemType type, Location location, String locationMemo, String photoName,
+    public void updateItem(String name, ItemType type, Location location, String photoName,
         int priority, String memo, List<Long> labelNos) {
         this.name = name;
         this.type = type;
         this.location = location;
-        this.locationMemo = locationMemo;
         this.photoName = photoName;
         this.priority = priority;
         this.memo = memo;

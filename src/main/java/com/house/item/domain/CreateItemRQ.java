@@ -20,7 +20,6 @@ public class CreateItemRQ {
     private ItemType type;
     @NotNull
     private Long locationNo;
-    private String locationMemo;
     private String photoName;
     private Integer quantity = 0;
     @Range(min = 0, max = 6)

@@ -174,7 +174,6 @@ class ItemQuantityLogRepositoryTest {
                 .name("item1")
                 .type(ItemType.CONSUMABLE)
                 .location(location)
-                .locationMemo("location memo")
                 .quantity(1)
                 .priority(1)
                 .build();

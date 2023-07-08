@@ -65,7 +65,6 @@ class ItemServiceTest {
 		ReflectionTestUtils.setField(createItemRQ, "name", "item1");
 		ReflectionTestUtils.setField(createItemRQ, "type", ItemType.CONSUMABLE);
 		ReflectionTestUtils.setField(createItemRQ, "locationNo", location.getLocationNo());
-		ReflectionTestUtils.setField(createItemRQ, "locationMemo", "location memo");
 		ReflectionTestUtils.setField(createItemRQ, "quantity", 3);
 		ReflectionTestUtils.setField(createItemRQ, "priority", 1);
 		ReflectionTestUtils.setField(createItemRQ, "labels", new ArrayList<>(List.of(label1No, label2No)));
@@ -287,7 +286,6 @@ class ItemServiceTest {
 		ReflectionTestUtils.setField(updateItemRQ, "name", "new item");
 		ReflectionTestUtils.setField(updateItemRQ, "type", ItemType.EQUIPMENT);
 		ReflectionTestUtils.setField(updateItemRQ, "locationNo", location2.getLocationNo());
-		ReflectionTestUtils.setField(updateItemRQ, "locationMemo", "locationMemo");
 		ReflectionTestUtils.setField(updateItemRQ, "photoName", null);
 		ReflectionTestUtils.setField(updateItemRQ, "priority", 3);
 		ReflectionTestUtils.setField(updateItemRQ, "labels", List.of(label2.getLabelNo()));
@@ -302,7 +300,6 @@ class ItemServiceTest {
 		assertThat(findItem.getName()).isEqualTo("new item");
 		assertThat(findItem.getType()).isEqualTo(ItemType.EQUIPMENT);
 		assertThat(findItem.getLocation().getName()).isEqualTo("place2");
-		assertThat(findItem.getLocationMemo()).isEqualTo("locationMemo");
 		assertThat(findItem.getPriority()).isEqualTo(3);
 		for (ItemLabel itemLabel : findItem.getItemLabels()) {
 			assertThat(itemLabel.getLabel().getLabelNo()).isEqualTo(label2.getLabelNo());
@@ -356,7 +353,6 @@ class ItemServiceTest {
 			.type(type)
 			.name(name)
 			.location(location)
-			.locationMemo("location memo")
 			.quantity(quantity)
 			.priority(priority)
 			.build();
