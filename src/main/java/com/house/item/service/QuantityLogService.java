@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ConsumeItemRQ;
 import com.house.item.domain.PurchaseItemRQ;
+import com.house.item.domain.QuantityLogDTO;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
 import com.house.item.domain.QuantityLogSumDto;
@@ -109,7 +110,7 @@ public class QuantityLogService {
 			.build();
 	}
 
-	public Page<ItemQuantityLog> getItemQuantityLogs(QuantityLogSearch quantityLogSearch) {
+	public Page<QuantityLogDTO> getItemQuantityLogs(QuantityLogSearch quantityLogSearch) {
 		return quantityLogRepository.findByItemNoAndTypeAndYearAndMonth(quantityLogSearch);
 	}
 
