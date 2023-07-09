@@ -12,7 +12,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.house.item.domain.ConsumeItemRQ;
-import com.house.item.domain.PurchaseItemRQ;
+import com.house.item.domain.PurchaseItemServiceRQ;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemQuantityLog;
 import com.house.item.entity.ItemType;
@@ -38,14 +38,17 @@ class QuantityLogServiceTest {
         Item item = createItem(user, 0);
         Long itemNo = item.getItemNo();
 
-        PurchaseItemRQ purchaseItemRQ = new PurchaseItemRQ();
-        ReflectionTestUtils.setField(purchaseItemRQ, "mall", "mall");
-        ReflectionTestUtils.setField(purchaseItemRQ, "date", LocalDateTime.now());
-        ReflectionTestUtils.setField(purchaseItemRQ, "price", 1000);
-        ReflectionTestUtils.setField(purchaseItemRQ, "count", 10);
+        PurchaseItemServiceRQ request = PurchaseItemServiceRQ.builder()
+            .user(user)
+            .itemId(itemNo)
+            .mall("mall1")
+            .date(LocalDateTime.now())
+            .price(1000)
+            .count(10)
+            .build();
 
         //when
-        int resultQuantity = quantityLogService.purchaseItem(itemNo, purchaseItemRQ, user);
+        int resultQuantity = quantityLogService.purchaseItem(request);
 
         //then
         Item findItem = em.find(Item.class, itemNo);
