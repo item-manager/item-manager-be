@@ -70,6 +70,7 @@ public class Item {
         this.photoName = photoName;
         this.quantity = quantity;
         this.priority = priority;
+        this.memo = memo;
         if (itemLabels != null) {
             this.itemLabels = itemLabels;
         }
