@@ -71,7 +71,7 @@ public class ItemService {
 			.type(createItemRQ.getType())
 			.location(location)
 			.photoName(createItemRQ.getPhotoName())
-			.quantity(createItemRQ.getQuantity())
+			.quantity(0)
 			.priority(createItemRQ.getPriority())
 			.memo(createItemRQ.getMemo())
 			.build();

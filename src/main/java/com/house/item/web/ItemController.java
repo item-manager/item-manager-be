@@ -1,5 +1,6 @@
 package com.house.item.web;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,7 @@ import com.house.item.domain.LabelRS;
 import com.house.item.domain.PageRS;
 import com.house.item.domain.PurchaseItemRQ;
 import com.house.item.domain.PurchaseItemRS;
+import com.house.item.domain.PurchaseItemServiceRQ;
 import com.house.item.domain.Result;
 import com.house.item.domain.ResultList;
 import com.house.item.domain.UpdateItemRQ;
@@ -107,6 +109,16 @@ public class ItemController {
 		User user = SessionUtils.getSessionUser().toUser();
 
 		Long itemNo = itemService.createItem(createItemRQ, user);
+
+		if (createItemRQ.getQuantity() > 0) {
+			PurchaseItemServiceRQ request = PurchaseItemServiceRQ.builder()
+				.user(user)
+				.itemId(itemNo)
+				.date(LocalDateTime.now())
+				.count(createItemRQ.getQuantity())
+				.build();
+			quantityLogService.purchaseItem(request);
+		}
 
 		CreateItemRS createItemRS = CreateItemRS.builder()
 			.itemNo(itemNo)
@@ -314,7 +326,15 @@ public class ItemController {
 		@Validated @RequestBody PurchaseItemRQ purchaseItemRQ) {
 		User user = SessionUtils.getSessionUser().toUser();
 
-		int quantity = quantityLogService.purchaseItem(itemNo, purchaseItemRQ, user);
+		PurchaseItemServiceRQ request = PurchaseItemServiceRQ.builder()
+			.user(user)
+			.itemId(itemNo)
+			.mall(purchaseItemRQ.getMall())
+			.date(purchaseItemRQ.getDate())
+			.price(purchaseItemRQ.getPrice())
+			.count(purchaseItemRQ.getCount())
+			.build();
+		int quantity = quantityLogService.purchaseItem(request);
 
 		PurchaseItemRS purchaseItemRS = PurchaseItemRS.builder()
 			.quantity(quantity)

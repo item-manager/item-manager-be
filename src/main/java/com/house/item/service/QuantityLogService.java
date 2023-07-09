@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ConsumeItemRQ;
-import com.house.item.domain.PurchaseItemRQ;
+import com.house.item.domain.PurchaseItemServiceRQ;
 import com.house.item.domain.QuantityLogDTO;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
@@ -54,20 +54,20 @@ public class QuantityLogService {
 	}
 
 	@Transactional
-	public int purchaseItem(Long itemNo, PurchaseItemRQ purchaseItemRQ, User user) {
-		Item item = itemService.getItem(itemNo, user);
+	public int purchaseItem(PurchaseItemServiceRQ request) {
+		Item item = itemService.getItem(request.getItemId(), request.getUser());
 
 		ItemQuantityLog quantityLog = ItemQuantityLog.builder()
 			.item(item)
 			.type(QuantityType.PURCHASE)
-			.mall(purchaseItemRQ.getMall())
-			.date(purchaseItemRQ.getDate())
-			.price(purchaseItemRQ.getPrice())
-			.count(purchaseItemRQ.getCount())
+			.mall(request.getMall())
+			.date(request.getDate())
+			.price(request.getPrice())
+			.count(request.getCount())
 			.build();
 		quantityLogRepository.save(quantityLog);
 
-		item.addQuantity(purchaseItemRQ.getCount());
+		item.addQuantity(request.getCount());
 
 		return item.getQuantity();
 	}
