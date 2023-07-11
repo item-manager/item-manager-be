@@ -2,6 +2,7 @@ package com.house.item.web;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,8 +44,8 @@ public class ImageController {
                 .filename(filename)
                 .build();
         return Result.<SaveImageRS>builder()
-                .data(imageRS)
-                .build();
+            .data(imageRS)
+            .build();
     }
 
     @Operation(summary = "이미지 조회")
@@ -52,5 +53,18 @@ public class ImageController {
     public Resource loadImage(@PathVariable String filename) throws ServiceException {
         String dir = props.getDir().getFile();
         return FileUtils.getResource(dir, filename);
+    }
+
+    @Operation(summary = "이미지 삭제")
+    @DeleteMapping("/{filename}")
+    public Result<Void> deleteImage(@PathVariable String filename) throws ServiceException {
+        String dir = props.getDir().getFile();
+
+        FileUtils.deleteFile(dir, filename);
+
+        return Result.<Void>builder()
+            .code(200)
+            .message("ok")
+            .build();
     }
 }
