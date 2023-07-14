@@ -2,6 +2,8 @@ package com.house.item.domain;
 
 import java.util.List;
 
+import com.house.item.entity.ItemType;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,8 +12,9 @@ import lombok.Getter;
 public class ItemRS {
     private Long itemNo;
     private String name;
-    private String type;
-    private Long locationNo;
+    private ItemType type;
+    private Long roomNo;
+    private Long placeNo;
     private String room;
     private String place;
     private String photoUrl;
