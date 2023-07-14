@@ -18,7 +18,6 @@ import com.house.item.domain.CreateItemRQ;
 import com.house.item.domain.EquipmentItemsServiceRQ;
 import com.house.item.domain.EquipmentSearch;
 import com.house.item.domain.ItemRS;
-import com.house.item.domain.ItemTypeRS;
 import com.house.item.domain.LabelRS;
 import com.house.item.domain.UpdateItemRQ;
 import com.house.item.entity.Item;
@@ -117,8 +116,9 @@ public class ItemService {
 		ItemRS.ItemRSBuilder itemRSBuilder = ItemRS.builder()
 			.itemNo(item.getItemNo())
 			.name(item.getName())
-			.type(ItemTypeRS.fromType(item.getType()).getName())
-			.locationNo(item.getLocation().getLocationNo())
+			.type(item.getType())
+			.roomNo(item.getLocation().getRoom().getLocationNo())
+			.placeNo(item.getLocation().getLocationNo())
 			.room(item.getLocation().getRoom().getName())
 			.place(item.getLocation().getName())
 			.quantity(item.getQuantity())
