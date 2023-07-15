@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.house.item.domain.QuantityLogDTO;
 import com.house.item.domain.QuantityLogSearch;
-import com.house.item.domain.QuantityLogSumDto;
+import com.house.item.domain.QuantityLogSumDTO;
 import com.house.item.domain.QuantityLogSumSearch;
 import com.house.item.entity.Item;
 import com.house.item.entity.ItemQuantityLog;
@@ -137,10 +137,10 @@ class ItemQuantityLogRepositoryTest {
             .build();
 
         //when
-        List<QuantityLogSumDto> quantityLogSumDtos = quantityLogRepository.sumByDate(search);
+        List<QuantityLogSumDTO> quantityLogSumDTOS = quantityLogRepository.sumByDate(search);
 
         //then
-        Assertions.assertThat(quantityLogSumDtos).hasSize(4);
+        Assertions.assertThat(quantityLogSumDTOS).hasSize(4);
     }
 
     User createUser() {
