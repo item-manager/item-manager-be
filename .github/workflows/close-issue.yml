@@ -1,5 +1,4 @@
-name: Close issues related to a merged pull request based on master branch.
-
+name: Close issues
 on:
   pull_request:
     types: [ closed ]
@@ -14,6 +13,6 @@ jobs:
 
     steps:
       - name: Closes issues related to a merged pull request.
-        uses: ldez/gha-mjolnir@v1.0.3
+        uses: ldez/gha-mjolnir@v1.3.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
