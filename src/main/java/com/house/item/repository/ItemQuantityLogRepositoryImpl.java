@@ -13,7 +13,7 @@ import com.house.item.domain.QQuantityLogDTO;
 import com.house.item.domain.QQuantityLogSumDto;
 import com.house.item.domain.QuantityLogDTO;
 import com.house.item.domain.QuantityLogSearch;
-import com.house.item.domain.QuantityLogSumDto;
+import com.house.item.domain.QuantityLogSumDTO;
 import com.house.item.domain.QuantityLogSumSearch;
 import com.house.item.entity.QuantityType;
 import com.querydsl.core.types.Order;
@@ -63,7 +63,7 @@ public class ItemQuantityLogRepositoryImpl implements ItemQuantityLogRepositoryC
 	}
 
 	@Override
-	public List<QuantityLogSumDto> sumByDate(QuantityLogSumSearch quantityLogSumSearch) {
+	public List<QuantityLogSumDTO> sumByDate(QuantityLogSumSearch quantityLogSumSearch) {
 		NumberExpression<Integer> date = itemQuantityLog.date.month();
 		if (quantityLogSumSearch.getYear() == null) {
 			date = itemQuantityLog.date.year();
