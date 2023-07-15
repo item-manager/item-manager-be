@@ -1,11 +1,13 @@
 package com.house.item.service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +20,7 @@ import com.house.item.domain.PurchaseItemServiceRQ;
 import com.house.item.domain.QuantityLogDTO;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
-import com.house.item.domain.QuantityLogSumDto;
+import com.house.item.domain.QuantityLogSumDTO;
 import com.house.item.domain.QuantityLogSumSearch;
 import com.house.item.domain.QuantityLogSumsRQ;
 import com.house.item.domain.QuantityLogsServiceRQ;
@@ -131,93 +133,62 @@ public class QuantityLogService {
 
 	public Map<QuantityType, List<QuantityLogSumByDate>> getItemQuantityLogSumByDate(
 		QuantityLogSumSearch quantityLogSumSearch) {
-		List<QuantityLogSumDto> sums = quantityLogRepository.sumByDate(quantityLogSumSearch);
 
-		Map<QuantityType, List<QuantityLogSumByDate>> logSumByType = separateLogSumByType(sums,
-			quantityLogSumSearch.getType());
+		List<QuantityType> searchType = new ArrayList<>();
+		if (quantityLogSumSearch.getType() == null) {
+			searchType = Arrays.stream(QuantityType.values()).toList();
+		} else {
+			searchType.add(quantityLogSumSearch.getType());
+		}
 
-		fillInLogSumWithDate(logSumByType, quantityLogSumSearch.getYear());
-
-		return logSumByType;
-	}
-
-	private Map<QuantityType, List<QuantityLogSumByDate>> separateLogSumByType(List<QuantityLogSumDto> sums,
-		QuantityType searchType) {
-		Map<QuantityType, List<QuantityLogSumByDate>> sumByType = new HashMap<>();
-		if (searchType == null) {
-			for (QuantityType type : QuantityType.values()) {
-				sumByType.put(type, new ArrayList<>());
+		List<QuantityLogSumDTO> init = new ArrayList<>();
+		if (quantityLogSumSearch.getYear() == null) {
+			int year = LocalDate.now().getYear();
+			for (int i = 10; i >= 0; i--) {
+				for (QuantityType type : searchType) {
+					init.add(
+						QuantityLogSumDTO.builder()
+							.date(year - i)
+							.type(type)
+							.sum(0)
+							.build()
+					);
+				}
 			}
 		} else {
-			sumByType.put(searchType, new ArrayList<>());
-		}
-
-		for (QuantityLogSumDto sum : sums) {
-			sumByType.get(sum.getType())
-				.add(
-					QuantityLogSumByDate.builder()
-						.date(sum.getDate())
-						.sum(sum.getSum())
-						.build()
-				);
-		}
-
-		return sumByType;
-	}
-
-	private Map<QuantityType, List<QuantityLogSumByDate>> fillInLogSumWithDate(
-		Map<QuantityType, List<QuantityLogSumByDate>> logSumByType, Integer searchYear) {
-		for (QuantityType type : logSumByType.keySet()) {
-			List<QuantityLogSumByDate> sumByDates = logSumByType.get(type);
-
-			if (searchYear == null) {
-				int thisYear = LocalDateTime.now().getYear();
-
-				boolean isInDate;
-				for (int y = thisYear; y >= thisYear - 20; y--) {
-					isInDate = false;
-					for (QuantityLogSumByDate sumByDate : sumByDates) {
-						if (y == sumByDate.getDate()) {
-							isInDate = true;
-							break;
-						}
-					}
-					if (!isInDate) {
-						sumByDates.add(
-							QuantityLogSumByDate.builder()
-								.date(y)
-								.sum(0)
-								.build()
-						);
-					}
-				}
-
-				sumByDates.sort((s1, s2) -> s2.getDate() - s1.getDate());
-			} else {
-				boolean isInDate;
-				for (int m = 1; m <= 12; m++) {
-					isInDate = false;
-					for (QuantityLogSumByDate sumByDate : sumByDates) {
-						if (m == sumByDate.getDate()) {
-							isInDate = true;
-							break;
-						}
-					}
-					if (!isInDate) {
-						sumByDates.add(
-							QuantityLogSumByDate.builder()
-								.date(m)
-								.sum(0)
-								.build()
-						);
-					}
+			for (int i = 1; i <= 12; i++) {
+				for (QuantityType type : searchType) {
+					init.add(
+						QuantityLogSumDTO.builder()
+							.date(i)
+							.type(type)
+							.sum(0)
+							.build()
+					);
 				}
 			}
-
-			sumByDates.sort(Comparator.comparingInt(QuantityLogSumByDate::getDate));
 		}
 
-		return logSumByType;
+		List<QuantityLogSumDTO> sums = quantityLogRepository.sumByDate(quantityLogSumSearch);
+
+		Map<String, QuantityLogSumDTO> filledSums = Stream.concat(sums.stream(), init.stream())
+			.collect(Collectors.toMap(
+				quantityLogSumDto -> String.valueOf(quantityLogSumDto.getDate()) + quantityLogSumDto.getType(),
+				Function.identity(),
+				(v1, v2) -> v1
+			));
+
+		return filledSums.values().stream()
+			.collect(Collectors.groupingBy(
+				QuantityLogSumDTO::getType,
+				Collectors.mapping(
+					dto -> QuantityLogSumByDate.builder()
+						.date(dto.getDate())
+						.sum(dto.getSum())
+						.build(),
+					Collectors.toList()
+				)
+			));
 	}
 
 	@Transactional
