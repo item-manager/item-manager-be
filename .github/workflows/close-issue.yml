@@ -1,4 +1,5 @@
 name: Close issues
+
 on:
   pull_request:
     types: [ closed ]

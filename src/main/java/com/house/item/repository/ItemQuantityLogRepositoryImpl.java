@@ -10,7 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.support.PageableExecutionUtils;
 
 import com.house.item.domain.QQuantityLogDTO;
-import com.house.item.domain.QQuantityLogSumDto;
+import com.house.item.domain.QQuantityLogSumDTO;
 import com.house.item.domain.QuantityLogDTO;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumDTO;
@@ -70,7 +70,7 @@ public class ItemQuantityLogRepositoryImpl implements ItemQuantityLogRepositoryC
 		}
 
 		return queryFactory.select(
-				new QQuantityLogSumDto(
+				new QQuantityLogSumDTO(
 					date,
 					itemQuantityLog.type,
 					itemQuantityLog.count.sum()
