@@ -18,6 +18,7 @@ import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ConsumeItemRQ;
 import com.house.item.domain.PurchaseItemServiceRQ;
 import com.house.item.domain.QuantityLogDTO;
+import com.house.item.domain.QuantityLogMallRS;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
 import com.house.item.domain.QuantityLogSumDTO;
@@ -189,6 +190,14 @@ public class QuantityLogService {
 					Collectors.toList()
 				)
 			));
+	}
+
+	public List<QuantityLogMallRS> getQuantityLogDistinctMalls(User user) {
+		return quantityLogRepository.findDistinctMalls(user).stream()
+			.map(mall -> QuantityLogMallRS.builder()
+				.mall(mall)
+				.build())
+			.toList();
 	}
 
 	@Transactional
