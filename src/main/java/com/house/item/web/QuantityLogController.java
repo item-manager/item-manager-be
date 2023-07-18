@@ -20,6 +20,7 @@ import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.domain.ErrorResult;
 import com.house.item.domain.PageRS;
 import com.house.item.domain.QuantityLogDTO;
+import com.house.item.domain.QuantityLogMallRS;
 import com.house.item.domain.QuantityLogRS;
 import com.house.item.domain.QuantityLogSearch;
 import com.house.item.domain.QuantityLogSumByDate;
@@ -136,6 +137,18 @@ public class QuantityLogController {
                     .logSumByType(sums)
                     .build()
             )
+            .build();
+    }
+
+    @Operation(summary = "구매처 목록 조회")
+    @GetMapping("/malls")
+    public Result<List<QuantityLogMallRS>> getQuantityLogMalls() {
+        User user = SessionUtils.getSessionUser().toUser();
+
+        List<QuantityLogMallRS> malls = quantityLogService.getQuantityLogDistinctMalls(user);
+
+        return Result.<List<QuantityLogMallRS>>builder()
+            .data(malls)
             .build();
     }
 
