@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.house.item.common.ExceptionCodeMessage;
-import com.house.item.domain.ConsumableItemDTO;
 import com.house.item.domain.ConsumableItemRS;
 import com.house.item.domain.ConsumableItemsRQ;
 import com.house.item.domain.ConsumableItemsServiceRQ;
@@ -201,31 +200,9 @@ public class ItemController {
 			.build();
 
 		ConsumableSearch consumableSearch = itemService.getConsumableSearch(request, pageable, user);
-		Page<ConsumableItemDTO> consumableItemDTOs = itemService.getConsumableItems(consumableSearch);
 
-		List<ConsumableItemRS> consumableItemRSList = new ArrayList<>();
-		for (ConsumableItemDTO consumableItemDTO : consumableItemDTOs) {
-			Item item = consumableItemDTO.getItem();
-
-			List<ItemLabel> itemLabels = item.getItemLabels();
-			List<Label> labels = new ArrayList<>();
-			for (ItemLabel itemLabel : itemLabels) {
-				labels.add(itemLabel.getLabel());
-			}
-			List<LabelRS> labelRSList = labelService.labelToLabelRS(labels);
-
-			consumableItemRSList.add(
-				ConsumableItemRS.builder()
-					.itemNo(item.getItemNo())
-					.priority(item.getPriority())
-					.name(item.getName())
-					.latestConsumeDate(consumableItemDTO.getLatestConsume())
-					.latestPurchaseDate(consumableItemDTO.getLatestPurchase())
-					.quantity(item.getQuantity())
-					.labels(labelRSList)
-					.build()
-			);
-		}
+		Page<ConsumableItemRS> consumableItemDTOs = itemService.getConsumableItems(consumableSearch)
+			.map(ConsumableItemRS::of);
 
 		PageRS consumableItemsPageRS = PageRS.builder()
 			.totalDataCnt((int)consumableItemDTOs.getTotalElements())
@@ -236,7 +213,7 @@ public class ItemController {
 
 		return ResultList.<ConsumableItemRS>builder()
 			.page(consumableItemsPageRS)
-			.data(consumableItemRSList)
+			.data(consumableItemDTOs.getContent())
 			.build();
 	}
 
