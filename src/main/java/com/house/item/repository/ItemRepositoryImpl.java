@@ -2,6 +2,7 @@ package com.house.item.repository;
 
 import static com.house.item.entity.QItem.*;
 import static com.house.item.entity.QItemLabel.*;
+import static com.house.item.entity.QLocation.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -66,6 +67,8 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 			.leftJoin(consume).on(
 				item.eq(consume.item)
 					.and(consume.type.eq(QuantityType.CONSUME))) // item 사용 기록 join
+			.leftJoin(item.location, place).fetchJoin()
+			.leftJoin(place.room, location).fetchJoin()
 			.groupBy(item);
 
 		// search label
