@@ -35,7 +35,9 @@ class QuantityLogServiceTest {
         User user = createUser("id");
         em.persist(user);
 
-        Item item = createItem(user, 0);
+        Location location = createLocation(user);
+
+        Item item = createItem(location, 0);
         Long itemNo = item.getItemNo();
 
         PurchaseItemServiceRQ request = PurchaseItemServiceRQ.builder()
@@ -61,7 +63,9 @@ class QuantityLogServiceTest {
         User user = createUser("id");
         em.persist(user);
 
-        Item item = createItem(user, 10);
+        Location location = createLocation(user);
+
+        Item item = createItem(location, 10);
         Long itemNo = item.getItemNo();
 
         ConsumeItemRQ consumeItemRQ = new ConsumeItemRQ();
@@ -82,7 +86,9 @@ class QuantityLogServiceTest {
         User user = createUser("id");
         em.persist(user);
 
-        Item item = createItem(user, 1);
+        Location location = createLocation(user);
+
+        Item item = createItem(location, 1);
         Long itemNo = item.getItemNo();
 
         ConsumeItemRQ consumeItemRQ = new ConsumeItemRQ();
@@ -122,14 +128,13 @@ class QuantityLogServiceTest {
         return place;
     }
 
-    Item createItem(User user, int quantity) {
+    Item createItem(Location location, int quantity) {
         Item item = Item.builder()
-                .user(user)
-                .name("item")
-                .type(ItemType.CONSUMABLE)
-                .location(createLocation(user))
-                .quantity(quantity)
-                .build();
+            .name("item")
+            .type(ItemType.CONSUMABLE)
+            .location(location)
+            .quantity(quantity)
+            .build();
         em.persist(item);
 
         return item;

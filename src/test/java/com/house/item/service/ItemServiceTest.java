@@ -85,7 +85,7 @@ class ItemServiceTest {
 
 		Location room = createRoom(user, "room");
 		Location location = createPlace(user, room, "place");
-		Item item = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
+		Item item = getItem(location, ItemType.CONSUMABLE, "item1", 2, 1);
 		em.persist(item);
 
 		//when
@@ -103,9 +103,9 @@ class ItemServiceTest {
 
 		Location room = createRoom(user, "room");
 		Location location = createPlace(user, room, "place");
-		Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
-		Item item2 = getItem(user, location, ItemType.CONSUMABLE, "item2", 2, 1);
-		Item item3 = getItem(user, location, ItemType.CONSUMABLE, "item3", 2, 1);
+		Item item1 = getItem(location, ItemType.CONSUMABLE, "item1", 2, 1);
+		Item item2 = getItem(location, ItemType.CONSUMABLE, "item2", 2, 1);
+		Item item3 = getItem(location, ItemType.CONSUMABLE, "item3", 2, 1);
 		em.persist(item1);
 		em.persist(item2);
 		em.persist(item3);
@@ -127,9 +127,9 @@ class ItemServiceTest {
 		Location room = createRoom(user, "room");
 		Location place1 = createPlace(user, room, "place1");
 		Location place2 = createPlace(user, room, "place2");
-		Item item1 = getItem(user, place1, ItemType.CONSUMABLE, "item1", 2, 1);
-		Item item2 = getItem(user, place1, ItemType.CONSUMABLE, "item2", 2, 1);
-		Item item3 = getItem(user, place2, ItemType.CONSUMABLE, "item3", 2, 1);
+		Item item1 = getItem(place1, ItemType.CONSUMABLE, "item1", 2, 1);
+		Item item2 = getItem(place1, ItemType.CONSUMABLE, "item2", 2, 1);
+		Item item3 = getItem(place2, ItemType.CONSUMABLE, "item3", 2, 1);
 		em.persist(item1);
 		em.persist(item2);
 		em.persist(item3);
@@ -153,9 +153,9 @@ class ItemServiceTest {
 		Location room2 = createRoom(user, "room2");
 		Location place1 = createPlace(user, room1, "place1");
 		Location place2 = createPlace(user, room2, "place2");
-		Item item1 = getItem(user, place1, ItemType.CONSUMABLE, "item1", 2, 1);
-		Item item2 = getItem(user, place1, ItemType.CONSUMABLE, "item2", 2, 1);
-		Item item3 = getItem(user, place2, ItemType.CONSUMABLE, "item3", 2, 1);
+		Item item1 = getItem(place1, ItemType.CONSUMABLE, "item1", 2, 1);
+		Item item2 = getItem(place1, ItemType.CONSUMABLE, "item2", 2, 1);
+		Item item3 = getItem(place2, ItemType.CONSUMABLE, "item3", 2, 1);
 		em.persist(item1);
 		em.persist(item2);
 		em.persist(item3);
@@ -180,9 +180,9 @@ class ItemServiceTest {
 		Label label1 = createLabel(user, "label1");
 		Label label2 = createLabel(user, "label2");
 
-		Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 1, 3);
-		Item item2 = getItem(user, location, ItemType.CONSUMABLE, "item2", 2, 2);
-		Item item3 = getItem(user, location, ItemType.CONSUMABLE, "item3", 3, 1);
+		Item item1 = getItem(location, ItemType.CONSUMABLE, "item1", 1, 3);
+		Item item2 = getItem(location, ItemType.CONSUMABLE, "item2", 2, 2);
+		Item item3 = getItem(location, ItemType.CONSUMABLE, "item3", 3, 1);
 		item1.getItemLabels().add(ItemLabel.builder()
 			.item(item1)
 			.label(Label.builder()
@@ -265,7 +265,7 @@ class ItemServiceTest {
 		Location location2 = createPlace(user, room, "place2");
 		Label label1 = createLabel(user, "label1");
 		Label label2 = createLabel(user, "label2");
-		Item item1 = getItem(user, location, ItemType.CONSUMABLE, "item1", 2, 1);
+		Item item1 = getItem(location, ItemType.CONSUMABLE, "item1", 2, 1);
 		item1.getItemLabels().add(
 			ItemLabel.builder()
 				.item(item1)
@@ -347,9 +347,8 @@ class ItemServiceTest {
 		return label;
 	}
 
-	Item getItem(User user, Location location, ItemType type, String name, int quantity, int priority) {
+	Item getItem(Location location, ItemType type, String name, int quantity, int priority) {
 		return Item.builder()
-			.user(user)
 			.type(type)
 			.name(name)
 			.location(location)
