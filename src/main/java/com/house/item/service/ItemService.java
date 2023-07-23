@@ -65,7 +65,6 @@ public class ItemService {
 		}
 
 		Item item = Item.builder()
-			.user(user)
 			.name(createItemRQ.getName())
 			.type(createItemRQ.getType())
 			.location(location)
@@ -92,13 +91,8 @@ public class ItemService {
 	}
 
 	public Item getItem(Long itemNo, User user) throws NonExistentItemException {
-		Item item = itemRepository.findById(itemNo)
+		return itemRepository.findByIdAndUser(itemNo, user)
 			.orElseThrow(() -> new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message()));
-
-		if (item.getUser().getUserNo().equals(user.getUserNo())) {
-			return item;
-		}
-		throw new NonExistentItemException(ExceptionCodeMessage.NON_EXISTENT_ITEM.message());
 	}
 
 	public ItemRS itemToItemRS(Item item) {
