@@ -81,7 +81,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 		}
 		itemJPAQuery
 			.where(
-				item.user.userNo.eq(consumableSearch.getUserNo()),
+				place.user.userNo.eq(consumableSearch.getUserNo()),
 				item.type.eq(ItemType.CONSUMABLE),
 				likeName(consumableSearch.getName())
 			);
@@ -101,8 +101,9 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 				.having(itemLabel.itemLabelNo.countDistinct().eq((long)consumableSearch.getLabelNos().size()));
 		}
 		countQuery
+			.join(item.location, place)
 			.where(
-				item.user.userNo.eq(consumableSearch.getUserNo()),
+				place.user.userNo.eq(consumableSearch.getUserNo()),
 				item.type.eq(ItemType.CONSUMABLE),
 				likeName(consumableSearch.getName())
 			);
@@ -129,7 +130,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 			.leftJoin(item.location, place).fetchJoin() // place fetch join
 			.leftJoin(place.room, room).fetchJoin() // room fetch join
 			.where(
-				item.user.userNo.eq(equipmentSearch.getUserNo()),
+				place.user.userNo.eq(equipmentSearch.getUserNo()),
 				item.type.eq(ItemType.EQUIPMENT),
 				likeName(equipmentSearch.getName()),
 				inPlaceNos(equipmentSearch.getPlaceNos())
@@ -150,8 +151,9 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 				.having(itemLabel.itemLabelNo.countDistinct().eq((long)equipmentSearch.getLabelNos().size()));
 		}
 		countQuery
+			.join(item.location, place)
 			.where(
-				item.user.userNo.eq(equipmentSearch.getUserNo()),
+				place.user.userNo.eq(equipmentSearch.getUserNo()),
 				item.type.eq(ItemType.EQUIPMENT),
 				likeName(equipmentSearch.getName()),
 				inPlaceNos(equipmentSearch.getPlaceNos())
