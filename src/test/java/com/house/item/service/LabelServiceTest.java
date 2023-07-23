@@ -178,13 +178,12 @@ class LabelServiceTest {
         return place;
     }
 
-    Item createItem(User user) {
+    Item createItem(Location location) {
         Item item = Item.builder()
-                .user(user)
-                .name("item")
-                .type(ItemType.CONSUMABLE)
-                .location(createLocation(user))
-                .build();
+            .name("item")
+            .type(ItemType.CONSUMABLE)
+            .location(location)
+            .build();
         em.persist(item);
 
         return item;
