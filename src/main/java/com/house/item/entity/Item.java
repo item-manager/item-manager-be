@@ -32,10 +32,6 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long itemNo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_NO")
-    private User user;
-
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -60,10 +56,9 @@ public class Item {
     private List<ItemQuantityLog> itemQuantityLogs = new ArrayList<>();
 
     @Builder
-    private Item(Long itemNo, User user, String name, ItemType type, Location location, String photoName, int quantity,
+    private Item(Long itemNo, String name, ItemType type, Location location, String photoName, int quantity,
         int priority, String memo, List<ItemLabel> itemLabels) {
         this.itemNo = itemNo;
-        this.user = user;
         this.name = name;
         this.type = type;
         this.location = location;

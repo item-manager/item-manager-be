@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
@@ -46,6 +47,28 @@ class ItemRepositoryTest {
 	@Autowired
 	EntityManager em;
 
+	@DisplayName("pk, User로 Item 조회")
+	@Test
+	void findByIdAndUser() throws Exception {
+		//given
+		User user1 = createUser("user1");
+		em.persist(user1);
+
+		Location location1 = createPlace(user1, "location1", null);
+		em.persist(location1);
+
+		Item item1 = getItem(location1, "item1", null, 0, 0);
+		em.persist(item1);
+
+		//when
+		Optional<Item> findItem = itemRepository.findByIdAndUser(item1.getItemNo(), user1);
+
+		//then
+		assertThat(findItem).isNotEmpty();
+		assertThat(findItem.get()).extracting("name", "location.name", "location.user.id")
+			.containsExactly("item1", "location1", "user1");
+	}
+
 	@DisplayName("User로 Item 목록 조회")
 	@Test
 	void findByUser() throws Exception {
@@ -55,11 +78,16 @@ class ItemRepositoryTest {
 		em.persist(user1);
 		em.persist(user2);
 
-		Item item1 = getItem(user1, null, "item1", null, 1, 1);
-		Item item2 = getItem(user2, null, "item2", null, 1, 1);
-		Item item3 = getItem(user1, null, "item3", null, 1, 1);
-		Item item4 = getItem(user1, null, "item4", null, 1, 1);
-		Item item5 = getItem(user2, null, "item5", null, 1, 1);
+		Location location1 = createPlace(user1, "location1", null);
+		Location location2 = createPlace(user2, "location2", null);
+		em.persist(location1);
+		em.persist(location2);
+
+		Item item1 = getItem(location1, "item1", null, 1, 1);
+		Item item2 = getItem(location2, "item2", null, 1, 1);
+		Item item3 = getItem(location1, "item3", null, 1, 1);
+		Item item4 = getItem(location1, "item4", null, 1, 1);
+		Item item5 = getItem(location2, "item5", null, 1, 1);
 		List<Item> items = List.of(item1, item2, item3, item4, item5);
 		itemRepository.saveAll(items);
 
@@ -72,7 +100,7 @@ class ItemRepositoryTest {
 
 		//then
 		assertThat(findItems).hasSize(2)
-			.extracting("user.id", "name")
+			.extracting("location.user.id", "name")
 			.containsExactlyInAnyOrder(
 				Tuple.tuple("user2", "item2"),
 				Tuple.tuple("user2", "item5")
@@ -83,14 +111,17 @@ class ItemRepositoryTest {
 	@Test
 	void findByLocation() throws Exception {
 		//given
-		Location location1 = createPlace(null, "location1");
-		Location location2 = createPlace(null, "location2");
+		User user1 = createUser("user1");
+		em.persist(user1);
+
+		Location location1 = createPlace(user1, "location1", null);
+		Location location2 = createPlace(user1, "location2", null);
 		em.persist(location1);
 		em.persist(location2);
 
-		Item item1 = getItem(null, location1, "item1", CONSUMABLE, 1, 1);
-		Item item2 = getItem(null, location1, "item2", EQUIPMENT, 1, 1);
-		Item item3 = getItem(null, location2, "item3", EQUIPMENT, 1, 1);
+		Item item1 = getItem(location1, "item1", CONSUMABLE, 1, 1);
+		Item item2 = getItem(location1, "item2", EQUIPMENT, 1, 1);
+		Item item3 = getItem(location2, "item3", EQUIPMENT, 1, 1);
 		List<Item> items = List.of(item1, item2, item3);
 		itemRepository.saveAll(items);
 
@@ -113,18 +144,22 @@ class ItemRepositoryTest {
 	@Test
 	void findByRoom() throws Exception {
 		//given
+		User user1 = createUser("user1");
+		em.persist(user1);
+
 		Location room1 = createRoom("room1");
 		Location room2 = createRoom("room2");
 		em.persist(room1);
 		em.persist(room2);
-		Location location1 = createPlace(room1, "location1");
-		Location location2 = createPlace(room2, "location2");
+
+		Location location1 = createPlace(user1, "location1", room1);
+		Location location2 = createPlace(user1, "location2", room2);
 		em.persist(location1);
 		em.persist(location2);
 
-		Item item1 = getItem(null, location1, "item1", CONSUMABLE, 1, 1);
-		Item item2 = getItem(null, location1, "item2", EQUIPMENT, 1, 1);
-		Item item3 = getItem(null, location2, "item3", EQUIPMENT, 1, 1);
+		Item item1 = getItem(location1, "item1", CONSUMABLE, 1, 1);
+		Item item2 = getItem(location1, "item2", EQUIPMENT, 1, 1);
+		Item item3 = getItem(location2, "item3", EQUIPMENT, 1, 1);
 		em.persist(item1);
 		em.persist(item2);
 		em.persist(item3);
@@ -163,8 +198,9 @@ class ItemRepositoryTest {
 		return room;
 	}
 
-	Location createPlace(Location room, String name) {
+	Location createPlace(User user, String name, Location room) {
 		Location place = Location.builder()
+			.user(user)
 			.type(LocationType.PLACE)
 			.room(room)
 			.name(name)
@@ -180,9 +216,8 @@ class ItemRepositoryTest {
 		return label;
 	}
 
-	Item getItem(User user, Location location, String name, ItemType type, int quantity, int priority) {
+	Item getItem(Location location, String name, ItemType type, int quantity, int priority) {
 		Item item = Item.builder()
-			.user(user)
 			.name(name)
 			.type(type)
 			.location(location)
@@ -219,9 +254,9 @@ class ItemRepositoryTest {
 			User user = createUser("user1");
 			em.persist(user);
 
-			Location location1 = createPlace(null, "location1");
-			Location location2 = createPlace(null, "location2");
-			Location location3 = createPlace(null, "location3");
+			Location location1 = createPlace(user, "location1", null);
+			Location location2 = createPlace(user, "location2", null);
+			Location location3 = createPlace(user, "location3", null);
 			em.persist(location1);
 			em.persist(location2);
 			em.persist(location3);
@@ -233,11 +268,11 @@ class ItemRepositoryTest {
 			em.persist(label2);
 			em.persist(label3);
 
-			Item item1 = getItem(user, location1, "item1", EQUIPMENT, 1, 2);
-			Item item2 = getItem(user, location3, "user1_item2", EQUIPMENT, 2, 3);
-			Item item3 = getItem(user, location2, "item3", EQUIPMENT, 3, 1);
-			Item item4 = getItem(user, location2, "item4(user2)", EQUIPMENT, 3, 2);
-			Item item5 = getItem(user, location1, "item5", EQUIPMENT, 3, 1);
+			Item item1 = getItem(location1, "item1", EQUIPMENT, 1, 2);
+			Item item2 = getItem(location3, "user1_item2", EQUIPMENT, 2, 3);
+			Item item3 = getItem(location2, "item3", EQUIPMENT, 3, 1);
+			Item item4 = getItem(location2, "item4(user2)", EQUIPMENT, 3, 2);
+			Item item5 = getItem(location1, "item5", EQUIPMENT, 3, 1);
 			em.persist(item1);
 			em.persist(item2);
 			em.persist(item3);
@@ -276,7 +311,7 @@ class ItemRepositoryTest {
 
 			//then
 			assertThat(items).hasSize(1)
-				.extracting("user.id", "name")
+				.extracting("location.user.id", "name")
 				.containsExactlyInAnyOrder(
 					Tuple.tuple("user1", "item4(user2)")
 				);
@@ -289,9 +324,9 @@ class ItemRepositoryTest {
 			User user = createUser("user1");
 			em.persist(user);
 
-			Location location1 = createPlace(null, "location1");
-			Location location2 = createPlace(null, "location2");
-			Location location3 = createPlace(null, "location3");
+			Location location1 = createPlace(user, "location1", null);
+			Location location2 = createPlace(user, "location2", null);
+			Location location3 = createPlace(user, "location3", null);
 			em.persist(location1);
 			em.persist(location2);
 			em.persist(location3);
@@ -303,11 +338,11 @@ class ItemRepositoryTest {
 			em.persist(label2);
 			em.persist(label3);
 
-			Item item1 = getItem(user, location1, "item1", EQUIPMENT, 1, 2);
-			Item item2 = getItem(user, location3, "user1_item2", EQUIPMENT, 2, 3);
-			Item item3 = getItem(user, location2, "item3", EQUIPMENT, 3, 1);
-			Item item4 = getItem(user, location2, "item4(user2)", EQUIPMENT, 3, 2);
-			Item item5 = getItem(user, location1, "item5", EQUIPMENT, 3, 1);
+			Item item1 = getItem(location1, "item1", EQUIPMENT, 1, 2);
+			Item item2 = getItem(location3, "user1_item2", EQUIPMENT, 2, 3);
+			Item item3 = getItem(location2, "item3", EQUIPMENT, 3, 1);
+			Item item4 = getItem(location2, "item4(user2)", EQUIPMENT, 3, 2);
+			Item item5 = getItem(location1, "item5", EQUIPMENT, 3, 1);
 			em.persist(item1);
 			em.persist(item2);
 			em.persist(item3);
@@ -346,7 +381,7 @@ class ItemRepositoryTest {
 
 			//then
 			assertThat(items).hasSize(3)
-				.extracting("user.id", "name")
+				.extracting("location.user.id", "name")
 				.containsExactlyInAnyOrder(
 					Tuple.tuple("user1", "item1"),
 					Tuple.tuple("user1", "user1_item2"),
@@ -365,6 +400,9 @@ class ItemRepositoryTest {
 			User user = createUser("user1");
 			em.persist(user);
 
+			Location location1 = createPlace(user, "location1", null);
+			em.persist(location1);
+
 			Label label1 = createLabel(user, "label1");
 			Label label2 = createLabel(user, "label2");
 			Label label3 = createLabel(user, "label3");
@@ -372,11 +410,11 @@ class ItemRepositoryTest {
 			em.persist(label2);
 			em.persist(label3);
 
-			Item item1 = getItem(user, null, "item1", CONSUMABLE, 1, 2);
-			Item item2 = getItem(user, null, "item2", CONSUMABLE, 2, 3);
-			Item item3 = getItem(user, null, "item_no3", CONSUMABLE, 3, 1);
-			Item item4 = getItem(user, null, "item_no4", CONSUMABLE, 3, 1);
-			Item item5 = getItem(user, null, "item5", CONSUMABLE, 3, 1);
+			Item item1 = getItem(location1, "item1", CONSUMABLE, 1, 2);
+			Item item2 = getItem(location1, "item2", CONSUMABLE, 2, 3);
+			Item item3 = getItem(location1, "item_no3", CONSUMABLE, 3, 1);
+			Item item4 = getItem(location1, "item_no4", CONSUMABLE, 3, 1);
+			Item item5 = getItem(location1, "item5", CONSUMABLE, 3, 1);
 			em.persist(item1);
 			em.persist(item2);
 			em.persist(item3);
@@ -468,6 +506,9 @@ class ItemRepositoryTest {
 			User user = createUser("user1");
 			em.persist(user);
 
+			Location location1 = createPlace(user, "location1", null);
+			em.persist(location1);
+
 			Label label1 = createLabel(user, "label1");
 			Label label2 = createLabel(user, "label2");
 			Label label3 = createLabel(user, "label3");
@@ -475,11 +516,11 @@ class ItemRepositoryTest {
 			em.persist(label2);
 			em.persist(label3);
 
-			Item item1 = getItem(user, null, "item1", CONSUMABLE, 1, 2);
-			Item item2 = getItem(user, null, "item2", CONSUMABLE, 2, 3);
-			Item item3 = getItem(user, null, "item_no3", CONSUMABLE, 3, 1);
-			Item item4 = getItem(user, null, "item_no4", CONSUMABLE, 3, 1);
-			Item item5 = getItem(user, null, "item5", CONSUMABLE, 3, 1);
+			Item item1 = getItem(location1, "item1", CONSUMABLE, 1, 2);
+			Item item2 = getItem(location1, "item2", CONSUMABLE, 2, 3);
+			Item item3 = getItem(location1, "item_no3", CONSUMABLE, 3, 1);
+			Item item4 = getItem(location1, "item_no4", CONSUMABLE, 3, 1);
+			Item item5 = getItem(location1, "item5", CONSUMABLE, 3, 1);
 			em.persist(item1);
 			em.persist(item2);
 			em.persist(item3);
