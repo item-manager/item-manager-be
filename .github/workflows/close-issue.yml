@@ -4,10 +4,13 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - "*"
+      - dev
+      - feature/**
 
 jobs:
   close-issue:
+    permissions:
+      issues: write
     runs-on: ubuntu-latest
     steps:
       - name: Closes issues related to a merged pull request.
