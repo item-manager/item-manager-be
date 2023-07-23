@@ -45,15 +45,9 @@ public class QuantityLogService {
 	private final ItemService itemService;
 
 	public ItemQuantityLog getQuantityLog(Long quantityLogNo, User user) throws NonExistentItemQuantityLogException {
-		ItemQuantityLog log = quantityLogRepository.findById(quantityLogNo)
+		return quantityLogRepository.findByIdAndUser(quantityLogNo, user)
 			.orElseThrow(() -> new NonExistentItemQuantityLogException(
 				ExceptionCodeMessage.NON_EXISTENT_ITEM_QUANTITY_LOG.message()));
-
-		if (log.getItem().getUser().getUserNo().equals(user.getUserNo())) {
-			return log;
-		}
-		throw new NonExistentItemQuantityLogException(
-			ExceptionCodeMessage.NON_EXISTENT_ITEM_QUANTITY_LOG.message());
 	}
 
 	@Transactional

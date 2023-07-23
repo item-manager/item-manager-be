@@ -1,11 +1,14 @@
 package com.house.item.repository;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
-import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,27 +39,68 @@ class ItemQuantityLogRepositoryTest {
     @Autowired
     EntityManager em;
 
+    @DisplayName("pk, User로 ItemQuantityLog 조회")
+    @Test
+    void findByIdAndUser() throws Exception {
+        //given
+        User user = createUser("user1");
+        em.persist(user);
+
+        Location location = createLocation(user, "location1");
+        em.persist(location);
+
+        Item item = createItem(location, "item1");
+        em.persist(item);
+
+        ItemQuantityLog quantityLog = getItemQuantityLog(item, null, "mall1", null, null, 1);
+        em.persist(quantityLog);
+
+        //when
+        Optional<ItemQuantityLog> findLog = quantityLogRepository.findByIdAndUser(
+            quantityLog.getItemQuantityLogNo(), user);
+
+        //then
+        assertThat(findLog).isNotEmpty();
+        assertThat(findLog.get()).extracting("mall", "item.name")
+            .containsExactly("mall1", "item1");
+    }
+
     @Test
     void findByItemNoAndTypeAndYearAndMonth() throws Exception {
         //given
-        User user = createUser();
-        Location location = createLocation();
+        User user = createUser("user1");
+        em.persist(user);
+        Location location = createLocation(user, "location1");
+        em.persist(location);
 
-        Item item1 = createItem(user, location);
-        Item item2 = createItem(user, location);
-        Item item3 = createItem(user, location);
+        Item item1 = createItem(location, "item1");
+        Item item2 = createItem(location, "item2");
+        Item item3 = createItem(location, "item3");
+        em.persist(item1);
+        em.persist(item2);
+        em.persist(item3);
 
-        ItemQuantityLog quantityLog1 = getItemQuantityLog(item1, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(25), 1000, 2);
-        ItemQuantityLog quantityLog2 = getItemQuantityLog(item1, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(20), 2000, 3);
-        ItemQuantityLog quantityLog3 = getItemQuantityLog(item2, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(12), 3000, 4);
-        ItemQuantityLog quantityLog4 = getItemQuantityLog(item2, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(10), 4000, 5);
-        ItemQuantityLog quantityLog5 = getItemQuantityLog(item3, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(22), 5000, 6);
-        ItemQuantityLog quantityLog6 = getItemQuantityLog(item3, QuantityType.PURCHASE, "mall1", LocalDateTime.now().minusDays(22), 6000, 7);
+        ItemQuantityLog quantityLog1 = getItemQuantityLog(item1, QuantityType.PURCHASE, "mall1",
+            LocalDateTime.now().minusDays(25), 1000, 2);
+        ItemQuantityLog quantityLog2 = getItemQuantityLog(item1, QuantityType.PURCHASE, "mall1",
+            LocalDateTime.now().minusDays(20), 2000, 3);
+        ItemQuantityLog quantityLog3 = getItemQuantityLog(item2, QuantityType.PURCHASE, "mall1",
+            LocalDateTime.now().minusDays(12), 3000, 4);
+        ItemQuantityLog quantityLog4 = getItemQuantityLog(item2, QuantityType.PURCHASE, "mall1",
+            LocalDateTime.now().minusDays(10), 4000, 5);
+        ItemQuantityLog quantityLog5 = getItemQuantityLog(item3, QuantityType.PURCHASE, "mall1",
+            LocalDateTime.now().minusDays(22), 5000, 6);
+        ItemQuantityLog quantityLog6 = getItemQuantityLog(item3, QuantityType.PURCHASE, "mall1",
+            LocalDateTime.now().minusDays(22), 6000, 7);
 
-        ItemQuantityLog quantityLog7 = getItemQuantityLog(item1, QuantityType.CONSUME, null, LocalDateTime.now().minusDays(10), null, 1);
-        ItemQuantityLog quantityLog8 = getItemQuantityLog(item2, QuantityType.CONSUME, null, LocalDateTime.now().minusDays(5), null, 2);
-        ItemQuantityLog quantityLog9 = getItemQuantityLog(item3, QuantityType.CONSUME, null, LocalDateTime.now().minusDays(20), null, 3);
-        ItemQuantityLog quantityLog10 = getItemQuantityLog(item3, QuantityType.CONSUME, null, LocalDateTime.now().minusDays(2), null, 4);
+        ItemQuantityLog quantityLog7 = getItemQuantityLog(item1, QuantityType.CONSUME, null,
+            LocalDateTime.now().minusDays(10), null, 1);
+        ItemQuantityLog quantityLog8 = getItemQuantityLog(item2, QuantityType.CONSUME, null,
+            LocalDateTime.now().minusDays(5), null, 2);
+        ItemQuantityLog quantityLog9 = getItemQuantityLog(item3, QuantityType.CONSUME, null,
+            LocalDateTime.now().minusDays(20), null, 3);
+        ItemQuantityLog quantityLog10 = getItemQuantityLog(item3, QuantityType.CONSUME, null,
+            LocalDateTime.now().minusDays(2), null, 4);
 
         em.persist(quantityLog1);
         em.persist(quantityLog2);
@@ -83,19 +127,22 @@ class ItemQuantityLogRepositoryTest {
         Page<QuantityLogDTO> logs = quantityLogRepository.findByItemNoAndTypeAndYearAndMonth(search);
 
         //then
-        Assertions.assertThat(logs).extracting("quantityLog")
+        assertThat(logs).extracting("quantityLog")
             .containsExactly(quantityLog7, quantityLog1);
 
-        Assertions.assertThat(logs.getTotalElements()).isEqualTo(3);
+        assertThat(logs.getTotalElements()).isEqualTo(3);
     }
 
     @Test
     void sumByDate() throws Exception {
         //given
-        User user = createUser();
-        Location location = createLocation();
+        User user = createUser("user1");
+        em.persist(user);
+        Location location = createLocation(user, "location1");
+        em.persist(location);
 
-        Item item = createItem(user, location);
+        Item item = createItem(location, "item1");
+        em.persist(item);
 
         ItemQuantityLog quantityLog1 = getItemQuantityLog(item, QuantityType.PURCHASE, "mall1",
             LocalDateTime.now().minusYears(1), 1000, 2);
@@ -140,46 +187,66 @@ class ItemQuantityLogRepositoryTest {
         List<QuantityLogSumDTO> quantityLogSumDTOS = quantityLogRepository.sumByDate(search);
 
         //then
-        Assertions.assertThat(quantityLogSumDTOS).hasSize(4);
+        assertThat(quantityLogSumDTOS).hasSize(4);
     }
 
-    User createUser() {
+    @DisplayName("User의 ItemQuantityLog의 mall 중복제거 목록 조회")
+    @Test
+    void findDistinctMalls() throws Exception {
+        //given
+        User user1 = createUser("user1");
+        em.persist(user1);
+
+        Location location1 = createLocation(user1, "location1");
+        em.persist(location1);
+
+        Item item1 = createItem(location1, "item1");
+        em.persist(item1);
+
+        ItemQuantityLog log1 = getItemQuantityLog(item1, null, "mall1", null, null, 1);
+        ItemQuantityLog log2 = getItemQuantityLog(item1, null, "mall2", null, null, 1);
+        ItemQuantityLog log3 = getItemQuantityLog(item1, null, "mall2", null, null, 1);
+        ItemQuantityLog log4 = getItemQuantityLog(item1, null, "mall3", null, null, 1);
+        em.persist(log1);
+        em.persist(log2);
+        em.persist(log3);
+        em.persist(log4);
+
+        //when
+        List<String> malls = quantityLogRepository.findDistinctMalls(user1);
+
+        //then
+        assertThat(malls).hasSize(3)
+            .containsExactlyInAnyOrder("mall1", "mall2", "mall3");
+    }
+
+    User createUser(String id) {
         User user = User.builder()
-            .id("user1")
+            .id(id)
             .password("user1pw")
             .salt("salt")
             .username("username1")
             .build();
-        em.persist(user);
         return user;
     }
 
-    Location createLocation() {
-        Location room = Location.builder()
-                .type(LocationType.ROOM)
-                .name("room1")
-                .build();
-        em.persist(room);
-
+    Location createLocation(User user, String name) {
         Location place = Location.builder()
-                .type(LocationType.PLACE)
-                .room(room)
-                .name("desk")
-                .build();
-        em.persist(place);
+            .user(user)
+            .type(LocationType.PLACE)
+            .name(name)
+            .build();
         return place;
     }
 
-    Item createItem(User user, Location location) {
+    Item createItem(Location location, String name) {
         Item item = Item.builder()
-                .user(user)
-                .name("item1")
-                .type(ItemType.CONSUMABLE)
-                .location(location)
-                .quantity(1)
-                .priority(1)
-                .build();
-        em.persist(item);
+            .name(name)
+            .type(ItemType.CONSUMABLE)
+            .location(location)
+            .quantity(1)
+            .priority(1)
+            .build();
         return item;
     }
 
