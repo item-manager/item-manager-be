@@ -3,6 +3,7 @@ package com.house.item.service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -181,7 +182,11 @@ public class QuantityLogService {
 						.date(dto.getDate())
 						.sum(dto.getSum())
 						.build(),
-					Collectors.toList()
+					Collectors.collectingAndThen(Collectors.toList(),
+						list -> list.stream()
+							.sorted(Comparator.comparingInt(QuantityLogSumByDate::getDate))
+							.toList()
+					)
 				)
 			));
 	}
