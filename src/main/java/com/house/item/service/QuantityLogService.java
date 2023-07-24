@@ -175,20 +175,18 @@ public class QuantityLogService {
 			));
 
 		return filledSums.values().stream()
+			.sorted(Comparator.comparingInt(QuantityLogSumDTO::getDate))
 			.collect(Collectors.groupingBy(
-				QuantityLogSumDTO::getType,
-				Collectors.mapping(
-					dto -> QuantityLogSumByDate.builder()
-						.date(dto.getDate())
-						.sum(dto.getSum())
-						.build(),
-					Collectors.collectingAndThen(Collectors.toList(),
-						list -> list.stream()
-							.sorted(Comparator.comparingInt(QuantityLogSumByDate::getDate))
-							.toList()
+					QuantityLogSumDTO::getType,
+					Collectors.mapping(
+						dto -> QuantityLogSumByDate.builder()
+							.date(dto.getDate())
+							.sum(dto.getSum())
+							.build(),
+						Collectors.toList()
 					)
 				)
-			));
+			);
 	}
 
 	public List<QuantityLogMallRS> getQuantityLogDistinctMalls(User user) {
