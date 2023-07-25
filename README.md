@@ -53,4 +53,5 @@
     <img src="https://github.com/item-manager/item-manager-be/assets/17820260/8487914d-c516-415d-8c49-b9939eae36c8" width="300px" height="160px"/>
     <img src="https://github.com/item-manager/item-manager-be/assets/17820260/fcd16ca8-4eb5-4edc-aed2-ac7507295193" width="300px" height="160px"/>
 - 구매/사용 기록을 표, 그래프로 조회한다   
-    <img src="https://github.com/item-manager/item-manager-be/assets/17820260/d442cb69-6eb4-426f-97c9-59f7ae430c20" width="700px" height="250px"/>
+    <img src="https://github.com/item-manager/item-manager-be/assets/17820260/fecafa5b-8a54-49ad-81dc-0346f7f2be33" width="700px" height="250px"/>
+
