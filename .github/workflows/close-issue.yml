@@ -6,6 +6,8 @@ on:
     branches:
       - dev
       - feature/**
+      
+permissions: read-all
 
 jobs:
   close-issue:
