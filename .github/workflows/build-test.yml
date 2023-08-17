@@ -61,14 +61,3 @@ jobs:
         if: always() # == failure()
         with:
           report_paths: '**/build/test-results/test/TEST-*.xml'
-
-  report-result:
-    needs: build-test
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Discord notification
-        uses: sarisia/actions-status-discord@v1.12.0
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          status: ${{ needs.build-test.result }}
