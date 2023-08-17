@@ -173,6 +173,7 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 	private OrderSpecifier[] consumableOrderBySort(Sort sort) {
 		List<OrderSpecifier> orderSpecifiers = new ArrayList<>();
 
+		PathBuilder itemPathBuilder = new PathBuilder<>(item.getType(), item.getMetadata());
 		PathBuilder pathBuilder;
 		for (Sort.Order order : sort) {
 			Order sortBy = order.isAscending() ? Order.ASC : Order.DESC;
@@ -180,10 +181,13 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 			if (order.getProperty().startsWith("latest")) {
 				pathBuilder = new PathBuilder<>(LocalDateTime.class, order.getProperty());
 			} else {
-				PathBuilder itemPathBuilder = new PathBuilder<>(item.getType(), item.getMetadata());
 				pathBuilder = itemPathBuilder.get(order.getProperty());
 			}
 			orderSpecifiers.add(new OrderSpecifier(sortBy, pathBuilder));
+		}
+
+		if (sort.stream().noneMatch(order -> order.getProperty().equals("priority"))) {
+			orderSpecifiers.add(new OrderSpecifier<>(Order.DESC, itemPathBuilder.get("priority")));
 		}
 
 		return orderSpecifiers.toArray(OrderSpecifier[]::new);
