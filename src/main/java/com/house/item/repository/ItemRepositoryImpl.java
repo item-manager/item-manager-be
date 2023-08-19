@@ -83,7 +83,8 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 			.where(
 				place.user.userNo.eq(consumableSearch.getUserNo()),
 				item.type.eq(ItemType.CONSUMABLE),
-				likeName(consumableSearch.getName())
+				likeName(consumableSearch.getName()),
+				loeThreshold(consumableSearch.isCheckThreshold())
 			);
 
 		itemJPAQuery.orderBy(consumableOrderBySort(consumableSearch.getPageable().getSort()))
@@ -105,7 +106,8 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 			.where(
 				place.user.userNo.eq(consumableSearch.getUserNo()),
 				item.type.eq(ItemType.CONSUMABLE),
-				likeName(consumableSearch.getName())
+				likeName(consumableSearch.getName()),
+				loeThreshold(consumableSearch.isCheckThreshold())
 			);
 
 		return PageableExecutionUtils.getPage(items, consumableSearch.getPageable(), countQuery::fetchOne);
@@ -168,6 +170,10 @@ public class ItemRepositoryImpl implements ItemRepositoryCustom {
 
 	private BooleanExpression inPlaceNos(List<Long> placeNos) {
 		return placeNos != null && !placeNos.isEmpty() ? item.location.locationNo.in(placeNos) : null;
+	}
+
+	private BooleanExpression loeThreshold(boolean checkThreshold) {
+		return checkThreshold ? item.quantity.loe(item.threshold) : null;
 	}
 
 	private OrderSpecifier[] consumableOrderBySort(Sort sort) {

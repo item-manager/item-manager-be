@@ -70,6 +70,7 @@ public class ItemService {
 			.location(location)
 			.photoName(createItemRQ.getPhotoName())
 			.quantity(0)
+			.threshold(createItemRQ.getThreshold())
 			.priority(createItemRQ.getPriority())
 			.memo(createItemRQ.getMemo())
 			.build();
@@ -116,6 +117,7 @@ public class ItemService {
 			.room(item.getLocation().getRoom().getName())
 			.place(item.getLocation().getName())
 			.quantity(item.getQuantity())
+			.threshold(item.getThreshold())
 			.priority(item.getPriority())
 			.memo(item.getMemo())
 			.labels(labels);
@@ -155,6 +157,7 @@ public class ItemService {
 	public ConsumableSearch getConsumableSearch(ConsumableItemsServiceRQ request, Pageable pageable, User user) {
 		ConsumableSearch.ConsumableSearchBuilder consumableSearchBuilder = ConsumableSearch.builder()
 			.userNo(user.getUserNo())
+			.checkThreshold(request.isCheckThreshold())
 			.pageable(pageable);
 
 		if (StringUtils.hasText(request.getName())) {
@@ -231,6 +234,7 @@ public class ItemService {
 			location,
 			updateItemRQ.getPhotoName(),
 			updateItemRQ.getPriority(),
+			updateItemRQ.getThreshold(),
 			updateItemRQ.getMemo(),
 			updateItemRQ.getLabels()
 		);

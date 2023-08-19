@@ -13,5 +13,6 @@ public class ConsumableSearch {
     private Long userNo;
     private String name;
     private List<Long> labelNos;
+    private boolean checkThreshold;
     private Pageable pageable;
 }

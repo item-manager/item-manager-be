@@ -10,4 +10,5 @@ import lombok.Getter;
 public class ConsumableItemsServiceRQ {
 	private String name;
 	private List<Long> labelNos;
+	private boolean checkThreshold;
 }
