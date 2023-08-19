@@ -20,6 +20,7 @@ import com.house.item.common.ExceptionCodeMessage;
 import com.house.item.exception.SubtractCountExceedItemQuantityException;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +28,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,37 +50,25 @@ public class Item {
 
     private int priority;
 
+    private int threshold;
+
     private String memo;
 
+    @Builder.Default
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemLabel> itemLabels = new ArrayList<>();
 
     @OneToMany(mappedBy = "item", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<ItemQuantityLog> itemQuantityLogs = new ArrayList<>();
 
-    @Builder
-    private Item(Long itemNo, String name, ItemType type, Location location, String photoName, int quantity,
-        int priority, String memo, List<ItemLabel> itemLabels) {
-        this.itemNo = itemNo;
-        this.name = name;
-        this.type = type;
-        this.location = location;
-        this.photoName = photoName;
-        this.quantity = quantity;
-        this.priority = priority;
-        this.memo = memo;
-        if (itemLabels != null) {
-            this.itemLabels = itemLabels;
-        }
-    }
-
     public void updateItem(String name, ItemType type, Location location, String photoName,
-        int priority, String memo, List<Long> labelNos) {
+        int priority, int threshold, String memo, List<Long> labelNos) {
         this.name = name;
         this.type = type;
         this.location = location;
         this.photoName = photoName;
         this.priority = priority;
+        this.threshold = threshold;
         this.memo = memo;
 
         Iterator<ItemLabel> iterator = this.itemLabels.iterator();

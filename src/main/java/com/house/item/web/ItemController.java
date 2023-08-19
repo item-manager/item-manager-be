@@ -197,6 +197,7 @@ public class ItemController {
 		ConsumableItemsServiceRQ request = ConsumableItemsServiceRQ.builder()
 			.name(consumableItemsRQ.getName())
 			.labelNos(consumableItemsRQ.getLabelNos())
+			.checkThreshold(consumableItemsRQ.getCheckThreshold())
 			.build();
 
 		ConsumableSearch consumableSearch = itemService.getConsumableSearch(request, pageable, user);
