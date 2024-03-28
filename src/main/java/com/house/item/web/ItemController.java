@@ -190,7 +190,7 @@ public class ItemController {
 		User user = SessionUtils.getSessionUser().toUser();
 
 		String orderByProperty =
-			consumableItemsRQ.getOrderBy() != null ? consumableItemsRQ.getOrderBy().getColumn() : "itemNo";
+			consumableItemsRQ.getOrderBy() != null ? consumableItemsRQ.getOrderBy().getColumn() : "priority";
 		Pageable pageable = PageRequest.of(consumableItemsRQ.getPage() - 1, consumableItemsRQ.getSize(),
 			consumableItemsRQ.getSort().equals("+") ? Sort.Direction.ASC : Sort.Direction.DESC, orderByProperty);
 
